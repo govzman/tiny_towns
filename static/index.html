@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">  
+  <style>
+    html, body {
+        padding: 0;
+        margin: 0;
+        height:100%;
+        font-family: Tahoma;
+    }
+  
+    #main {
+      /*background: url('assets/background2.jpg');*/
+      
+      background: radial-gradient(ellipse at top,rgb(140, 108, 89),black);
+      /*background: linear-gradient(130deg, rgb(140, 108, 89),black);*/
+      
+      background-size: 100%;
+      
+      height: 100%;
+      width:  100%;
+      overflow: hidden;
+      padding: 50px;
+      position: relative;
+      border-top: solid 1px #fff; 
+      border:  1px solid black;
+    }
+
+    #score {
+      background-color: white;
+      width: 170px;
+      border-radius: 15px;
+      font-size: 150%;
+      text-align: center;
+      padding: 10px;
+      opacity: 0.6;
+      position: fixed;
+      right: 50px;
+    }
+
+    .board {
+      width: 100px;
+      height: 80px;
+      background: url('assets/miniboard2.png');  
+      box-shadow: 8px 8px 8px 4px rgba(0, 0, 0, 0.6);
+      background-repeat: no-repeat;    
+      background-size: 100%;
+      margin: 10px;
+    }
+
+    .brick {
+      width: 40px;
+      height: 40px;           
+      margin: 10px;
+    }
+
+    .brick.red {
+      background: url('assets/red.png');
+      background-size: 100%;
+    }
+
+    .brick.blue {
+      background: url('assets/blue.png');
+      background-size: 100%;
+    }
+
+    .brick.white {
+      background: url('assets/white.png');
+      background-size: 100%;
+    }
+
+    .brick.brown {
+      background: url('assets/brown.png');
+      background-size: 100%;
+    }
+
+    .brick.yellow {
+      background: url('assets/yellow.png');
+      background-size: 100%;
+    }
+    
+    .board span.playername {
+      display: block;
+      background-color: white;
+      padding: 3px;
+      border-radius: 15px;
+      margin-top: -30px;
+      text-align: center;
+    }
+
+    .board span.scores {
+      
+      background-color: white;
+      font-weight: bold;
+      padding: 5px 10px 5px 10px;
+      border-radius: 15px;
+      opacity: 0.8;
+      position: relative;
+      bottom: -100px;
+      left: 15px;
+    }
+
+    .red span.playername {background-color: lightcoral;}
+    .green span.playername {background-color: lightgreen;}
+    .blue span.playername {background-color: lightblue;}
+
+    #boards, #cards, #resources {      
+      display: flex;
+      padding: 15px;      
+    }
+
+    .card {
+      width: 80px;
+      height: 135px;
+      background: url('assets/card.png');
+      background-size: 100%;
+      margin: 5px;
+      box-shadow: 8px 8px 8px 4px rgba(0, 0, 0, 0.6);
+      border-radius: 8px;
+    }
+
+    .myboard {
+      width: 400px;
+      height: 400px;
+      background: url('assets/board.png');
+      background-size: 100%;
+    }
+
+  </style>
+  <title>Tiny Towns (Alpha)</title>
+</head>
+<body>  
+  <div id="main">
+        <div id="score">Итого: <b>28</b> <img src="assets/coin.png" style="width: 30px;margin-bottom:-7px;"></div>
+        <div id="boards">
+          <div class="board green">
+            <span class="playername">Player 1</span>
+            <span class="scores"> 30 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>
+          </div>
+          <div class="board blue">
+            <span class="playername">Player 2</span>
+            <span class="scores"> 15 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>
+          </div>
+          <div class="board red">
+            <span class="playername">Player 3</span>
+            <span class="scores"> 28 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>
+          </div>
+        </div>
+
+        <br><br>
+        <table>
+        <tr>
+          <td>
+            <div class="myboard">
+              <img src="assets/home.png" style="width: 50px;position:relative;top:90px;left:88px;">
+              <img src="assets/red.png" style="width: 30px;position:relative;top:155px;left:118px;">
+            </div>
+          </td>
+        
+          <td>
+          <div id="foo">
+            <div id="cards">
+              <div class="card"></div>
+              <div class="card"></div>
+              <div class="card"></div>
+              <div class="card"></div>
+            </div>
+
+            <div id="resources">
+              <div class="brick red"></div>
+              <div class="brick blue"></div>
+              <div class="brick brown"></div>
+              <div class="brick yellow"></div>
+              <div class="brick white"></div>
+            </div>
+          </div>
+          </td>
+        </tr>
+        </table>
+        
+
+  </div>  
+  <script type="module" src="./js/civ.js"></script>
+</body>
+</html>
