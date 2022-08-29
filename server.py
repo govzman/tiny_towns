@@ -2,15 +2,18 @@
 import json
 import os
 
-from flask import Flask, request
+from flask import Flask, request, render_template
 import logging
 
-app = Flask(__name__)
+app = Flask(__name__,static_url_path='',static_folder='static', template_folder='static')
 logging.basicConfig(level=logging.DEBUG)
 
+@app.route('/', methods=['GET'])
+def home():
+   return render_template('index.html')
 
-@app.route('/', methods=['POST'])
-def main():
+@app.route('/api', methods=['POST'])
+def api():
     logging.info(f'Request: {request.json!r}')
     response = {
 				'request': request.json,
