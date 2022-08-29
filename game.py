@@ -1,24 +1,35 @@
 from random import randint
+from urllib import request
+import requests
+import json
+import os
+
 
 class Game():
-    def __init__(self, players_count=2, players_names=['player1', 'player2']):
-        self.players_count = players_count
-        self.players = [Player(name) for name in players_names]
+    def __init__(self): # , players_count=2, players_names=['player1', 'player2']
+        self.game_state = 'lobby'
+        self.players_count = 0
+        self.players = []
         self.buildingRow = BuildingRow()
         self.buildingRow.generate()
         self.currentTurn = 1
 
+    def get_status(self,user_status):
+        if self.game_state == 'lobby':
+            if user_status['nickname'] not in self.players:
+                self.players.append(user_status['nickname'])
+        return {'game_state': self.game_state, 'players': self.players}
+
 class Resource():
     def __init__(self, name):
         self.name = name
-    
 
 class ResourceOnBoard(Resource):
     def __init__(self, name):
         super().__init__(name)
 
 class Building():
-    def __init__(self, name='cottage', type='cottage', id=1):
+    def __init__(self, name='Cottage', type='cottage', id=1):
         self.name = name
         self.type = type
         self.id = id
@@ -68,12 +79,16 @@ class Board():
         for i in self.board:
             print(' '.join(list(map(lambda x: x.get(), i))))
 
+    def checkPatterns(self, cords):
+        pass
+
 
 class Player():
     def __init__(self, name):
         self.name = name
         self.id = 1
         self.board = Board()
+        self.monument_id = 0
 
     def getBoard(self):
         self.board.print()
@@ -90,5 +105,6 @@ class Player():
 # player1 = Player("player1")
 # player1.getBoard()
 
-game = Game(2, ['player1', 'player2'])
-print(game.buildingRow.getRow())
+if __name__ == '__main__':
+    game = Game()
+    print(game.buildingRow.getRow())
