@@ -1,5 +1,12 @@
 from random import randint
 
+class Game():
+    def __init__(self, players_count=2, players_names=['player1', 'player2']):
+        self.players_count = players_count
+        self.players = [Player(name) for name in players_names]
+        self.buildingRow = BuildingRow()
+        self.buildingRow.generate()
+        self.currentTurn = 1
 
 class Resource():
     def __init__(self, name):
@@ -22,12 +29,15 @@ class BuildingRow():
 
     def generate(self): # generate row
         self.buildings = []
-        self.buildings.append(Building('cottage', 'cottage', 0))
+        self.buildings.append(Building('Cottage', 'cottage', 0))
         #types = ['red', 'gray', 'orange', 'yellow', 'black', 'green']
-        builds = {'red': ['1', '2', '3', '4'], 'gray': ['1', '2', '3', '4'], 'orange': ['1', '2', '3', '4'], 'yellow': ['1', '2', '3', '4'], 'black': ['1', '2', '3', '4'], 'green': ['1', '2', '3', '4']}
+        builds = {'red': ['Farm', 'Granary', 'Greenhouse', 'Orchard'], 'gray': ['Fountain', 'Millstone', 'Shed', 'Well'], 'orange': ['Chapel', 'Chapel', 'Cloister', 'Temple'], 'yellow': ['Bakery', 'Market', 'Tailor', 'Theater'], 'black': ['Bank', 'Factory', 'Trading Post', 'Warehouse'], 'green': ['Almshouse', 'Feast Hall', 'Inn', 'Tavern']}
         for type in builds.keys():
             id = randint(0, 3)
             self.buildings.append(Building(builds[type][id], type, id))
+
+    def getRow(self):
+        return list(map(lambda x: x.name, self.buildings))
 
 
 class BuildingOnBoard():
@@ -58,6 +68,7 @@ class Board():
         for i in self.board:
             print(' '.join(list(map(lambda x: x.get(), i))))
 
+
 class Player():
     def __init__(self, name):
         self.name = name
@@ -67,6 +78,7 @@ class Player():
     def getBoard(self):
         self.board.print()
 
+
 # row = BuildingRow()
 # row.generate()
 # print(list(map(lambda x: x.name + ' ' + x.type , row.buildings)))
@@ -75,5 +87,8 @@ class Player():
 # board.setCell('1', 0, 3)
 # board.print()
 
-player1 = Player("player1")
-player1.getBoard()
+# player1 = Player("player1")
+# player1.getBoard()
+
+game = Game(2, ['player1', 'player2'])
+print(game.buildingRow.getRow())
