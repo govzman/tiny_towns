@@ -1,8 +1,4 @@
 from random import randint
-from urllib import request
-import requests
-import json
-import os
 
 
 class Game():
