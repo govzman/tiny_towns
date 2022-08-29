@@ -1,20 +1,30 @@
 from random import randint
+import uuid
 
 
 class Game():
     def __init__(self): # , players_count=2, players_names=['player1', 'player2']
         self.game_state = 'lobby'
         self.players_count = 0
-        self.players = []
+        self.players = {}
         self.buildingRow = BuildingRow()
         self.buildingRow.generate()
         self.currentTurn = 1
 
     def get_status(self,user_status):
         if self.game_state == 'lobby':
-            if user_status['nickname'] not in self.players:
-                self.players.append(user_status['nickname'])
-        return {'game_state': self.game_state, 'players': self.players}
+            if 'id' not in user_status:
+                id = str(uuid.uuid4())
+                self.players[id] = {'nickname': user_status['nickname'], 'ready': False, 'id': id}
+            else:
+                id = user_status['id']
+                self.players[id]['ready'] = user_status['ready']
+        return {
+            'game_state': self.game_state, 
+            'players': list(map(lambda x: self.players[x]['nickname'], self.players.keys())), 
+            'isReady': list(map(lambda x: str(self.players[x]['ready']), self.players.keys())),
+            'id': id
+            }
 
 class Resource():
     def __init__(self, name):
@@ -79,15 +89,17 @@ class Board():
         pass
 
 
-class Player():
-    def __init__(self, name):
-        self.name = name
-        self.id = 1
-        self.board = Board()
-        self.monument_id = 0
+# class Player():
+#     def __init__(self, nickname):
+#         self.nickname = nickname
+#         self.id = 1
+#         self.board = Board()
+#         self.isReady = False
+#         self.monument_id = 0
 
-    def getBoard(self):
-        self.board.print()
+#     def getBoard(self):
+#         self.board.print()
+
 
 
 # row = BuildingRow()
