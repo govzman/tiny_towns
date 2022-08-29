@@ -17,7 +17,8 @@ def home():
 def api():
     global myGame
     logging.info(f'Request: {request.json!r}')
-    response = myGame.get_status(request.json)
+    if request.json['method'] == 'get_status':
+        response = myGame.get_status(request.json['params'])
     return json.dumps(response)
 
 
