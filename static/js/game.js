@@ -1,12 +1,11 @@
 const DEBUG = true;
-const PING_INTERVAL = 10000;
+const PING_INTERVAL = 2000;
 
 const getState = () => {
     return JSON.parse(localStorage.getItem('gameState'));
 }
 
 const setState = (state) => {
-    console.log('SAVE', state);
     localStorage.setItem('gameState', JSON.stringify(state));
 }
 
@@ -34,7 +33,6 @@ const api = async (method, params) => {
 };
 
 const auth = async () => {
-    console.debug('AUTH');
     try {
         while (!game.nickname) {
             game.nickname = prompt("Enter nickname: ");            
@@ -42,17 +40,14 @@ const auth = async () => {
         
         const result = await api('get_status', { 'nickname': game.nickname });
         game.id = result.id;
-
-        setState(game);      
-
+        setState(game);
       } catch (error) {
         console.error(error);
       }
 };
 
 const getStatus = () => {
-    if (DEBUG) console.debug(`PING ${game.id}`);
-
+    //if (DEBUG) console.debug(`PING ${game.id}`);
     if (!game.id) {
         auth().then(getStatus);
         return;
@@ -74,7 +69,7 @@ const showLobby = () => {
 
     for (let playerName of game.players) {
         let li = document.createElement("li");
-        li.appendChild(document.createTextNode('👦 '+playerName + ' - ' + game.playersReadiness[game.players.indexOf(playerName)])); // TODO: players + ready
+        li.appendChild(document.createTextNode((game.playersReadiness[game.players.indexOf(playerName)] =='True'?'🟢 ':'🟡 ')+playerName)); // TODO: players + ready
         playersList.appendChild(li);
     }  
 };
@@ -93,7 +88,11 @@ const getReady = () => {
 
 // -----------------------------------------------------
 
-let game = getState() || { isReady: false};
+const defaultState = {
+    isReady: false
+};
+
+let game = getState() || defaultState;
 document.game = game; // DEBUG only
 
 getStatus();
