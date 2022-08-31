@@ -129,11 +129,45 @@
       background-size: 100%;
     }
 
+    #lobby {
+      background: white;
+      padding: 15px;
+      width: 300px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    #lobby li {
+      list-style: none;
+      font-size: 120%;
+      padding: 5px;      
+    }
+
+    #lobby button {
+      border: 5px double rgb(7, 84, 162);
+      background-color: rgb(15, 106, 180);
+      color: white;
+      font-size: 150%;
+      width: 150px;
+      border: 0;
+      border-radius: 25px;
+    }
+
   </style>
   <title>Tiny Towns (Alpha)</title>
 </head>
 <body>  
   <div id="main">
+    <div id="score">
+      <a href="#" onclick="localStorage.clear();window.location.reload();return false;">Выйти</a>
+    </div>
+    <div id="lobby">
+      <h3>Игроки:</h3>
+      <ul id="playersList">
+      </ul>
+      <button id="isReadyBtn">Start!</button>
+    </div>
+      <!--
         <div id="score">Итого: <b>28</b> <img src="assets/coin.png" style="width: 30px;margin-bottom:-7px;"></div>
         <div id="boards">
           <div class="board green">
@@ -180,14 +214,9 @@
           </td>
         </tr>
         </table>
-
+      -->
 
   </div>  
   <script type="module" src="./js/game.js"></script>
-  <script>
-    nickname=prompt("Enter nickname: ");
-    document.getElementById("score").textContent=nickname;
-  </script>
-
 </body>
 </html>
