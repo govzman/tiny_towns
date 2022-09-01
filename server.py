@@ -19,6 +19,8 @@ def api():
     logging.info(f'Request: {request.json!r}')
     if request.json['method'] == 'get_status':
         response = myGame.get_status(request.json['params'])
+    elif request.json['method'] == 'reset_game':
+        response = myGame.reset_game()
     return json.dumps(response)
 
 
@@ -26,5 +28,3 @@ if __name__ == '__main__':
     myGame = Game()
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-
-#

@@ -26,6 +26,15 @@ class Game():
             'id': id
             }
 
+    def reset_game(self, user_status):
+        return {
+            'game_state': 'lobby',
+            'players': [],
+            'isReady': [],
+            'id': str(uuid.uuid4())
+            }
+
+
 class Resource():
     def __init__(self, name):
         self.name = name
