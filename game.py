@@ -11,14 +11,19 @@ class Game():
         self.buildingRow.generate()
         self.currentTurn = 1
 
-    def get_status(self,user_status):
+    def get_status(self, params):
         if self.game_state == 'lobby':
-            if 'id' not in user_status:
+            if 'id' not in params:
                 id = str(uuid.uuid4())
-                self.players[id] = {'nickname': user_status['nickname'], 'ready': False, 'id': id}
+                self.players[id] = {'nickname': params['nickname'], 'ready': False, 'id': id}
             else:
-                id = user_status['id']
-                self.players[id]['ready'] = user_status['ready']
+                id = params['id']
+                if id in self.players:
+                    self.players[id]['ready'] = params['ready']
+                else:
+                    return {
+                        'error': {'code': 1, 'msg': 'bad id'}
+                    }
         return {
             'game_state': self.game_state, 
             'players': list(map(lambda x: self.players[x]['nickname'], self.players.keys())), 
@@ -26,13 +31,9 @@ class Game():
             'id': id
             }
 
-    def reset_game(self, user_status):
-        return {
-            'game_state': 'lobby',
-            'players': [],
-            'isReady': [],
-            'id': str(uuid.uuid4())
-            }
+    def restart_game(self):
+        self.players = {}
+        self.game_state = 'lobby'
 
 
 class Resource():

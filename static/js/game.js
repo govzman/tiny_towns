@@ -9,7 +9,7 @@ const setState = (state) => {
     localStorage.setItem('gameState', JSON.stringify(state));
 }
 
-const api = async (method, params) => {
+const api = async (method, params={}) => {
     try {
         console.log(params)
         const response = await fetch('/api', {
@@ -37,7 +37,7 @@ const auth = async () => {
         while (!game.nickname) {
             game.nickname = prompt("Enter nickname: ");            
         }
-        
+        console.debug(`NICK ${game.nickname}`);
         const result = await api('get_status', { 'nickname': game.nickname });
         game.id = result.id;
         setState(game);
@@ -47,7 +47,7 @@ const auth = async () => {
 };
 
 const getStatus = () => {
-    //if (DEBUG) console.debug(`PING ${game.id}`);
+    if (DEBUG) console.debug(`PING ${game.id}`);
     if (!game.id) {
         auth().then(getStatus);
         return;
@@ -55,6 +55,10 @@ const getStatus = () => {
 
     // TODO: bad id
     api('get_status', { 'id': game.id, 'ready': game.isReady }).then((res) => {
+        if (res.error){
+            auth().then(getStatus);
+            return;
+        }
         if (game.players != res.players) {
             game.players = res.players;
             game.playersReadiness = res.isReady; // TODO: 
@@ -86,6 +90,10 @@ const getReady = () => {
     return false;
 };
 
+const restartGame = () => {
+    api('restart_game');
+    console.log("Reset!")
+}
 // -----------------------------------------------------
 
 const defaultState = {
@@ -93,9 +101,10 @@ const defaultState = {
 };
 
 let game = getState() || defaultState;
-document.game = game; // DEBUG only
+// document.game = game; // DEBUG only
 
 getStatus();
 setInterval(getStatus, PING_INTERVAL);
 
 document.getElementById('isReadyBtn').addEventListener('click', getReady);
+document.getElementById('restartBtn').addEventListener('click', restartGame);

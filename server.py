@@ -2,12 +2,16 @@
 import json
 import os
 
+import mimetypes
+mimetypes.add_type('application/javascript', '.js')
+
 from flask import Flask, request, render_template
 import logging
 from game import Game
 
 app = Flask(__name__,static_url_path='',static_folder='static', template_folder='static')
 logging.basicConfig(level=logging.DEBUG)
+
 
 @app.route('/', methods=['GET'])
 def home():
@@ -19,8 +23,8 @@ def api():
     logging.info(f'Request: {request.json!r}')
     if request.json['method'] == 'get_status':
         response = myGame.get_status(request.json['params'])
-    elif request.json['method'] == 'reset_game':
-        response = myGame.reset_game()
+    elif request.json['method'] == 'restart_game':
+        response = myGame.restart_game()
     return json.dumps(response)
 
 
