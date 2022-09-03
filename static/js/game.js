@@ -73,7 +73,7 @@ const showLobby = () => {
 
     for (let playerName of game.players) {
         let li = document.createElement("li");
-        li.appendChild(document.createTextNode((game.playersReadiness[game.players.indexOf(playerName)] =='True'?'🟢 ':'🟡 ')+playerName)); // TODO: players + ready
+        li.appendChild(document.createTextNode((game.playersReadiness[game.players.indexOf(playerName)]?'🟢 ':'🟡 ')+playerName)); // TODO: players + ready
         playersList.appendChild(li);
     }  
 };

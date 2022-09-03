@@ -1,4 +1,4 @@
-from random import randint
+from random import randint, shuffle
 import uuid
 
 import util 
@@ -7,9 +7,13 @@ class Game():
     def __init__(self): # , players_count=2, players_names=['player1', 'player2']
         self.game_stage = 'lobby'
         self.players = {}
-        self.monuments = ['Architect’s Guild', 'Archive of the Second Age', 'Barrett Castle', 
-        'Cathedral of Caterina', 'Fort Ironweed', 'Grove University', 'Mandras Palace', 'Opaleye’s Watch', 
-        'Shrine of the Elder Tree', 'Silva Forum', 'The Starloom', 'Statue of the Bondmaker']
+        self.monuments = ['Arch_Guild', 'Arch_Age', 'Bar_Cast', 
+        'Cath_Cat', 'Fort_Iron', 'Grove_Un', 'Mand_Pal', 'Opal_Wat', 
+        'Shr_Tree', 'Sil_For', 'Star', 'Stat_Bond']
+        
+        # ['Architect`s Guild', 'Archive of the Second Age', 'Barrett Castle', 
+        # 'Cathedral of Caterina', 'Fort Ironweed', 'Grove University', 'Mandras Palace', 'Opaleyes Watch', 
+        # 'Shrine of the Elder Tree', 'Silva Forum', 'The Starloom', 'Statue of the Bondmaker']
         self.buildingRow = BuildingRow()
         self.buildingRow.generate()
         self.currentTurn = 1
@@ -19,7 +23,8 @@ class Game():
             id = str(uuid.uuid4())
             if self.game_stage == 'lobby':
                 if 'nickname' in params: 
-                    self.players[id] = {'nickname': params['nickname'], 'ready': False, 'monument': {}} # {[self.monuments.pop(randint(0, len(self.monuments) - 1)), self.monuments.pop(randint(0, len(self.monuments) - 1))], -1}
+                    self.players[id] = {'nickname': params['nickname'], 
+                    'ready': False}
                     return {'id': id}
                 else:
                     return util.error(2, 'miss nickname')
@@ -29,21 +34,29 @@ class Game():
         id = params['id']
         if id not in self.players:
             return util.error(1, 'bad id')
+
         self.setParam('ready', params)
-        if self.game_stage == 'choose_monument':
-            pass
+
+        if self.game_stage == 'lobby':
+            if all(map(lambda x: self.players[x]['ready'], self.players.keys())):
+                if len(self.players) >= 2 and len(self.players) <= 6:
+                      self.game_stage = 'choose_monument'
+                      shuffle(self.monuments)
+                      for ids in self.players:
+                          self.players[ids]['monuments'] = [self.monuments.pop(), self.monuments.pop()] 
+                          #[self.monuments.pop(randint(0, len(self.monuments) - 1)), self.monuments.pop(randint(0, len(self.monuments) - 1))]
+                else:
+                    return util.error(4, 'wrong number of players')
+        elif self.game_stage == 'choose_monument':
+            return {'game_stage': 'choose_monument', 'monuments': self.players[id]['monuments']}
         return {
-            'game_state': self.game_stage, 
+            'game_stage': self.game_stage, 
             'players': list(map(lambda x: self.players[x]['nickname'], self.players.keys())), 
-            'isReady': list(map(lambda x: str(self.players[x]['ready']), self.players.keys())),
-            'id': id
+            'isReady': list(map(lambda x: self.players[x]['ready'], self.players.keys())),
             }
 
     def restart_game(self):
         self.players = {}
-        self.monuments = ['Architect’s Guild', 'Archive of the Second Age', 'Barrett Castle', 
-        'Cathedral of Caterina', 'Fort Ironweed', 'Grove University', 'Mandras Palace', 'Opaleye’s Watch', 
-        'Shrine of the Elder Tree', 'Silva Forum', 'The Starloom', 'Statue of the Bondmaker']
         self.game_stage = 'lobby'
 
     def setParam(self, paramName, params):
