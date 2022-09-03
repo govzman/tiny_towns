@@ -1,31 +1,39 @@
 from random import randint
 import uuid
 
+import util 
 
 class Game():
     def __init__(self): # , players_count=2, players_names=['player1', 'player2']
-        self.game_state = 'lobby'
-        self.players_count = 0
+        self.game_stage = 'lobby'
         self.players = {}
+        self.monuments = ['Architect’s Guild', 'Archive of the Second Age', 'Barrett Castle', 
+        'Cathedral of Caterina', 'Fort Ironweed', 'Grove University', 'Mandras Palace', 'Opaleye’s Watch', 
+        'Shrine of the Elder Tree', 'Silva Forum', 'The Starloom', 'Statue of the Bondmaker']
         self.buildingRow = BuildingRow()
         self.buildingRow.generate()
         self.currentTurn = 1
 
     def get_status(self, params):
-        if self.game_state == 'lobby':
-            if 'id' not in params:
-                id = str(uuid.uuid4())
-                self.players[id] = {'nickname': params['nickname'], 'ready': False, 'id': id}
-            else:
-                id = params['id']
-                if id in self.players:
-                    self.players[id]['ready'] = params['ready']
+        if 'id' not in params:
+            id = str(uuid.uuid4())
+            if self.game_stage == 'lobby':
+                if 'nickname' in params: 
+                    self.players[id] = {'nickname': params['nickname'], 'ready': False, 'monument': {}} # {[self.monuments.pop(randint(0, len(self.monuments) - 1)), self.monuments.pop(randint(0, len(self.monuments) - 1))], -1}
+                    return {'id': id}
                 else:
-                    return {
-                        'error': {'code': 1, 'msg': 'bad id'}
-                    }
+                    return util.error(2, 'miss nickname')
+            else:
+                return util.error(3, 'game is already run')
+
+        id = params['id']
+        if id not in self.players:
+            return util.error(1, 'bad id')
+        self.setParam('ready', params)
+        if self.game_stage == 'choose_monument':
+            pass
         return {
-            'game_state': self.game_state, 
+            'game_state': self.game_stage, 
             'players': list(map(lambda x: self.players[x]['nickname'], self.players.keys())), 
             'isReady': list(map(lambda x: str(self.players[x]['ready']), self.players.keys())),
             'id': id
@@ -33,8 +41,17 @@ class Game():
 
     def restart_game(self):
         self.players = {}
-        self.game_state = 'lobby'
+        self.monuments = ['Architect’s Guild', 'Archive of the Second Age', 'Barrett Castle', 
+        'Cathedral of Caterina', 'Fort Ironweed', 'Grove University', 'Mandras Palace', 'Opaleye’s Watch', 
+        'Shrine of the Elder Tree', 'Silva Forum', 'The Starloom', 'Statue of the Bondmaker']
+        self.game_stage = 'lobby'
 
+    def setParam(self, paramName, params):
+        if paramName in params:
+            self.players[params['id']][paramName] = params[paramName]
+        else:
+            # TODO() aux.error(2, 'miss ' + paramName)
+            pass
 
 class Resource():
     def __init__(self, name):
