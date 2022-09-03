@@ -39,6 +39,18 @@ const auth = async () => {
         }
         console.debug(`NICK ${game.nickname}`);
         const result = await api('get_status', { 'nickname': game.nickname });
+        if (result.error){
+            // TODO
+            document.getElementById('lobby').innerText = result.error.msg;
+            return;
+        }
+        
+        if (!result.id) {
+            // TODO Exception
+            console.error('NO ID', result);
+            return;
+        }
+
         game.id = result.id;
         setState(game);
       } catch (error) {
@@ -46,23 +58,43 @@ const auth = async () => {
       }
 };
 
-const getStatus = () => {
-    if (DEBUG) console.debug(`PING ${game.id}`);
+const getStatus = () => {    
     if (!game.id) {
         auth().then(getStatus);
         return;
     }
 
+    if (DEBUG) console.debug(`PING ${game.id}`);
+
     // TODO: bad id
     api('get_status', { 'id': game.id, 'ready': game.isReady }).then((res) => {
         if (res.error){
-            auth().then(getStatus);
+            if (res.error.code == 1) {
+                console.error("BAD AUTH");
+                auth().then(getStatus);
+            } else {
+                document.getElementById('lobby').innerText = res.error.msg;
+                console.error('UNKNOWN ERR', res, res.error);
+            }
             return;
         }
-        if (game.players != res.players) {
-            game.players = res.players;
-            game.playersReadiness = res.isReady; // TODO: 
-            showLobby();
+        
+        //game.game_stage = res.game_stage;
+        switch(res.game_stage) {
+            case 'lobby':
+                if (game.players != res.players) {
+                    game.players = res.players;
+                    game.playersReadiness = res.isReady;
+                    
+                    showLobby();
+                }
+                break;
+            case 'choose_monument':
+                ///game.ready = false; // TODO!
+                document.getElementById('lobby').innerText = JSON.stringify(res.monuments);
+                break;
+            default:
+                alert('Unknown stage!');                    
         }
     });        
 } 
@@ -101,6 +133,8 @@ const defaultState = {
 };
 
 let game = getState() || defaultState;
+
+//game.ready = false; // TODO !
 // document.game = game; // DEBUG only
 
 getStatus();
