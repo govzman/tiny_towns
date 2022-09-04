@@ -61,7 +61,11 @@ class Game():
         # return {'game_stage': 'lobby', 'restart_game': True}
 
     def log_out(self, params):
-        del self.players[params['id']]
+        if params['id'] in self.players:
+            del self.players[params['id']]
+            return {'status' : 'ok'}
+        else:
+            return {'error': {'code': 55, 'msg': 'bad id'}, 'id2': params['id'], 'keys': self.players.keys()}
 
     def setParam(self, paramName, params):
         if paramName in params:
