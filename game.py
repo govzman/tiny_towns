@@ -44,11 +44,12 @@ class Game():
                       shuffle(self.monuments)
                       for ids in self.players:
                           self.players[ids]['monuments'] = [self.monuments.pop(), self.monuments.pop()] 
-                          #[self.monuments.pop(randint(0, len(self.monuments) - 1)), self.monuments.pop(randint(0, len(self.monuments) - 1))]
                 else:
                     return util.error(4, 'wrong number of players')
+
         elif self.game_stage == 'choose_monument':
             return {'game_stage': 'choose_monument', 'monuments': self.players[id]['monuments']}
+
         return {
             'game_stage': self.game_stage, 
             'players': list(map(lambda x: self.players[x]['nickname'], self.players.keys())), 
@@ -58,6 +59,8 @@ class Game():
     def restart_game(self):
         self.players = {}
         self.game_stage = 'lobby'
+        print('RESTART!')
+        # return {'game_stage': 'lobby', 'restart_game': True}
 
     def setParam(self, paramName, params):
         if paramName in params:
