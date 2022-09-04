@@ -51,7 +51,14 @@ const api = async (method, params={}) => {
 const auth = async () => {
     try {
         while (!game.nickname) {
-            game.nickname = prompt("Enter nickname: ");            
+            /*document.getElementById('lobby').innerHTML = `<h2>Enter your nickname</h2>
+                    <div style="display:flex;">                        
+                        <input id="nickname">
+                        <button>Ok</button>
+                    </div>`;*/
+            game.nickname = prompt("Enter nickname: ");
+            startTimer();
+            return;
         }
         console.debug(`NICK ${game.nickname}`);
         const result = await api('get_status', { 'nickname': game.nickname });
@@ -162,6 +169,11 @@ const restartGame = () => {
     api('restart_game');
     document.location.reload();
 }
+
+const startTimer = () => {
+    getStatus();
+    game.timer = setInterval(getStatus, PING_INTERVAL);
+}
 // -----------------------------------------------------
 
 const defaultState = {
@@ -173,8 +185,12 @@ let game = getState() || defaultState;
 game.ready = false; // TODO !
 // document.game = game; // DEBUG only
 
-getStatus();
-setInterval(getStatus, PING_INTERVAL);
+if (game.id || game.nickname) {
+    startTimer();
+} else {
+    auth();
+}
+
 
 document.getElementById('isReadyBtn').addEventListener('click', getReady);
 document.getElementById('restartBtn').addEventListener('click', restartGame);

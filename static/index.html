@@ -12,24 +12,24 @@
         padding: 0;
         margin: 0;
         height:100%;
+        overflow: hidden;
+    }
+    body {
         font-family: 'Cormorant Infant', serif;
+        background: radial-gradient(ellipse at top,rgb(140, 108, 89),black);        
     }
   
     #main {
       /*background: url('assets/background2.jpg');*/
-      
-      background: radial-gradient(ellipse at top,rgb(140, 108, 89),black);
       /*background: linear-gradient(130deg, rgb(140, 108, 89),black);*/
       
-      background-size: 100%;
-      
+      margin: 0;      
       height: 100%;
-      width:  100%;
+      width:  80%;
       overflow: hidden;
       padding: 50px;
-      position: relative;
-      border-top: solid 1px #fff; 
-      border:  1px solid black;
+      position: relative;      
+      border: 0;
     }
 
     #score {
@@ -141,8 +141,8 @@
 
     #lobby {
       background: white;
-      padding: 15px;
-      width: 300px;
+      padding: 15px;      
+      
       border-radius: 3px;
       text-align: center;
     }
@@ -166,7 +166,7 @@
     }
 
   </style>
-  <title>Tiny Towns (Alpha)</title>
+  <title>Tiny Towns</title>
 </head>
 <body>  
   <div id="main">
