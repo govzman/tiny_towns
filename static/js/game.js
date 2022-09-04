@@ -1,5 +1,22 @@
 const DEBUG = true;
 const PING_INTERVAL = 2000;
+const MONUMENT_NAMES = {
+    'Arch_Guild': 'Architect`s Guild',
+    'Arch_Age': 'Archive of the Second Age',
+    'Bar_Cast': 'Barrett Castle',
+    'Cath_Cat': 'Cathedral of Caterina',
+    'Fort_Iron': 'Fort Ironweed',
+    'Grove_Un': 'Grove University',
+    'Mand_Pal': 'Mandras Palace',
+    'Opal_Wat': 'Opaleyes Watch',
+    'Shr_Tree': 'Shrine of the Elder Tree',
+    'Sil_For': 'Silva Forum',
+    'Star': 'The Starloom',
+    'Stat_Bond': 'Statue of the Bondmaker',
+    'Rodina': 'Grand Mausoleum of the Rodina',
+    'Sky_Bath': 'The Sky Baths',
+    'Crescent': 'Obelisk of the Crescent'
+};
 
 const getState = () => {
     return JSON.parse(localStorage.getItem('gameState'));
@@ -11,7 +28,6 @@ const setState = (state) => {
 
 const api = async (method, params={}) => {
     try {
-        console.log(params)
         const response = await fetch('/api', {
           method: 'POST',
           body: JSON.stringify({
@@ -90,8 +106,20 @@ const getStatus = () => {
                 }
                 break;
             case 'choose_monument':
-                ///game.ready = false; // TODO!
-                document.getElementById('lobby').innerText = JSON.stringify(res.monuments);
+                // NB: https://boardgamegeek.com/thread/2227286/monument-tier-list
+                game.ready = false; // TODO: check this?
+
+                document.getElementById('lobby').innerHTML = `<h3>Choose your monument</h3>
+                    <div style="display:flex;">                        
+                        <div>
+                            <b>${MONUMENT_NAMES[res.monuments[0]]}</b>
+                            <img class=cards src="assets/cards/${res.monuments[0]}.webp">
+                        </div>
+                        <div>
+                            <b>${MONUMENT_NAMES[res.monuments[1]]}</b>
+                            <img class=cards src="assets/cards/${res.monuments[1]}.webp">
+                        </div>
+                    </div>`;
                 break;
             default:
                 alert('Unknown stage!');                    
@@ -134,7 +162,7 @@ const defaultState = {
 
 let game = getState() || defaultState;
 
-//game.ready = false; // TODO !
+game.ready = false; // TODO !
 // document.game = game; // DEBUG only
 
 getStatus();

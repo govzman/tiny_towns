@@ -39,7 +39,7 @@ class Game():
 
         if self.game_stage == 'lobby':
             if all(map(lambda x: self.players[x]['ready'], self.players.keys())):
-                if len(self.players) >= 2 and len(self.players) <= 6:
+                if len(self.players) >= 1 and len(self.players) <= 6:
                       self.game_stage = 'choose_monument'
                       shuffle(self.monuments)
                       for ids in self.players:
