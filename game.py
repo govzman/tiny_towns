@@ -1,4 +1,5 @@
 from random import randint, shuffle
+from time import time
 import uuid
 
 import util 
@@ -35,6 +36,8 @@ class Game():
         if id not in self.players:
             return util.error(1, 'bad id')
 
+        self.players[id]['last_response'] = time()
+
         self.setParam('ready', params)
 
         if self.game_stage == 'lobby':
@@ -48,6 +51,7 @@ class Game():
                     return util.error(4, 'wrong number of players')
         if self.game_stage == 'choose_monument':
             return {'game_stage': 'choose_monument', 'monuments': self.players[id]['monuments']}
+        self.checkTTL()
         return {
             'game_stage': self.game_stage, 
             'players': list(map(lambda x: self.players[x]['nickname'], self.players.keys())), 
@@ -66,6 +70,12 @@ class Game():
             return {'status' : 'ok'}
         else:
             return {'error': {'code': 55, 'msg': 'bad id'}, 'id2': params['id'], 'keys': self.players.keys()}
+
+    def checkTTL(self):
+        for player_id in self.players.keys():
+            if 'last_response' in self.players[player_id]:
+                if time() - self.players[player_id]['last_response'] > 10:
+                    del self.players[player_id]
 
     def setParam(self, paramName, params):
         if paramName in params:

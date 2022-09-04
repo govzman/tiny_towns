@@ -9,6 +9,7 @@ from flask import Flask, request, render_template
 import logging
 from game import Game
 
+
 app = Flask(__name__,static_url_path='',static_folder='static', template_folder='static')
 logging.basicConfig(level=logging.DEBUG)
 
