@@ -9,7 +9,7 @@ class Game():
         self.players = {}
         self.monuments = ['Arch_Guild', 'Arch_Age', 'Bar_Cast', 
         'Cath_Cat', 'Fort_Iron', 'Grove_Un', 'Mand_Pal', 'Opal_Wat', 
-        'Shr_Tree', 'Sil_For', 'Star', 'Stat_Bond']
+        'Shr_Tree', 'Sil_For', 'Star', 'Stat_Bond', 'Rodina', 'Sky_Bath', 'Crescent']
         
         # ['Architect`s Guild', 'Archive of the Second Age', 'Barrett Castle', 
         # 'Cathedral of Caterina', 'Fort Ironweed', 'Grove University', 'Mandras Palace', 'Opaleyes Watch', 
