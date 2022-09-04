@@ -109,9 +109,9 @@ const getStatus = () => {
                 // NB: https://boardgamegeek.com/thread/2227286/monument-tier-list
                 game.ready = false; // TODO: check this?
 
-                if (game.game_stage == res.game_stage) {
-                    return;
-                }
+                //if (game.game_stage == res.game_stage) {
+                  //  return;
+                //}
                 
                 game.game_stage = res.game_stage;
 
