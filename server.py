@@ -25,6 +25,8 @@ def api():
         response = myGame.get_status(request.json['params'])
     elif request.json['method'] == 'restart_game':
         response = myGame.restart_game()
+    elif request.json['method'] == 'log_out':
+        response = myGame.log_out(request.json['params'])
     return json.dumps(response)
 
 # DEV ONLY:

@@ -46,7 +46,7 @@ class Game():
                           self.players[ids]['monuments'] = [self.monuments.pop(), self.monuments.pop()] 
                 else:
                     return util.error(4, 'wrong number of players')
-        elif self.game_stage == 'choose_monument':
+        if self.game_stage == 'choose_monument':
             return {'game_stage': 'choose_monument', 'monuments': self.players[id]['monuments']}
         return {
             'game_stage': self.game_stage, 
@@ -59,6 +59,9 @@ class Game():
         self.game_stage = 'lobby'
         print('RESTART!')
         # return {'game_stage': 'lobby', 'restart_game': True}
+
+    def log_out(self, params):
+        del self.players[params['id']]
 
     def setParam(self, paramName, params):
         if paramName in params:
