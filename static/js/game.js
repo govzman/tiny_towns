@@ -105,9 +105,9 @@ const getStatus = () => {
         //game.game_stage = res.game_stage;
         switch(res.game_stage) {
             case 'lobby':
-                if (game.players != res.players) {
-                    game.players = res.players;
-                    game.playersReadiness = res.isReady;
+                if (game.players != res.params.players) {
+                    game.players = res.params.players;
+                    game.playersReadiness = res.params.isReady;
                     game.game_stage = 'lobby';
                     showLobby();
                 }
@@ -121,17 +121,17 @@ const getStatus = () => {
                   return;
                 }
                 
-                game.game_stage = res.game_stage;
+                game.game_stage = res.params.game_stage;
 
                 document.getElementById('lobby').innerHTML = `<h2>Choose your monument</h2>
                     <div style="display:flex;">                        
                         <div>
-                            <b>${MONUMENT_NAMES[res.monuments[0]]}:</b>
-                            <img class=cards src="assets/cards/${res.monuments[0]}.webp">
+                            <b>${MONUMENT_NAMES[res.params.monuments[0]]}:</b>
+                            <img class=cards src="assets/cards/${res.params.monuments[0]}.webp">
                         </div>
                         <div>
-                            <b>${MONUMENT_NAMES[res.monuments[1]]}:</b>
-                            <img class=cards src="assets/cards/${res.monuments[1]}.webp">
+                            <b>${MONUMENT_NAMES[res.params.monuments[1]]}:</b>
+                            <img class=cards src="assets/cards/${res.params.monuments[1]}.webp">
                         </div>
                     </div>`;
                 break;
