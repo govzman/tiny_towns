@@ -174,6 +174,15 @@ const startTimer = () => {
     getStatus();
     game.timer = setInterval(getStatus, PING_INTERVAL);
 }
+
+const logOut = () => {
+    console.log('blabla', game)
+    localStorage.clear();
+    clearInterval(game.timer);
+    api('log_out', {'id': game.id});
+    window.location.reload();  
+}
+
 // -----------------------------------------------------
 
 const defaultState = {
@@ -194,3 +203,4 @@ if (game.id || game.nickname) {
 
 document.getElementById('isReadyBtn').addEventListener('click', getReady);
 document.getElementById('restartBtn').addEventListener('click', restartGame);
+document.getElementById('logOutBtn').addEventListener('click', logOut);
