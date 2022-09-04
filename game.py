@@ -9,7 +9,7 @@ class Game():
         self.players = {}
         self.monuments = ['Arch_Guild', 'Arch_Age', 'Bar_Cast', 
         'Cath_Cat', 'Fort_Iron', 'Grove_Un', 'Mand_Pal', 'Opal_Wat', 
-        'Shr_Tree', 'Sil_For', 'Star', 'Stat_Bond']
+        'Shr_Tree', 'Sil_For', 'Star', 'Stat_Bond', 'Rodina', 'Sky_Bath', 'Crescent']
         
         # ['Architect`s Guild', 'Archive of the Second Age', 'Barrett Castle', 
         # 'Cathedral of Caterina', 'Fort Ironweed', 'Grove University', 'Mandras Palace', 'Opaleyes Watch', 
@@ -39,17 +39,15 @@ class Game():
 
         if self.game_stage == 'lobby':
             if all(map(lambda x: self.players[x]['ready'], self.players.keys())):
-                if len(self.players) >= 2 and len(self.players) <= 6:
+                if len(self.players) >= 1 and len(self.players) <= 6:
                       self.game_stage = 'choose_monument'
                       shuffle(self.monuments)
                       for ids in self.players:
                           self.players[ids]['monuments'] = [self.monuments.pop(), self.monuments.pop()] 
                 else:
                     return util.error(4, 'wrong number of players')
-
         elif self.game_stage == 'choose_monument':
             return {'game_stage': 'choose_monument', 'monuments': self.players[id]['monuments']}
-
         return {
             'game_stage': self.game_stage, 
             'players': list(map(lambda x: self.players[x]['nickname'], self.players.keys())), 

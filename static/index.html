@@ -4,12 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">  
   <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com"> 
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Infant&display=swap" rel="stylesheet">
   <style>
     html, body {
         padding: 0;
         margin: 0;
         height:100%;
-        font-family: Tahoma;
+        font-family: 'Cormorant Infant', serif;
     }
   
     #main {
@@ -41,7 +44,7 @@
       right: 50px;
     }
 
-    .board {
+/*    .board {
       width: 100px;
       height: 80px;
       background: url('assets/miniboard2.png');  
@@ -49,7 +52,7 @@
       background-repeat: no-repeat;    
       background-size: 100%;
       margin: 10px;
-    }
+    }*/
 
     .brick {
       width: 40px;
@@ -112,11 +115,18 @@
       padding: 15px;      
     }
 
-    .card {
+    /*.card {
       width: 80px;
       height: 135px;
       background: url('assets/card.png');
       background-size: 100%;
+      margin: 5px;
+      box-shadow: 8px 8px 8px 4px rgba(0, 0, 0, 0.6);
+      border-radius: 8px;
+    }*/
+
+    .cards {
+      width: 200px;
       margin: 5px;
       box-shadow: 8px 8px 8px 4px rgba(0, 0, 0, 0.6);
       border-radius: 8px;
@@ -133,7 +143,7 @@
       background: white;
       padding: 15px;
       width: 300px;
-      border-radius: 10px;
+      border-radius: 3px;
       text-align: center;
     }
 
