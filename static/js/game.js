@@ -101,17 +101,18 @@ const getStatus = () => {
                 if (game.players != res.players) {
                     game.players = res.players;
                     game.playersReadiness = res.isReady;
-                    
+                    game.game_stage = 'lobby';
                     showLobby();
                 }
                 break;
             case 'choose_monument':
+                console.log('here')
                 // NB: https://boardgamegeek.com/thread/2227286/monument-tier-list
                 game.ready = false; // TODO: check this?
 
-                //if (game.game_stage == res.game_stage) {
-                  //  return;
-                //}
+                if (game.game_stage == 'choose_monument') {
+                  return;
+                }
                 
                 game.game_stage = res.game_stage;
 
@@ -157,8 +158,9 @@ const getReady = () => {
 };
 
 const restartGame = () => {
+    localStorage.clear();
     api('restart_game');
-    console.log("Reset!")
+    document.location.reload();
 }
 // -----------------------------------------------------
 

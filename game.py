@@ -47,8 +47,10 @@ class Game():
                           #[self.monuments.pop(randint(0, len(self.monuments) - 1)), self.monuments.pop(randint(0, len(self.monuments) - 1))]
                 else:
                     return util.error(4, 'wrong number of players')
-        elif self.game_stage == 'choose_monument':
+        
+        if self.game_stage == 'choose_monument':
             return {'game_stage': 'choose_monument', 'monuments': self.players[id]['monuments']}
+        
         return {
             'game_stage': self.game_stage, 
             'players': list(map(lambda x: self.players[x]['nickname'], self.players.keys())), 
