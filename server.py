@@ -27,6 +27,14 @@ def api():
         response = myGame.restart_game()
     return json.dumps(response)
 
+# DEV ONLY:
+@app.after_request
+def after_request(response):
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, public, max-age=0"
+    response.headers["Expires"] = '0'
+    response.headers["Pragma"] = "no-cache"
+    return response
+
 
 if __name__ == '__main__':
     myGame = Game()

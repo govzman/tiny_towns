@@ -109,14 +109,20 @@ const getStatus = () => {
                 // NB: https://boardgamegeek.com/thread/2227286/monument-tier-list
                 game.ready = false; // TODO: check this?
 
-                document.getElementById('lobby').innerHTML = `<h3>Choose your monument</h3>
+                if (game.game_stage == res.game_stage) {
+                    return;
+                }
+                
+                game.game_stage = res.game_stage;
+
+                document.getElementById('lobby').innerHTML = `<h2>Choose your monument</h2>
                     <div style="display:flex;">                        
                         <div>
-                            <b>${MONUMENT_NAMES[res.monuments[0]]}</b>
+                            <b>${MONUMENT_NAMES[res.monuments[0]]}:</b>
                             <img class=cards src="assets/cards/${res.monuments[0]}.webp">
                         </div>
                         <div>
-                            <b>${MONUMENT_NAMES[res.monuments[1]]}</b>
+                            <b>${MONUMENT_NAMES[res.monuments[1]]}:</b>
                             <img class=cards src="assets/cards/${res.monuments[1]}.webp">
                         </div>
                     </div>`;
