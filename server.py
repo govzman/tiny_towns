@@ -10,7 +10,7 @@ import logging
 from game import Game
 
 
-app = Flask(__name__,static_url_path='',static_folder='static', template_folder='static')
+app = Flask('Tiny Towns',static_url_path='',static_folder='static', template_folder='static')
 logging.basicConfig(level=logging.DEBUG)
 
 
@@ -41,5 +41,6 @@ def after_request(response):
 
 if __name__ == '__main__':
     myGame = Game()
+    print(f"New game ID {myGame.game_id}\n")
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)

@@ -1,5 +1,6 @@
 const DEBUG = true;
 const PING_INTERVAL = 2000;
+
 const MONUMENT_NAMES = {
     'Arch_Guild': 'Architect`s Guild',
     'Arch_Age': 'Archive of the Second Age',
@@ -17,6 +18,7 @@ const MONUMENT_NAMES = {
     'Sky_Bath': 'The Sky Baths',
     'Crescent': 'Obelisk of the Crescent'
 };
+
 
 const getState = () => {
     return JSON.parse(localStorage.getItem('gameState'));
@@ -57,14 +59,14 @@ const auth = async () => {
                         <button>Ok</button>
                     </div>`;*/
             game.nickname = prompt("Enter nickname: ");
-            startTimer();
-            return;
+            
+            //return;
         }
-        console.debug(`NICK ${game.nickname}`);
+        
         const result = await api('get_status', { 'nickname': game.nickname });
-        if (result.error){
-            // TODO
+        if (result.error){            
             document.getElementById('lobby').innerText = result.error.msg;
+            /////stopTimer();
             return;
         }
         
@@ -72,10 +74,10 @@ const auth = async () => {
             // TODO Exception
             console.error('NO ID', result);
             return;
-        }
-
+        }       
         game.id = result.id;
         setState(game);
+        startTimer();
       } catch (error) {
         console.error(error);
       }
@@ -83,7 +85,8 @@ const auth = async () => {
 
 const getStatus = () => {    
     if (!game.id) {
-        auth().then(getStatus);
+        console.error('NO ID!!!!!')
+        //auth().then(getStatus);
         return;
     }
 
@@ -94,7 +97,7 @@ const getStatus = () => {
         if (res.error){
             if (res.error.code == 1) {
                 console.error("BAD AUTH");
-                auth().then(getStatus);
+                //auth().then(getStatus);
             } else {
                 document.getElementById('lobby').innerText = res.error.msg;
                 console.error('UNKNOWN ERR', res, res.error);
@@ -113,7 +116,6 @@ const getStatus = () => {
                 }
                 break;
             case 'choose_monument':
-                console.log('here')
                 // NB: https://boardgamegeek.com/thread/2227286/monument-tier-list
                 game.ready = false; // TODO: check this?
 
@@ -160,7 +162,7 @@ const getReady = () => {
     } else {
         button.textContent = 'Start!';        
     }
-    getStatus();
+    // Чтоб бысстрее начать: getStatus();
     return false;
 };
 
@@ -175,11 +177,15 @@ const startTimer = () => {
     game.timer = setInterval(getStatus, PING_INTERVAL);
 }
 
-const logOut = () => {
-    console.log('blabla', game)
-    localStorage.clear();
+const stopTimer = () => {
     clearInterval(game.timer);
+    console.debug(`Timer ${game.timer} has stopped.`);
+}
+
+const logOut = () => {    
+    stopTimer();
     api('log_out', {'id': game.id});
+    localStorage.clear();
     window.location.reload();  
 }
 
