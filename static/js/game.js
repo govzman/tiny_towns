@@ -65,7 +65,7 @@ const auth = async () => {
         
         const result = await api('get_status', { 'nickname': game.nickname });
         if (result.error){            
-            document.getElementById('lobby').innerText = result.error.msg;
+            document.getElementById('main').innerText = result.error.msg;
             /////stopTimer();
             return;
         }
@@ -97,7 +97,7 @@ const getStatus = () => {
         if (res.error){
             if (res.error.code == 1) {
                 console.error("BAD AUTH");
-                //auth().then(getStatus);
+                logOut();               
             } else {
                 document.getElementById('lobby').innerText = res.error.msg;
                 console.error('UNKNOWN ERR', res, res.error);
@@ -112,7 +112,7 @@ const getStatus = () => {
                     game.players = res.params.players;
                     game.playersReadiness = res.params.isReady;
                     game.game_stage = 'lobby';
-                    showLobby();
+                    showPage('lobby');
                 }
                 break;
             case 'choose_monument':
@@ -120,7 +120,7 @@ const getStatus = () => {
                 game.ready = false; // TODO: check this?
 
                 if (game.game_stage == 'choose_monument') {
-                  return;
+                  return; 
                 }
                 
                 game.game_stage = res.params.game_stage;
@@ -143,7 +143,7 @@ const getStatus = () => {
     });        
 } 
 
-const showLobby = () => {
+const showPage = (pageName = 'lobby') => {
     const playersList = document.getElementById("playersList");
     playersList.innerHTML = '';
 
