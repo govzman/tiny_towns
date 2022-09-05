@@ -64,7 +64,7 @@ class Game():
         self.game_stage = 'lobby'
         print('RESTART!')
         # return {'game_stage': 'lobby', 'restart_game': True}
-
+        
     def log_out(self, params):
         if params['id'] in self.players:
             del self.players[params['id']]
@@ -73,11 +73,14 @@ class Game():
             return {'error': {'code': 55, 'msg': 'bad id'}, 'id2': params['id'], 'keys': self.players.keys()}
 
     def checkTTL(self):
-        keys = self.players.keys()
-        for player_id in keys:
-            if 'last_response' in self.players[player_id]:
-                if time() - self.players[player_id]['last_response'] > 10:
-                    del self.players[player_id]
+        try:
+            keys = self.players.keys()
+            for player_id in keys:
+                if 'last_response' in self.players[player_id]:
+                    if time() - self.players[player_id]['last_response'] > 10:
+                        del self.players[player_id]
+        except:
+            pass
 
     def setParam(self, paramName, params):
         if paramName in params:
