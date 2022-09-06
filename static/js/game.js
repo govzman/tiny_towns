@@ -27,7 +27,7 @@ const getState = () => {
     return JSON.parse(localStorage.getItem('gameState'));
 }
 
-const setState = (state) => {
+const setState = (state = game) => {
     localStorage.setItem('gameState', JSON.stringify(state));
 }
 
@@ -79,7 +79,7 @@ const auth = async () => {
             return;
         }       
         game.id = result.id;
-        setState(game);
+        setState();
         startTimer();
       } catch (error) {
         console.error(error);
@@ -127,19 +127,7 @@ const getStatus = () => {
                 }
                 
                 game.game_stage = res.params.game_stage;
-
-                qs('#main').innerHTML = `<div><h2>Choose your monument</h2>
-                    <div style="display:flex;">                        
-                        <div id=monument1>
-                            <b>${MONUMENT_NAMES[res.params.monuments[0]]}:</b>
-                            <img class=cards src="assets/cards/${res.params.monuments[0]}.webp">
-                        </div>
-                        <div id=monument2>
-                            <b>${MONUMENT_NAMES[res.params.monuments[1]]}:</b>
-                            <img class=cards src="assets/cards/${res.params.monuments[1]}.webp">
-                        </div>
-                    </div></div>`;
-                    //document.getElementById('#monument1').addEventListener('click'.)
+                showPage('choose_monument', res.params);                
                 break;
             default:
                 alert('Unknown stage!');                    
@@ -147,26 +135,50 @@ const getStatus = () => {
     });        
 } 
 
-const showPage = (pageName = 'lobby') => {
-    
-    document.getElementById('main').innerHTML = `
-    <div id="lobby">
-        <h3>Игроки:</h3>
-        <ul id="playersList">
-        </ul>
-        <button id="isReadyBtn">Start!</button>      
-    </div>`;
+const showPage = (pageName = 'lobby', params = {}) => {
+    if (pageName == game.currenPage) return false;
+    if (pageName == 'lobby') {
+        document.getElementById('main').innerHTML = `
+        <div id="lobby">
+            <h3>Игроки:</h3>
+            <ul id="playersList">
+            </ul>
+            <button id="isReadyBtn">Start!</button>      
+        </div>`;
 
-    const playersList = document.getElementById("playersList");
-    playersList.innerHTML = '';
+        const playersList = document.getElementById("playersList");
+        playersList.innerHTML = '';
 
-    for (let playerName of game.players) {
-        let li = document.createElement("li");
-        li.appendChild(document.createTextNode((game.playersReadiness[game.players.indexOf(playerName)]?'🟢 ':'🟡 ')+playerName)); // TODO: players + ready
-        playersList.appendChild(li);
-    }  
+        for (let playerName of game.players) {
+            let li = document.createElement("li");
+            li.appendChild(document.createTextNode((game.playersReadiness[game.players.indexOf(playerName)]?'🟢 ':'🟡 ')+playerName)); // TODO: players + ready
+            playersList.appendChild(li);
+        }  
+        document.getElementById('isReadyBtn').addEventListener('click', getReady);     
+    }
 
-    document.getElementById('isReadyBtn').addEventListener('click', getReady);
+    if (pageName == 'choose_monument') {
+        qs('#main').innerHTML = `<div><h2>Choose your monument</h2>
+            <div  id="choose_monument" style="display:flex;">                        
+                <div>
+                    <b>${MONUMENT_NAMES[params.monuments[0]]}:</b>
+                    <img class=cards id=monument1 data-id="0" src="assets/cards/${params.monuments[0]}.webp">
+                </div>
+                <div >
+                    <b>${MONUMENT_NAMES[params.monuments[1]]}:</b>
+                    <img class=cards id=monument2 src="assets/cards/${params.monuments[1]}.webp">
+                </div>
+            </div></div>`;
+            qs('#choose_monument').addEventListener('click', (e) => {
+                if (e.target.id == 'monument1') {
+                    alert('Monument 1')
+                } else {
+                    alert('Monument 2')
+                }
+            });
+            
+    }
+    game.currenPage = pageName;    
 };
 
 const getReady = () => {
@@ -183,10 +195,9 @@ const getReady = () => {
 
 const restartGame = () => {
     console.debug("RESTART");
-    //localStorage.clear();
     api('restart_game');
-    debugger;
-    //document.location.reload();
+    //localStorage.clear();
+    document.location.reload();
 }
 
 const startTimer = () => {

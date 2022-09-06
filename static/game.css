@@ -34,6 +34,7 @@ body {
   color:black;
   position: fixed;
   right: 50px;
+  z-index: 100;
 }
 
 /*    .board {
