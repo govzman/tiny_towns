@@ -13,6 +13,7 @@ from game import Game
 app = Flask('Tiny Towns',static_url_path='',static_folder='static', template_folder='static')
 logging.basicConfig(level=logging.DEBUG)
 
+myGame = Game()
 
 @app.route('/', methods=['GET'])
 def home():
@@ -22,6 +23,10 @@ def home():
 def api():
     global myGame
     logging.info(f'Request: {request.json!r}')
+    
+    if 'method' not in request.json:
+        return '{"error":{"code":100, "msg":"bad method"}}'
+
     if request.json['method'] == 'get_status':
         response = myGame.get_status(request.json['params'])
     elif request.json['method'] == 'restart_game':
@@ -38,9 +43,7 @@ def after_request(response):
     response.headers["Pragma"] = "no-cache"
     return response
 
-
-if __name__ == '__main__':
-    myGame = Game()
+if __name__ == '__main__':    
     print(f"New game ID {myGame.game_id}\n")
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)

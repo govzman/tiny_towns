@@ -59,18 +59,18 @@ class Game():
             'isReady': list(map(lambda x: self.players[x]['ready'], self.players.keys())),
             })
 
-    def restart_game(self):
+    def restart_game(self):        
         self.players = {}
-        self.game_stage = 'lobby'
-        print('RESTART!')
-        # return {'game_stage': 'lobby', 'restart_game': True}
+        self.game_stage = 'lobby'        
+        return {'status':'ok', 'params':{'game_stage': 'lobby' }}
         
     def log_out(self, params):
         if params['id'] in self.players:
             del self.players[params['id']]
             return {'status' : 'ok'}
         else:
-            return {'error': {'code': 55, 'msg': 'bad id'}, 'id2': params['id'], 'keys': self.players.keys()}
+            print(self.players)
+            return {'error': {'code': 55, 'msg': 'bad id'}}
 
     def checkTTL(self):
         try:

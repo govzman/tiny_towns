@@ -19,6 +19,9 @@ const MONUMENT_NAMES = {
     'Crescent': 'Obelisk of the Crescent'
 };
 
+const qs = (selector) => {
+    return document.querySelector(selector);
+}
 
 const getState = () => {
     return JSON.parse(localStorage.getItem('gameState'));
@@ -41,7 +44,7 @@ const api = async (method, params={}) => {
           }
         });
         const json = await response.json();                
-        if (DEBUG) console.debug(json);
+        if (DEBUG) console.debug(method, params, json);
         
         return json;
         
@@ -61,7 +64,7 @@ const auth = async () => {
             game.nickname = prompt("Enter nickname: ");
             
             //return;
-        }
+        }        
         
         const result = await api('get_status', { 'nickname': game.nickname });
         if (result.error){            
@@ -125,17 +128,18 @@ const getStatus = () => {
                 
                 game.game_stage = res.params.game_stage;
 
-                document.getElementById('lobby').innerHTML = `<h2>Choose your monument</h2>
+                qs('#main').innerHTML = `<div><h2>Choose your monument</h2>
                     <div style="display:flex;">                        
-                        <div>
+                        <div id=monument1>
                             <b>${MONUMENT_NAMES[res.params.monuments[0]]}:</b>
                             <img class=cards src="assets/cards/${res.params.monuments[0]}.webp">
                         </div>
-                        <div>
+                        <div id=monument2>
                             <b>${MONUMENT_NAMES[res.params.monuments[1]]}:</b>
                             <img class=cards src="assets/cards/${res.params.monuments[1]}.webp">
                         </div>
-                    </div>`;
+                    </div></div>`;
+                    //document.getElementById('#monument1').addEventListener('click'.)
                 break;
             default:
                 alert('Unknown stage!');                    
@@ -144,6 +148,15 @@ const getStatus = () => {
 } 
 
 const showPage = (pageName = 'lobby') => {
+    
+    document.getElementById('main').innerHTML = `
+    <div id="lobby">
+        <h3>Игроки:</h3>
+        <ul id="playersList">
+        </ul>
+        <button id="isReadyBtn">Start!</button>      
+    </div>`;
+
     const playersList = document.getElementById("playersList");
     playersList.innerHTML = '';
 
@@ -152,6 +165,8 @@ const showPage = (pageName = 'lobby') => {
         li.appendChild(document.createTextNode((game.playersReadiness[game.players.indexOf(playerName)]?'🟢 ':'🟡 ')+playerName)); // TODO: players + ready
         playersList.appendChild(li);
     }  
+
+    document.getElementById('isReadyBtn').addEventListener('click', getReady);
 };
 
 const getReady = () => {
@@ -167,9 +182,11 @@ const getReady = () => {
 };
 
 const restartGame = () => {
-    localStorage.clear();
+    console.debug("RESTART");
+    //localStorage.clear();
     api('restart_game');
-    document.location.reload();
+    debugger;
+    //document.location.reload();
 }
 
 const startTimer = () => {
@@ -183,10 +200,13 @@ const stopTimer = () => {
 }
 
 const logOut = () => {    
+    console.debug('LOGOUT');
     stopTimer();
-    api('log_out', {'id': game.id});
-    localStorage.clear();
-    window.location.reload();  
+    api('log_out', {'id': game.id}).then(() => {
+        localStorage.clear();
+        window.location.reload();
+    });
+    
 }
 
 // -----------------------------------------------------
@@ -205,8 +225,8 @@ if (game.id || game.nickname) {
 } else {
     auth();
 }
+qs('#nickname').textContent = game.nickname;
 
 
-document.getElementById('isReadyBtn').addEventListener('click', getReady);
-document.getElementById('restartBtn').addEventListener('click', restartGame);
-document.getElementById('logOutBtn').addEventListener('click', logOut);
+qs('#restartBtn').addEventListener('click', restartGame);
+qs('#logOutBtn').addEventListener('click', logOut);
