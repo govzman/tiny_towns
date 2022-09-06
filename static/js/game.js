@@ -170,10 +170,11 @@ const showPage = (pageName = 'lobby', params = {}) => {
                 </div>
             </div></div>`;
             qs('#choose_monument').addEventListener('click', (e) => {
+                e.target.classList.add('selected_card');
                 if (e.target.id == 'monument1') {
-                    alert('Monument 1')
+                    qs('#monument2').classList = ['cards'];                             
                 } else {
-                    alert('Monument 2')
+                    qs('#monument1').classList = ['cards'];                             
                 }
             });
             
