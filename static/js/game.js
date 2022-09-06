@@ -159,17 +159,18 @@ const showPage = (pageName = 'lobby', params = {}) => {
 
     if (pageName == 'choose_monument') {
         qs('#main').innerHTML = `<div><h2>Choose your monument</h2>
-            <div  id="choose_monument" style="display:flex;">                        
-                <div>
-                    <b>${MONUMENT_NAMES[params.monuments[0]]}:</b>
+            <div id="choose_monument" style="display:flex;">                                        
+                    <!--<b>${MONUMENT_NAMES[params.monuments[0]]}:</b>-->
                     <img class=cards id=monument1 data-id="0" src="assets/cards/${params.monuments[0]}.webp">
-                </div>
-                <div >
-                    <b>${MONUMENT_NAMES[params.monuments[1]]}:</b>
-                    <img class=cards id=monument2 src="assets/cards/${params.monuments[1]}.webp">
-                </div>
+                
+                    <!--<b>${MONUMENT_NAMES[params.monuments[1]]}:</b>-->
+                    <img class=cards id=monument2 src="assets/cards/${params.monuments[1]}.webp">                
             </div></div>`;
+
             qs('#choose_monument').addEventListener('click', (e) => {
+                //console.debug(e);
+                if (e.target.id == 'choose_monument') return;
+
                 e.target.classList.add('selected_card');
                 if (e.target.id == 'monument1') {
                     qs('#monument2').classList = ['cards'];                             
