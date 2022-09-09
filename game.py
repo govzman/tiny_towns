@@ -51,7 +51,7 @@ class Game():
                 else:
                     return util.error(4, 'wrong number of players')
         if self.game_stage == 'choose_monument':
-            return self.res({'monuments': self.players[id]['monuments'], 'bulidingRow': self.buildingRow})
+            return self.res({'monuments': self.players[id]['monuments'], 'bulidingRow': self.buildingRow.getRow()})
 
         self.checkTTL()
         return self.res({
@@ -109,6 +109,9 @@ class Building():
         self.name = name
         self.type = type
         self.id = id
+
+    # def __call__(self):
+    #     return self.name
 
 class BuildingRow():
     def __init__(self):
