@@ -51,7 +51,7 @@ class Game():
                 else:
                     return util.error(4, 'wrong number of players')
         if self.game_stage == 'choose_monument':
-            return self.res({'monuments': self.players[id]['monuments']})
+            return self.res({'monuments': self.players[id]['monuments'], 'bulidingRow': self.buildingRow})
 
         self.checkTTL()
         return self.res({
