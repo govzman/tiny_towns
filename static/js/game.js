@@ -96,7 +96,7 @@ const getStatus = () => {
     if (DEBUG) console.debug(`PING ${game.id}`);
 
     // TODO: bad id
-    api('get_status', { 'id': game.id, 'ready': game.isReady }).then((res) => {
+    api('get_status', { 'id': game.id, 'ready': game.isReady, 'game_stage': game.game_stage}).then((res) => {
         if (res.error){
             if (res.error.code == 1) {
                 console.error("BAD AUTH");
@@ -114,7 +114,7 @@ const getStatus = () => {
                 if (game.players != res.params.players) {
                     game.players = res.params.players;
                     game.playersReadiness = res.params.isReady;
-                    game.game_stage = 'lobby';
+                    game.game_stage = "lobby";
                     showPage('lobby');
                 }
                 break;
@@ -136,7 +136,7 @@ const getStatus = () => {
 } 
 
 const showPage = (pageName = 'lobby', params = {}) => {
-    if (pageName == game.currenPage) return false;
+    if (pageName == game.currentPage) return false;
     if (pageName == 'lobby') {
         document.getElementById('main').innerHTML = `
         <div id="lobby">
@@ -180,7 +180,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
             });
             
     }
-    game.currenPage = pageName;    
+    game.currentPage = pageName;    
 };
 
 const getReady = () => {
@@ -225,7 +225,8 @@ const logOut = () => {
 // -----------------------------------------------------
 
 const defaultState = {
-    isReady: false
+    isReady: false,
+    game_stage: "lobby"
 };
 
 let game = getState() || defaultState;

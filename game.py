@@ -39,19 +39,37 @@ class Game():
 
         self.players[id]['last_response'] = time()
 
-        self.setParam('ready', params)
 
         if self.game_stage == 'lobby':
+            self.setParam('ready', params) # !!!
             if all(map(lambda x: self.players[x]['ready'], self.players.keys())):
                 if len(self.players) >= 1 and len(self.players) <= 6:
                       self.game_stage = 'choose_monument'
                       shuffle(self.monuments)
                       for ids in self.players:
-                          self.players[ids]['monuments'] = [self.monuments.pop(), self.monuments.pop()] 
+                          self.players[ids]['monuments'] = [self.monuments.pop(), self.monuments.pop()]
+                          self.players[ids]['ready'] = False
                 else:
                     return util.error(4, 'wrong number of players')
+
         if self.game_stage == 'choose_monument':
-            return self.res({'monuments': self.players[id]['monuments'], 'bulidingRow': self.buildingRow.getRow()})
+            if all(map(lambda x: self.players[x]['ready'], self.players.keys())):
+                self.game_stage = 'main_game'
+                for ids in self.players:
+                    self.players[ids]['ready'] = False
+
+            return self.res({
+                'monuments': self.players[id]['monuments'], 
+                'bulidingRow': self.buildingRow.getRow(), 
+                'players': list(map(lambda x: self.players[x]['nickname'], self.players.keys())), 
+                'isReady': list(map(lambda x: self.players[x]['ready'], self.players.keys()))
+            })
+        
+        if self.game_stage == 'main_game':
+            return self.res({
+                'players': list(map(lambda x: self.players[x]['nickname'], self.players.keys())), 
+                'isReady': list(map(lambda x: self.players[x]['ready'], self.players.keys()))
+            })
 
         self.checkTTL()
         return self.res({
@@ -83,7 +101,8 @@ class Game():
             pass
 
     def setParam(self, paramName, params):
-        if paramName in params:
+        print(params)
+        if (paramName in params) and (self.game_stage == params['game_stage']):
             self.players[params['id']][paramName] = params[paramName]
         else:
             # TODO() aux.error(2, 'miss ' + paramName)
