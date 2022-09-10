@@ -164,7 +164,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
     }
 
     if (pageName == 'choose_monument') {
-        qs('#main').innerHTML = `<div><h2>Choose your monument</h2>
+        qs('#main').innerHTML = `<div><h2>Choose your monument:</h2>
             <div id="choose_monument" style="display:flex;">                                        
                     <!--<b>${MONUMENT_NAMES[params.monuments[0]]}:</b>-->
                     <img class=cards id=monument1 data-id="0" src="assets/cards/${params.monuments[0]}.webp">

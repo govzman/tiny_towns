@@ -8,19 +8,20 @@ html, body {
     height:100%;
     overflow: hidden;
     color: white;
+  
 }
 body {
     font-family: 'Cormorant Infant', serif;
     background: radial-gradient(ellipse at top,rgb(140, 108, 89),black);        
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #main {
   /*background: url('assets/background2.jpg');*/
-  /*background: linear-gradient(130deg, rgb(140, 108, 89),black);*/
-  
-  margin: 0;      
-  height: 100%;
-  width:  80%;
+  /*background: linear-gradient(130deg, rgb(140, 108, 89),black);*/  
+  text-align: center;
   overflow: hidden;
   padding: 50px;
   position: relative;      
@@ -38,6 +39,7 @@ body {
   color:black;
   position: fixed;
   right: 50px;
+  top:10px;
   z-index: 100;
 }
 
@@ -133,6 +135,13 @@ body {
     box-shadow: 0 0 0 6px pink;
 }
 
+#monument1 {
+    transform: rotate(-1deg);
+}
+#monument2 {
+    transform: rotate(2deg);
+}
+
 .selected_card {
     box-shadow: 0 0 0 10px lightgreen;
 }
@@ -151,6 +160,12 @@ body {
   color: black;
   border-radius: 3px;
   text-align: center;
+  /*border: 1px solid red;*/
+  width: 250px;
+}
+
+#lobby ul {
+    
 }
 
 #lobby li {

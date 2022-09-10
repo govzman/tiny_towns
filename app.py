@@ -46,4 +46,4 @@ def after_request(response):
 if __name__ == '__main__':    
     print(f"New game ID {myGame.game_id}\n")
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=False)
