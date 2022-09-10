@@ -86,9 +86,13 @@ const auth = async () => {
       }
 };
 
-//const setGameStage = (game_stage) => {    
-//    game.game_stage = game_stage;
-//};
+const setGameStage = (game_stage) => { 
+    if (game.game_stage != game_stage) {
+        game.ready = false;  
+        game.game_stage = game_stage;
+        console.debug('STAGE', game_stage);
+    }
+};
 
 const getStatus = () => {    
     if (!game.id) {
@@ -112,65 +116,71 @@ const getStatus = () => {
             return;
         }
         
-        //game.game_stage = res.game_stage;
         showPage(res.game_stage, res.params);
+        setGameStage(res.game_stage);
 
         switch(res.game_stage) {
-            //setGameStage(res.game_stage)
             case 'lobby':
-                if (game.players != res.params.players || game.playersReadiness != res.params.isReady) {
-                    game.players = res.params.players;
-                    game.playersReadiness = res.params.isReady;
-                    game.game_stage = "lobby";
-                    
-                    const playersList = document.getElementById("playersList");
-                    playersList.innerHTML = '';
-
-                    for (let playerName of game.players) {
-                        let li = document.createElement("li");
-                        li.appendChild(document.createTextNode((game.playersReadiness[game.players.indexOf(playerName)]?'🟢 ':'🟡 ')+playerName)); // TODO: players + ready
-                        playersList.appendChild(li);
-                    }                      
-                }
+                updatePlayersList(res.params);
                 break;
             case 'choose_monument':
-                // NB: https://boardgamegeek.com/thread/2227286/monument-tier-list
-                game.ready = false; // TODO: check this?
-
-                if (game.game_stage == 'choose_monument') {
-                  return; 
-                }
+                // NB: https://boardgamegeek.com/thread/2227286/monument-tier-list            
+                //if (game.game_stage == 'choose_monument')        return; 
                 
-                game.game_stage = res.params.game_stage;
+                updatePlayersList(res.params);
+                /*game.game_stage = res.params.game_stage;*/
                 //showPage('choose_monument', res.params);                
                 break;
+            
             default:
-                alert('Unknown stage!');                    
+                alert('Unknown stage!');
+                debugger;
+                console.debug('Unknown stage!', res.game_stage, game);
         }
     });        
-} 
+}
+
+const updatePlayersList = (params) => {
+    if (game.players != params.players || game.playersReadiness != params.isReady) {
+        game.players = params.players;
+        game.playersReadiness = params.isReady;
+        
+        const playersList = qs("#playersList");
+        playersList.innerHTML = '';
+
+        for (let playerName of game.players) {
+            //let li = document.createElement("li");
+            const status = game.playersReadiness[game.players.indexOf(playerName)] ? '🟢':'🟡';
+            //li.appendChild(document.createTextNode(
+                playersList.innerHTML += `<span class="playername">${status} ${playerName}</span>`;
+            //playersList.appendChild(li);
+        }                      
+    }
+};
 
 const showPage = (pageName = 'lobby', params = {}) => {
     if (pageName == game.currentPage) return false;
     if (pageName == 'lobby') {
         document.getElementById('main').innerHTML = `
+        <div id="playersList"></div>
         <div id="lobby">
-            <h3>Игроки:</h3>
-            <ul id="playersList">
-            </ul>
-            <button id="isReadyBtn">Start!</button>      
+            <button id="isReadyBtn">Ready!</button>      
         </div>`;
-        document.getElementById('isReadyBtn').addEventListener('click', getReady); 
+        document.getElementById('isReadyBtn').addEventListener('click', isReadyBtn); 
     }
 
     if (pageName == 'choose_monument') {
-        qs('#main').innerHTML = `<div><h2>Choose your monument:</h2>
+        qs('#main').innerHTML = `
+            <div id="playersList"></div>            
+            <div>
+            <h2>Choose your monument:</h2>
             <div id="choose_monument" style="display:flex;">                                        
                     <!--<b>${MONUMENT_NAMES[params.monuments[0]]}:</b>-->
                     <img class=cards id=monument1 data-id="0" src="assets/cards/${params.monuments[0]}.webp">
                 
                     <!--<b>${MONUMENT_NAMES[params.monuments[1]]}:</b>-->
-                    <img class=cards id=monument2 src="assets/cards/${params.monuments[1]}.webp">                
+                    <img class=cards id=monument2 src="assets/cards/${params.monuments[1]}.webp"> 
+
             </div></div>`;
 
             qs('#choose_monument').addEventListener('click', (e) => {
@@ -189,13 +199,13 @@ const showPage = (pageName = 'lobby', params = {}) => {
     game.currentPage = pageName;    
 };
 
-const getReady = () => {
+const isReadyBtn = () => {
     const button = document.getElementById('isReadyBtn');
     game.isReady = !game.isReady;
     if (game.isReady) {
-        button.textContent = 'Stop...';        
+        button.textContent = 'Waiting...';        
     } else {
-        button.textContent = 'Start!';        
+        button.textContent = 'Ready!';        
     }
     // Чтоб бысстрее начать: getStatus();
     return false;
