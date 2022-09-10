@@ -149,6 +149,7 @@ const updatePlayersList = (params) => {
         playersList.innerHTML = '';
 
         for (let playerName of game.players) {
+            if (playerName == game.nickname) continue;
             //let li = document.createElement("li");
             const status = game.playersReadiness[game.players.indexOf(playerName)] ? '🟢':'🟡';
             //li.appendChild(document.createTextNode(
@@ -170,11 +171,22 @@ const showPage = (pageName = 'lobby', params = {}) => {
     }
 
     if (pageName == 'choose_monument') {
+        const buildingsList = JSON.stringify(params.bulidingRow);
         qs('#main').innerHTML = `
-            <div id="playersList"></div>            
+            <div id="playersList"></div>
+            <div id="bulidingRow">
+                <img src="/assets/buildings/Cottage.png">
+                <img src="/assets/buildings/Cottage.png">
+                <img src="/assets/buildings/Cottage.png">
+                <img src="/assets/buildings/Cottage.png">
+                <img src="/assets/buildings/Cottage.png">
+                <img src="/assets/buildings/Cottage.png">
+                <img src="/assets/buildings/Cottage.png">
+                <br>${buildingsList}
+            </div>
             <div>
             <h2>Choose your monument:</h2>
-            <div id="choose_monument" style="display:flex;">                                        
+            <div id="choose_monument">
                     <!--<b>${MONUMENT_NAMES[params.monuments[0]]}:</b>-->
                     <img class=cards id=monument1 data-id="0" src="assets/cards/${params.monuments[0]}.webp">
                 
