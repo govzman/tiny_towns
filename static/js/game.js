@@ -86,6 +86,10 @@ const auth = async () => {
       }
 };
 
+//const setGameStage = (game_stage) => {    
+//    game.game_stage = game_stage;
+//};
+
 const getStatus = () => {    
     if (!game.id) {
         console.error('NO ID!!!!!')
@@ -109,13 +113,24 @@ const getStatus = () => {
         }
         
         //game.game_stage = res.game_stage;
+        showPage(res.game_stage, res.params);
+
         switch(res.game_stage) {
+            //setGameStage(res.game_stage)
             case 'lobby':
-                if (game.players != res.params.players) {
+                if (game.players != res.params.players || game.playersReadiness != res.params.isReady) {
                     game.players = res.params.players;
                     game.playersReadiness = res.params.isReady;
                     game.game_stage = "lobby";
-                    showPage('lobby');
+                    
+                    const playersList = document.getElementById("playersList");
+                    playersList.innerHTML = '';
+
+                    for (let playerName of game.players) {
+                        let li = document.createElement("li");
+                        li.appendChild(document.createTextNode((game.playersReadiness[game.players.indexOf(playerName)]?'🟢 ':'🟡 ')+playerName)); // TODO: players + ready
+                        playersList.appendChild(li);
+                    }                      
                 }
                 break;
             case 'choose_monument':
@@ -127,7 +142,7 @@ const getStatus = () => {
                 }
                 
                 game.game_stage = res.params.game_stage;
-                showPage('choose_monument', res.params);                
+                //showPage('choose_monument', res.params);                
                 break;
             default:
                 alert('Unknown stage!');                    
@@ -145,16 +160,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
             </ul>
             <button id="isReadyBtn">Start!</button>      
         </div>`;
-
-        const playersList = document.getElementById("playersList");
-        playersList.innerHTML = '';
-
-        for (let playerName of game.players) {
-            let li = document.createElement("li");
-            li.appendChild(document.createTextNode((game.playersReadiness[game.players.indexOf(playerName)]?'🟢 ':'🟡 ')+playerName)); // TODO: players + ready
-            playersList.appendChild(li);
-        }  
-        document.getElementById('isReadyBtn').addEventListener('click', getReady);     
+        document.getElementById('isReadyBtn').addEventListener('click', getReady); 
     }
 
     if (pageName == 'choose_monument') {
