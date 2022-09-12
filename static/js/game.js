@@ -171,18 +171,14 @@ const showPage = (pageName = 'lobby', params = {}) => {
     }
 
     if (pageName == 'choose_monument') {
-        const buildingsList = JSON.stringify(params.bulidingRow);
+        let buildingsList = '';
+        for (let building of params.bulidingRow) {
+            buildingsList += `<img src="/assets/buildings/${building}.png">`
+        }
         qs('#main').innerHTML = `
             <div id="playersList"></div>
             <div id="bulidingRow">
-                <img src="/assets/buildings/Cottage.png">
-                <img src="/assets/buildings/Cottage.png">
-                <img src="/assets/buildings/Cottage.png">
-                <img src="/assets/buildings/Cottage.png">
-                <img src="/assets/buildings/Cottage.png">
-                <img src="/assets/buildings/Cottage.png">
-                <img src="/assets/buildings/Cottage.png">
-                <br>${buildingsList}
+                ${buildingsList}
             </div>
             <div>
             <h2>Choose your monument:</h2>
