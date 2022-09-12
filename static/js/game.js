@@ -27,8 +27,9 @@ const getState = () => {
     return JSON.parse(localStorage.getItem('gameState'));
 }
 
-const setState = (state = game) => {
-    localStorage.setItem('gameState', JSON.stringify(state));
+const setState = () => {
+    //console.log('SET_STATE', JSON.stringify(game), game);
+    localStorage.setItem('gameState', JSON.stringify(game));
 }
 
 const api = async (method, params={}) => {
@@ -44,7 +45,7 @@ const api = async (method, params={}) => {
           }
         });
         const json = await response.json();                
-        if (DEBUG) console.debug(method, params, json);
+       // if (DEBUG) console.debug(method, params, json);
         
         return json;
         
@@ -56,14 +57,7 @@ const api = async (method, params={}) => {
 const auth = async () => {
     try {
         while (!game.nickname) {
-            /*document.getElementById('lobby').innerHTML = `<h2>Enter your nickname</h2>
-                    <div style="display:flex;">                        
-                        <input id="nickname">
-                        <button>Ok</button>
-                    </div>`;*/
-            game.nickname = prompt("Enter nickname: ");
-            
-            //return;
+            game.nickname = prompt("Enter nickname: ");            
         }        
         
         const result = await api('get_status', { 'nickname': game.nickname });
@@ -86,11 +80,15 @@ const auth = async () => {
       }
 };
 
-const setGameStage = (game_stage) => { 
-    if (game.game_stage != game_stage) {
-        game.ready = false;  
-        game.game_stage = game_stage;
-        console.debug('STAGE', game_stage);
+const setGameStage = (newStage = false) => {
+    if (!newStage){
+        return setGameStage(game.game_stage);
+    }
+
+    if (game.game_stage != newStage) {
+        isReadyBtn();        
+        game.game_stage = newStage;
+        console.debug('STAGE', newStage);     
     }
 };
 
@@ -108,9 +106,11 @@ const getStatus = () => {
         if (res.error){
             if (res.error.code == 1) {
                 console.error("BAD AUTH");
-                logOut();               
+                logOut(); // TODO
+                stopTimer();
+                //auth();
             } else {
-                document.getElementById('lobby').innerText = res.error.msg;
+                qs('#main').innerText = res.error.msg;
                 console.error('UNKNOWN ERR', res, res.error);
             }
             return;
@@ -125,13 +125,12 @@ const getStatus = () => {
                 break;
             case 'choose_monument':
                 // NB: https://boardgamegeek.com/thread/2227286/monument-tier-list            
-                //if (game.game_stage == 'choose_monument')        return; 
-                
-                updatePlayersList(res.params);
-                /*game.game_stage = res.params.game_stage;*/
+                updatePlayersList(res.params);                
                 //showPage('choose_monument', res.params);                
                 break;
-            
+            case 'main_game':
+                showPage('main_game', res.params);
+                break;
             default:
                 alert('Unknown stage!');
                 debugger;
@@ -149,7 +148,7 @@ const updatePlayersList = (params) => {
         playersList.innerHTML = '';
 
         for (let playerName of game.players) {
-            if (playerName == game.nickname) continue;
+            if (playerName == game.nickname) continue; // TODO: BUG
             //let li = document.createElement("li");
             const status = game.playersReadiness[game.players.indexOf(playerName)] ? '🟢':'🟡';
             //li.appendChild(document.createTextNode(
@@ -162,12 +161,8 @@ const updatePlayersList = (params) => {
 const showPage = (pageName = 'lobby', params = {}) => {
     if (pageName == game.currentPage) return false;
     if (pageName == 'lobby') {
-        document.getElementById('main').innerHTML = `
-        <div id="playersList"></div>
-        <div id="lobby">
-            <button id="isReadyBtn">Ready!</button>      
-        </div>`;
-        document.getElementById('isReadyBtn').addEventListener('click', isReadyBtn); 
+        document.getElementById('main').innerHTML = `<h1>Willkommen!</h1>`;
+        //document.getElementById('isReadyBtn').addEventListener('click', isReadyBtn); 
     }
 
     if (pageName == 'choose_monument') {
@@ -204,19 +199,66 @@ const showPage = (pageName = 'lobby', params = {}) => {
             });
             
     }
+
+    if (pageName == 'main_game') {
+        qs('#main').innerHTML = `<div id="boards">
+        <div class="board green">
+          <span class="playername">Player 1</span>
+          <span class="scores"> 30 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>
+        </div>
+        <div class="board blue">
+          <span class="playername">Player 2</span>
+          <span class="scores"> 15 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>
+        </div>
+        <div class="board red">
+          <span class="playername">Player 3</span>
+          <span class="scores"> 28 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>
+        </div>
+      </div>
+
+      <br><br>
+      <table>
+      <tr>
+        <td>
+          <div class="myboard">
+            <img src="assets/home.png" style="width: 50px;position:relative;top:90px;left:88px;">
+            <img src="assets/red.png" style="width: 30px;position:relative;top:155px;left:118px;">
+          </div>
+        </td>
+      
+        <td>
+        <div id="foo">
+          <div id="cards">
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+          </div>
+
+          <div id="resources">
+            <div class="brick red"></div>
+            <div class="brick blue"></div>
+            <div class="brick brown"></div>
+            <div class="brick yellow"></div>
+            <div class="brick white"></div>
+          </div>
+        </div>
+        </td>
+      </tr>
+      </table>`;
+    }
+
     game.currentPage = pageName;    
 };
 
-const isReadyBtn = () => {
-    const button = document.getElementById('isReadyBtn');
-    game.isReady = !game.isReady;
-    if (game.isReady) {
+const isReadyBtn = (isReady = false) => {
+    const button = qs('#isReadyBtn');
+    game.isReady = isReady;
+    if (isReady) {
         button.textContent = 'Waiting...';        
     } else {
         button.textContent = 'Ready!';        
-    }
-    // Чтоб бысстрее начать: getStatus();
-    return false;
+    }    
 };
 
 const restartGame = () => {
@@ -243,7 +285,7 @@ const logOut = () => {
         localStorage.clear();
         window.location.reload();
     });
-    
+    return false;
 }
 
 // -----------------------------------------------------
@@ -254,9 +296,10 @@ const defaultState = {
 };
 
 let game = getState() || defaultState;
-
-game.ready = false; // TODO !
-// document.game = game; // DEBUG only
+//console.debug('INIT STATE', JSON.stringify(game));
+setGameStage();
+//game.ready = false; // TODO !
+window.game = game; // DEBUG only
 
 if (game.id || game.nickname) {
     startTimer();
@@ -268,3 +311,4 @@ qs('#nickname').textContent = game.nickname;
 
 qs('#restartBtn').addEventListener('click', restartGame);
 qs('#logOutBtn').addEventListener('click', logOut);
+qs('#isReadyBtn').addEventListener('click', () => isReadyBtn(!game.isReady)); 

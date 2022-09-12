@@ -12,65 +12,15 @@
 </head>
 <body>
   <div id="score">
-    <span id="nickname"></span>
-    <button id="logOutBtn">❌</button>    
+    <span id="nickname"></span>    
+    <img id="logOutBtn" src="assets/coin.png" style="width: 30px;margin-bottom:-7px;">   
   </div>
-  <div style="position: fixed; right: 5px; top: 90%; background-color: red;padding:5px;">
+  <div style="position: fixed; left: 5px; top: 90%;z-index:1000; background-color: red;padding:5px;">
     <button id="restartBtn">Restart game</button>
   </div>
-  <div id="main">    
-    
-
-      <!--
-        <div id="score">Итого: <b>28</b> <img src="assets/coin.png" style="width: 30px;margin-bottom:-7px;"></div>
-        <div id="boards">
-          <div class="board green">
-            <span class="playername">Player 1</span>
-            <span class="scores"> 30 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>
-          </div>
-          <div class="board blue">
-            <span class="playername">Player 2</span>
-            <span class="scores"> 15 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>
-          </div>
-          <div class="board red">
-            <span class="playername">Player 3</span>
-            <span class="scores"> 28 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>
-          </div>
-        </div>
-
-        <br><br>
-        <table>
-        <tr>
-          <td>
-            <div class="myboard">
-              <img src="assets/home.png" style="width: 50px;position:relative;top:90px;left:88px;">
-              <img src="assets/red.png" style="width: 30px;position:relative;top:155px;left:118px;">
-            </div>
-          </td>
-        
-          <td>
-          <div id="foo">
-            <div id="cards">
-              <div class="card"></div>
-              <div class="card"></div>
-              <div class="card"></div>
-              <div class="card"></div>
-            </div>
-
-            <div id="resources">
-              <div class="brick red"></div>
-              <div class="brick blue"></div>
-              <div class="brick brown"></div>
-              <div class="brick yellow"></div>
-              <div class="brick white"></div>
-            </div>
-          </div>
-          </td>
-        </tr>
-        </table>
-      -->
-
-  </div>  
+  <div id="playersList"></div>
+  <div id="main"></div>
+  <button id="isReadyBtn">Ready!</button>
   <script type="module" src="./js/game.js"></script>
   <script>
       

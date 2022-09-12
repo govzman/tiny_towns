@@ -39,9 +39,9 @@ class Game():
 
         self.players[id]['last_response'] = time()
 
-
-        if self.game_stage == 'lobby':
-            self.setParam('ready', params) # !!!
+        self.setParam('ready', params)
+        
+        if self.game_stage == 'lobby':            
             if all(map(lambda x: self.players[x]['ready'], self.players.keys())):
                 if len(self.players) >= 1 and len(self.players) <= 6:
                       self.game_stage = 'choose_monument'
