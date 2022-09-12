@@ -119,13 +119,14 @@ const getStatus = () => {
         showPage(res.game_stage, res.params);
         setGameStage(res.game_stage);
 
+        updatePlayersList(res.params);
         switch(res.game_stage) {
             case 'lobby':
-                updatePlayersList(res.params);
+                //updatePlayersList(res.params);
                 break;
             case 'choose_monument':
                 // NB: https://boardgamegeek.com/thread/2227286/monument-tier-list            
-                updatePlayersList(res.params);                
+                //updatePlayersList(res.params);                
                 //showPage('choose_monument', res.params);                
                 break;
             case 'main_game':
@@ -148,15 +149,23 @@ const updatePlayersList = (params) => {
         playersList.innerHTML = '';
 
         for (let playerName of game.players) {
-            if (playerName == game.nickname) continue; // TODO: BUG
-            //let li = document.createElement("li");
+            //if (playerName == game.nickname) continue;
             const status = game.playersReadiness[game.players.indexOf(playerName)] ? '🟢':'🟡';
-            //li.appendChild(document.createTextNode(
-                playersList.innerHTML += `<span class="playername">${status} ${playerName}</span>`;
-            //playersList.appendChild(li);
+            playersList.innerHTML += `<span class="playername">${status} ${playerName}</span>${getMiniBoard()}`;            
         }                      
     }
 };
+
+const getMiniBoard = () => {
+    return `
+        <table class=miniboard>
+            <tr><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td></tr>
+        </table>`;
+};
+
 
 const showPage = (pageName = 'lobby', params = {}) => {
     if (pageName == game.currentPage) return false;
@@ -201,51 +210,23 @@ const showPage = (pageName = 'lobby', params = {}) => {
     }
 
     if (pageName == 'main_game') {
-        qs('#main').innerHTML = `<div id="boards">
+        qs('#main').innerHTML = `<!--<div id="boards">
         <div class="board green">
           <span class="playername">Player 1</span>
           <span class="scores"> 30 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>
-        </div>
-        <div class="board blue">
-          <span class="playername">Player 2</span>
-          <span class="scores"> 15 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>
-        </div>
-        <div class="board red">
-          <span class="playername">Player 3</span>
-          <span class="scores"> 28 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>
-        </div>
-      </div>
-
-      <br><br>
-      <table>
-      <tr>
-        <td>
-          <div class="myboard">
+        </div>        
+      </div>-->
+      <div class="myboard">
             <img src="assets/home.png" style="width: 50px;position:relative;top:90px;left:88px;">
             <img src="assets/red.png" style="width: 30px;position:relative;top:155px;left:118px;">
-          </div>
-        </td>
-      
-        <td>
-        <div id="foo">
-          <div id="cards">
-            <div class="card"></div>
-            <div class="card"></div>
-            <div class="card"></div>
-            <div class="card"></div>
-          </div>
-
-          <div id="resources">
+      </div>
+      <div id="resources">
             <div class="brick red"></div>
             <div class="brick blue"></div>
             <div class="brick brown"></div>
             <div class="brick yellow"></div>
             <div class="brick white"></div>
-          </div>
-        </div>
-        </td>
-      </tr>
-      </table>`;
+          </div>`;
     }
 
     game.currentPage = pageName;    

@@ -67,16 +67,27 @@ body {
    /* box-shadow: 4px 10px 10px -5px rgba(0, 0, 0, 0.6);*/
     margin:3px;
 }
-/*    .board {
-  width: 100px;
+.miniboard {
+  width: 80px;
   height: 80px;
-  background: url('assets/miniboard2.png');  
-  box-shadow: 8px 8px 8px 4px rgba(0, 0, 0, 0.6);
+  /*background: url('assets/_draft/miniboard2.png');  
+  box-shadow: 8px 8px 8px 4px rgba(0, 0, 0, 0.6);*/
   background-repeat: no-repeat;    
   background-size: 100%;
   margin: 10px;
+  background-color: yellow;
 }
 
+.miniboard td {
+    border: 1px solid lightgreen;
+}
+
+
+#resources {      
+    display: flex;
+    padding: 15px;      
+  }
+  
 .brick {
   width: 40px;
   height: 40px;           
@@ -107,7 +118,7 @@ body {
   background: url('assets/yellow.png');
   background-size: 100%;
 }
-*/
+
 #playersList {
     position: fixed;
     top: 10px;       
@@ -187,26 +198,6 @@ span.playername {
   background-size: 100%;
 }
 
-#lobby {
-  /*background: white;
-  padding: 15px;      
-  color: black;
-  border-radius: 3px;
-  text-align: center;  
-  width: 250px;*/
-}
-
-/*#lobby ul {
-    
-}
-
-#lobby li {
-  list-style: none;
-  font-size: 120%;
-  text-align: left;
-  padding: 5px;      
-}*/
-
 #isReadyBtn {
   /*border: 5px double rgb(7, 84, 162);*/   
   background-color: orange;
@@ -222,6 +213,6 @@ span.playername {
   margin: 5px;
 }
 
-#lobby button:hover, #lobby button:focus {
+#isReadyBtn:hover, #isReadyBtn:focus {
     background-color: red;
 }
