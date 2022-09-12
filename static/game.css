@@ -124,7 +124,7 @@ body {
     top: 10px;       
 }
 
-span.playername {
+.playername {
   display: inline-block;
   color: black;
   padding: 3px 15px 3px 15px;
@@ -133,19 +133,17 @@ span.playername {
   text-align: center;
   background-color: lightgreen;
 }
-/*
-.board span.scores {
-  
+
+span.scores {
   background-color: white;
+  color:black;
   font-weight: bold;
   padding: 5px 10px 5px 10px;
   border-radius: 15px;
   opacity: 0.8;
   position: relative;
-  bottom: -100px;
-  left: 15px;
 }
-
+/*
 .red span.playername {background-color: lightcoral;}
 .green span.playername {background-color: lightgreen;}
 .blue span.playername {background-color: lightblue;}

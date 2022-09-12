@@ -150,8 +150,8 @@ const updatePlayersList = (params) => {
 
         for (let playerName of game.players) {
             //if (playerName == game.nickname) continue;
-            const status = game.playersReadiness[game.players.indexOf(playerName)] ? '🟢':'🟡';
-            playersList.innerHTML += `<span class="playername">${status} ${playerName}</span>${getMiniBoard()}`;            
+            const status = game.playersReadiness[game.players.indexOf(playerName)] ? `<strong>${playerName}</strong>` : `${playerName}`;//'🟢':'🟡';
+            playersList.innerHTML += `<div>${status} <span class="scores"> 0 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>${getMiniBoard()}</div>`;            
         }                      
     }
 };
@@ -213,7 +213,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
         qs('#main').innerHTML = `<!--<div id="boards">
         <div class="board green">
           <span class="playername">Player 1</span>
-          <span class="scores"> 30 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>
+          <span class="scores"> 0 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>
         </div>        
       </div>-->
       <div class="myboard">
