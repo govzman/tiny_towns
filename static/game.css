@@ -18,6 +18,7 @@ body {
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    
 }
 
 #main {
@@ -82,11 +83,10 @@ body {
     border: 1px solid lightgreen;
 }
 
-
 #resources {      
     display: flex;
     padding: 15px;      
-  }
+}
   
 .brick {
   width: 40px;
@@ -120,6 +120,8 @@ body {
 }
 
 #playersList {
+    display: flex;
+    flex-direction: row;
     position: fixed;
     top: 10px;       
 }
@@ -163,9 +165,7 @@ span.scores {
   border-radius: 8px;
 }*/
 
-#choose_monument {
-
-}
+/*#choose_monument {}*/
 .cards {
   margin: 5px;
   box-shadow: 8px 8px 14px -5px rgba(0, 0, 0, 0.6);
