@@ -90,6 +90,13 @@ class Game():
             print(self.players)
             return {'error': {'code': 55, 'msg': 'bad id'}}
 
+    def set_monument(self, params):
+        if params['id'] in self.players:
+            self.players[params['id']]['monuments'] = [params['monument']]
+            return {'status' : 'ok'}
+        else:
+            return {'error': {'code': 55, 'msg': 'bad id'}}
+
     def checkTTL(self):
         try:
             keys = self.players.keys()

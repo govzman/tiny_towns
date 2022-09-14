@@ -33,6 +33,8 @@ def api():
         response = myGame.restart_game()
     elif request.json['method'] == 'log_out':
         response = myGame.log_out(request.json['params'])
+    elif request.json['method'] == 'set_monument':
+        response = myGame.set_monument(request.json['params'])
     return json.dumps(response)
 
 # DEV ONLY:
