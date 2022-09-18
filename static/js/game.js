@@ -237,9 +237,15 @@ const showPage = (pageName = 'lobby', params = {}) => {
           <span class="scores"> 0 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>
         </div>        
       </div>-->
-      <div class="myboard">
-            <img src="assets/home.png" style="width: 50px;position:relative;top:90px;left:88px;">
-            <img src="assets/red.png" style="width: 30px;position:relative;top:155px;left:118px;">
+      <div id="myboard">
+        <!--<img src="assets/home.png" style="width: 50px;position:relative;top:90px;left:88px;">
+        <img src="assets/red.png" style="width: 30px;position:relative;top:155px;left:118px;">-->
+        <table>
+            <tr><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td></td></tr>
+        </table>            
       </div>
       <div id="resources">
             <div class="brick red"></div>
@@ -249,6 +255,13 @@ const showPage = (pageName = 'lobby', params = {}) => {
             <div class="brick white"></div>
           </div>`;
     }
+    
+    qs('#myboard').addEventListener('click', (e) => {
+        if (e.target.nodeName == 'TD') {
+            console.debug('COORDS', e.target.parentElement.rowIndex, e.target.cellIndex);
+            e.target.className =  e.target.className == '' ? 'selected' : '';
+        }        
+    });
 
     game.currentPage = pageName;    
 };

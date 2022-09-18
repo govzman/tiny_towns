@@ -18,7 +18,7 @@ body {
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    
+
 }
 
 #main {
@@ -189,11 +189,30 @@ span.scores {
 }
 
 
-.myboard {
+div#myboard {
   width: 400px;
   height: 400px;
   background: url('assets/board.png');
   background-size: 100%;
+}
+
+#myboard table {
+    padding: 5px;
+    height: 100%;
+    width: 100%;    
+    border-spacing: 7px;    
+}
+
+#myboard td {
+    border: 3px solid #00000000;
+}
+
+#myboard .selected {
+    border: 3px solid lightgreen;
+}
+
+#myboard td:hover {
+    border: 3px solid red;
 }
 
 #isReadyBtn {
