@@ -194,20 +194,20 @@ const showPage = (pageName = 'lobby', params = {}) => {
             <h2>Choose your monument:</h2>
             <div id="choose_monument">
                     <!--<b>${MONUMENT_NAMES[params.monuments[0]]}:</b>-->
-                    <img class=cards id=monument1 data-id="0" src="assets/cards/${params.monuments[0]}.webp">
+                    <img class=cards id=monument1 data-name="${params.monuments[0]}" src="assets/cards/${params.monuments[0]}.webp">
                 
                     <!--<b>${MONUMENT_NAMES[params.monuments[1]]}:</b>-->
-                    <img class=cards id=monument2 src="assets/cards/${params.monuments[1]}.webp"> 
+                    <img class=cards id=monument2 data-name="${params.monuments[1]}" src="assets/cards/${params.monuments[1]}.webp"> 
 
             </div></div>`;
 
-            qs('#choose_monument').addEventListener('click', (e) => {
-                //console.debug(e);
+            qs('#choose_monument').addEventListener('click', (e) => {                
                 if (e.target.id == 'choose_monument') return;
 
                 e.target.classList.add('selected_card');
+                game.monument = e.target.dataset.name;
                 if (e.target.id == 'monument1') {
-                    qs('#monument2').classList = ['cards'];                             
+                    qs('#monument2').classList = ['cards'];                    
                 } else {
                     qs('#monument1').classList = ['cards'];                             
                 }
@@ -240,6 +240,12 @@ const showPage = (pageName = 'lobby', params = {}) => {
 
 const isReadyBtn = (isReady = false) => {
     const button = qs('#isReadyBtn');
+
+    if (game.game_stage == 'choose_monument' && !game.monument) {
+        alert('Choose a monument first!');
+        return;
+    }
+
     game.isReady = isReady;
     if (isReady) {
         button.textContent = 'Waiting...';        
