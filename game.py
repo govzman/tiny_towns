@@ -90,12 +90,21 @@ class Game():
             print(self.players)
             return {'error': {'code': 55, 'msg': 'bad id'}}
 
+
     def set_monument(self, params):
-        if params['id'] in self.players:
+        if params['id'] not in self.players:
+            return {'error': {'code': 55, 'msg': 'bad id'}}
+        
+        if self.game_stage != 'choose_monument':
+            return {'error': {'code': 56, 'msg': 'Wrong game stage'}}
+
+        if 'monument' in params and params['monument'] in self.players[params['id']]['monuments']:
             self.players[params['id']]['monuments'] = [params['monument']]
             return {'status' : 'ok'}
         else:
-            return {'error': {'code': 55, 'msg': 'bad id'}}
+            print(params, self.players[params['id']])
+            return {'error': {'code': 57, 'msg': 'bad request'}}
+
 
     def checkTTL(self):
         try:
@@ -108,8 +117,8 @@ class Game():
             pass
 
     def setParam(self, paramName, params):
-        print(params)
-        if (paramName in params) and (self.game_stage == params['game_stage']):
+        #print(params)
+        if (paramName in params) and ('game_stage' in params and self.game_stage == params['game_stage']):
             self.players[params['id']][paramName] = params[paramName]
         else:
             # TODO() aux.error(2, 'miss ' + paramName)
