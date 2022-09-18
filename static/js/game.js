@@ -253,16 +253,15 @@ const showPage = (pageName = 'lobby', params = {}) => {
             <div class="brick brown"></div>
             <div class="brick yellow"></div>
             <div class="brick white"></div>
-          </div>`;
+          </div>`;    
+        
+        qs('#myboard').addEventListener('click', (e) => {
+            if (e.target.nodeName == 'TD') {
+                console.debug('COORDS', e.target.parentElement.rowIndex, e.target.cellIndex);
+                e.target.className =  e.target.className == '' ? 'selected' : '';
+            }        
+        });
     }
-    
-    qs('#myboard').addEventListener('click', (e) => {
-        if (e.target.nodeName == 'TD') {
-            console.debug('COORDS', e.target.parentElement.rowIndex, e.target.cellIndex);
-            e.target.className =  e.target.className == '' ? 'selected' : '';
-        }        
-    });
-
     game.currentPage = pageName;    
 };
 
