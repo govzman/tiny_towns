@@ -99,7 +99,7 @@ class Game():
             return {'error': {'code': 56, 'msg': 'Wrong game stage'}}
 
         if 'monument' in params and params['monument'] in self.players[params['id']]['monuments']:
-            self.players[params['id']]['monuments'] = [params['monument']]
+            self.players[params['id']]['monument'] = params['monument']
             return {'status' : 'ok'}
         else:
             print(params, self.players[params['id']])

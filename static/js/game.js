@@ -205,12 +205,27 @@ const showPage = (pageName = 'lobby', params = {}) => {
                 if (e.target.id == 'choose_monument') return;
 
                 e.target.classList.add('selected_card');
-                game.monument = e.target.dataset.name;
+                
                 if (e.target.id == 'monument1') {
                     qs('#monument2').classList = ['cards'];                    
                 } else {
                     qs('#monument1').classList = ['cards'];                             
                 }
+
+                api('set_monument', {        
+                    "game_stage": "choose_monument",
+                    "monument": e.target.dataset.name,
+                    "id": game.id
+                    })
+                .then((res) => {
+                    if (res['status'] == 'ok')  {
+                        game.monument = e.target.dataset.name;
+                        console.debug('MONUMENT', e.target.dataset.name);
+                    } else {
+                        alert('Error: bad monument');
+                        console.error('SET_MONUMENT', res)
+                    }
+                });
             });
             
     }
