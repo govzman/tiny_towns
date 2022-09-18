@@ -140,8 +140,14 @@ const getStatus = () => {
     });        
 }
 
+const isEqual = (a, b) => {
+    // TODO: rewrite this dirty hack
+    // Doc: https://stackoverflow.com/questions/3115982/how-to-check-if-two-arrays-are-equal-with-javascript
+    return JSON.stringify(a) == JSON.stringify(b);
+};
+
 const updatePlayersList = (params) => {
-    if (game.players != params.players || game.playersReadiness != params.isReady) {
+    if (!isEqual(game.players,params.players) || !isEqual(game.playersReadiness, params.isReady)) {
         game.players = params.players;
         game.playersReadiness = params.isReady;
         
