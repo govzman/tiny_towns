@@ -18,6 +18,7 @@ class Game():
         # 'Shrine of the Elder Tree', 'Silva Forum', 'The Starloom', 'Statue of the Bondmaker']
         self.buildingRow = BuildingRow()
         self.buildingRow.generate()
+        self.board = Board()
         self.currentTurn = 1
 
     def get_status(self, params):
@@ -98,13 +99,32 @@ class Game():
         if self.game_stage != 'choose_monument':
             return {'error': {'code': 56, 'msg': 'Wrong game stage'}}
 
-        if 'monument' in params and params['monument'] in self.players[params['id']]['monuments']:
-            self.players[params['id']]['monument'] = params['monument']
-            return {'status' : 'ok'}
+        if 'monument' in params:
+            if params['monument'] in self.players[params['id']]['monuments']:
+                self.players[params['id']]['monument'] = params['monument']
+                return {'status' : 'ok'}
         else:
             print(params, self.players[params['id']])
             return {'error': {'code': 57, 'msg': 'bad request'}}
 
+    def check_patterns(self, params):
+        if params['id'] not in self.players:
+            return {'error': {'code': 55, 'msg': 'bad id'}}
+        if self.game_stage != 'main_game':
+            return {'error': {'code': 56, 'msg': 'Wrong game stage'}}
+
+        if 'cords' in params:
+            cords = params['cords']
+        else:
+            print(params, self.players[params['id']])
+            return {'error': {'code': 57, 'msg': 'bad request'}}
+
+        # check patterns
+        
+        # some code
+        return {'isPatterns': False, 'cords': {'0, 0': 'blue'}}
+
+        
 
     def checkTTL(self):
         try:
@@ -131,6 +151,7 @@ class Game():
             'params': params
         }
 
+
 class Resource():
     def __init__(self, name):
         self.name = name
@@ -144,6 +165,10 @@ class Building():
         self.name = name
         self.type = type
         self.id = id
+        # self.patterns = []
+        if self.name == 'Cottage':
+            self.patterns = {1: {'0, 0': 'blue', '0, 1': 'red', '1, 0': 'yellow'}}
+            print(self.patterns)
 
     # def __call__(self):
     #     return self.name
@@ -183,18 +208,28 @@ class Board():
     def __init__(self):
         self.board = [[Cell(), Cell(), Cell(), Cell()], [Cell(), Cell(), Cell(), Cell()], [Cell(), Cell(), Cell(), Cell()], [Cell(), Cell(), Cell(), Cell()]]
 
-    def getCell(self, x, y):
-        return self.board[y][x].get()
+    def getCell(self, cord):
+        return self.board[cord[1]][cord[0]].get()
 
-    def setCell(self, build, x, y): 
-        self.board[y][x].set(build)
+    def setCell(self, build, cord): 
+        self.board[cord[1]][cord[0]].set(build)
 
     def print(self):
         for i in self.board:
             print(' '.join(list(map(lambda x: x.get(), i))))
 
-    def checkPatterns(self, cords):
-        pass
+    def checkPatterns(self, cords, building_row):
+        min_cord_x = min(map(lambda x: x[0], cords))
+        min_cord_y = min(map(lambda x: x[1], cords))
+        # print(min_cord_x, min_cord_y)
+        cords = sorted(list(map(lambda x: [x[0] - min_cord_x, x[1] - min_cord_y], cords)))
+        for cord in cords:
+            print(building_row.buildings[0].patterns[1][str(cord[0]) + ', ' + str(cord[1])])
+            # print(cord)
+            # print(self.getCell(cord))
+        # print(str(cord))
+        
+
 
 
 # class Player():
@@ -223,4 +258,5 @@ class Board():
 
 if __name__ == '__main__':
     game = Game()
-    print(game.buildingRow.getRow())
+    # print(game.buildingRow.getRow())
+    game.board.checkPatterns([[3, 3], [2, 3], [3, 2]], game.buildingRow)
