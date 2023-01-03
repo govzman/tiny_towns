@@ -167,8 +167,21 @@ class Building():
         self.id = id
         # self.patterns = []
         if self.name == 'Cottage':
-            self.patterns = {1: {'0, 0': 'blue', '0, 1': 'red', '1, 0': 'yellow'}}
+            self.patterns = [{'1, 1': 'blue', '0, 1': 'red', '1, 0': 'yellow'}]
+            self.all_rotations()
             print(self.patterns)
+
+    def all_rotations(self):
+        size_x = 1
+        size_y = 1
+        for cell in self.patterns[0]:
+            x, y = map(int, cell.split(', '))
+            size_x, size_y = max(size_x, x + 1), max(size_y, y + 1)
+        print(size_x, size_y)
+
+        turn90 = {}
+        for i in self.patterns[0]:
+            pass
 
     # def __call__(self):
     #     return self.name
@@ -206,7 +219,12 @@ class Cell():
 
 class Board():
     def __init__(self):
-        self.board = [[Cell(), Cell(), Cell(), Cell()], [Cell(), Cell(), Cell(), Cell()], [Cell(), Cell(), Cell(), Cell()], [Cell(), Cell(), Cell(), Cell()]]
+        self.board = [
+            [Cell(), Cell(), Cell(), Cell()],
+            [Cell(), Cell(), Cell(), Cell()], 
+            [Cell(), Cell(), Cell(), Cell()], 
+            [Cell(), Cell(), Cell(), Cell()]
+            ]
 
     def getCell(self, cord):
         return self.board[cord[1]][cord[0]].get()
@@ -217,14 +235,19 @@ class Board():
     def print(self):
         for i in self.board:
             print(' '.join(list(map(lambda x: x.get(), i))))
-
+    
     def checkPatterns(self, cords, building_row):
-        min_cord_x = min(map(lambda x: x[0], cords))
-        min_cord_y = min(map(lambda x: x[1], cords))
+        min_cord_x = min(map(lambda x: int(x.split(', ')[0]), cords.keys()))
+        min_cord_y = min(map(lambda x: int(x.split(', ')[1]), cords.keys()))
         # print(min_cord_x, min_cord_y)
-        cords = sorted(list(map(lambda x: [x[0] - min_cord_x, x[1] - min_cord_y], cords)))
-        for cord in cords:
-            print(building_row.buildings[0].patterns[1][str(cord[0]) + ', ' + str(cord[1])])
+        cords = {f"{int(cord.split(', ')[0]) - min_cord_x}, {int(cord.split(', ')[1]) - min_cord_y}": cords[cord] for cord in cords}
+        print(cords)
+        for building in building_row.buildings[:1]: # 1 потому что ТЕСТ для первого здания (коттеджа)
+            if cords in building.patterns:
+                print(cords, building.name)
+            
+        # for cord in cords:
+        #     print(building_row.buildings[0].patterns[0][str(cord[0]) + ', ' + str(cord[1])])
             # print(cord)
             # print(self.getCell(cord))
         # print(str(cord))
@@ -259,4 +282,5 @@ class Board():
 if __name__ == '__main__':
     game = Game()
     # print(game.buildingRow.getRow())
-    game.board.checkPatterns([[3, 3], [2, 3], [3, 2]], game.buildingRow)
+    input_cells = {'3, 3': 'blue', '2, 3': 'red', '3, 2': 'yellow'}
+    game.board.checkPatterns(input_cells, game.buildingRow)
