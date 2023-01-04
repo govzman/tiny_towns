@@ -18,6 +18,7 @@ body {
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    flex-wrap: wrap;
 
 }
 
@@ -28,8 +29,12 @@ body {
     background-size: 30%;
     background-position: bottom right;
     background-repeat: no-repeat;*/
+  width:100%;
   padding: 50px;
-  position: relative;      
+  /*position: relative;*/
+  display: flex;
+  flex-wrap: wrap;
+  
 }
 
 #score {
@@ -53,8 +58,27 @@ body {
 
 }
 
+#log {
+  clear:none;
+  background:black;
+  position: fixed;
+  z-index:100;
+  left: 15px;
+  top: 50px;
+  color: white;
+  margin: 25px;
+  padding: 10px;
+  opacity: 0.7;
+  width: 150px;
+  text-align: left;
+  height: 150px;
+  overflow-y: scroll;
+  border-radius: 3px;
+}
+
 #bulidingRow {
     padding: 0px;
+    width:100%;
     opacity: 0.8;
     background: white;
     border-radius: 8px;
@@ -84,14 +108,14 @@ body {
 }
 
 #resources {      
-    display: flex;
-    padding: 15px;      
+    display: flex;    
+    width: 200px;    
 }
   
 .brick {
-  width: 40px;
-  height: 40px;           
-  margin: 10px;
+  width: 30px;
+  height: 30px; 
+  margin: 5px;          
 }
 
 .brick.red {
@@ -122,8 +146,8 @@ body {
 #playersList {
     display: flex;
     flex-direction: row;
-    position: fixed;
-    top: 10px;       
+    height: 130px; 
+
 }
 
 .playername {
@@ -165,7 +189,9 @@ span.scores {
   border-radius: 8px;
 }*/
 
-/*#choose_monument {}*/
+#choose_monument {
+  width: 100%;
+}
 .cards {
   margin: 5px;
   box-shadow: 8px 8px 14px -5px rgba(0, 0, 0, 0.6);
@@ -188,10 +214,21 @@ span.scores {
     box-shadow: 0px 0px 25px 5px red;
 }
 
+#announce {
+  width: 100%;
+  margin: 15px;
+  font-size: 150%;
+  font-weight: bold;
+}
+
+#yourMonument {
+  width: 100px;
+}
 
 div#myboard {
   width: 200px;
   height: 200px;
+  clear:none;
   background: url('assets/board.png');
   background-size: 100%;
 }

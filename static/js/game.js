@@ -80,16 +80,17 @@ const auth = async () => {
       }
 };
 
-const setGameStage = (newStage = false) => {
-    if (!newStage){
-        return setGameStage(game.game_stage);
-    }
+const setGameStage = (newStage = game.stage) => {
+    // if (!newStage){
+    //     return setGameStage(game.game_stage);
+    // }
 
-    if (game.game_stage != newStage) {
-        isReadyBtn();        
-        game.game_stage = newStage;
+//    if (game.game_stage != newStage) {
+        isReadyBtn();
+        //game.isReady = false;
+        game.stage = newStage;
         console.debug('STAGE', newStage);     
-    }
+  //  }
 };
 
 const getStatus = () => {    
@@ -102,7 +103,8 @@ const getStatus = () => {
     // if (DEBUG) console.debug(`PING ${game.id}`);
 
     // TODO: bad id
-    api('get_status', { 'id': game.id, 'ready': game.isReady, 'game_stage': game.game_stage}).then((res) => {
+    api('get_status', { 'id': game.id, 'ready': game.isReady, 'stage': game.stage}).then((res) => {
+        console.debug('GET_STATUS', game.isReady, game.stage, res);
         if (res.error){
             if (res.error.code == 1) {
                 console.error("BAD AUTH");
@@ -116,9 +118,27 @@ const getStatus = () => {
             return;
         }
         
-        // TODO: check game_stage in [lobby choose_monument main_game] -> Unknown stage!
-        showPage(res.game_stage, res.params);
-        setGameStage(res.game_stage);
+        // TODO: check stage in [lobby choose_monument main_game] -> Unknown stage!
+        // TODO: check step
+        if (game.stage != res.params.stage || !game.currentPage) {
+            showPage(res.params.stage, res.params);
+            setGameStage(res.params.stage);
+            game.log.push('Started...');
+            showLog();
+            
+            if (game.stage == 'choose_monument') {
+                setAnnounce('Monuments stage...');
+                
+            }
+
+            if (game.stage == 'main_game') {
+                game.player.monument = res.params.player.monument;
+                setAnnounce('Step #'+res.game_step);                
+            }
+        }
+        // TODO:
+
+        // setAnnounce()
 
         updatePlayersList(res.params);      
         
@@ -157,6 +177,15 @@ const getMiniBoard = () => {
         </table>`;
 };
 
+const setAnnounce = (announceText) => {
+    document.getElementById('announce').textContent = announceText;
+}
+
+const showLog = () => {
+    // TODO: check XSS
+    //document.getElementById('log').innerHTML = game.log.join('<br>');
+}
+
 const getBuildigsList = (bulidingRow) => {
     if (!bulidingRow) return 'NO BUILDINGS'; // TODO
 
@@ -168,12 +197,14 @@ const getBuildigsList = (bulidingRow) => {
     return buildingsList;
 }
 
-const showPage = (pageName = 'lobby', params = {}) => {    
+const showPage = (pageName = 'lobby', params = {}) => {  
+    //console.log('TEST', pageName, game.currentPage, pageName == game.currentPage)  
     if (pageName == game.currentPage) return false;
     console.debug('SHOW_PAGE', pageName, params);
     
     if (pageName == 'lobby') {
-        document.getElementById('main').innerHTML = `<h1>Willkommen!</h1>`;
+        //document.getElementById('main').innerHTML = `<h1>Willkommen!</h1>`;
+        setAnnounce('Hello!')
         //document.getElementById('isReadyBtn').addEventListener('click', isReadyBtn); 
     }
 
@@ -186,11 +217,11 @@ const showPage = (pageName = 'lobby', params = {}) => {
             <div>
             <h2>Choose your monument:</h2>
             <div id="choose_monument">
-                    <!--<b>${MONUMENT_NAMES[params.monuments[0]]}:</b>-->
-                    <img class=cards id=monument1 data-name="${params.monuments[0]}" src="assets/cards/${params.monuments[0]}.webp">
+                    <!--<b>${MONUMENT_NAMES[params.player.monuments[0]]}:</b>-->
+                    <img class=cards id=monument1 data-name="${params.player.monuments[0]}" src="assets/cards/${params.player.monuments[0]}.webp">
                 
-                    <!--<b>${MONUMENT_NAMES[params.monuments[1]]}:</b>-->
-                    <img class=cards id=monument2 data-name="${params.monuments[1]}" src="assets/cards/${params.monuments[1]}.webp"> 
+                    <!--<b>${MONUMENT_NAMES[params.player.monuments[1]]}:</b>-->
+                    <img class=cards id=monument2 data-name="${params.player.monuments[1]}" src="assets/cards/${params.player.monuments[1]}.webp"> 
 
             </div></div>`;
 
@@ -204,15 +235,15 @@ const showPage = (pageName = 'lobby', params = {}) => {
                 } else {
                     qs('#monument1').classList = ['cards'];                             
                 }
-
+                game.player.monument = e.target.dataset.name;
                 api('set_monument', {        
-                    "game_stage": "choose_monument",
+                    "stage": "choose_monument",
                     "monument": e.target.dataset.name,
                     "id": game.id
                     })
                 .then((res) => {
                     if (res['status'] == 'ok')  {
-                        game.monument = e.target.dataset.name;
+                        game.player.monument = e.target.dataset.name;
                         console.debug('MONUMENT', e.target.dataset.name);
                     } else {
                         alert('Error: bad monument');
@@ -223,13 +254,8 @@ const showPage = (pageName = 'lobby', params = {}) => {
             
     }
 
-    if (pageName == 'main_game') {
-        qs('#main').innerHTML = `<!--<div id="boards">
-        <div class="board green">
-          <span class="playername">Player 1</span>
-          <span class="scores"> 0 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>
-        </div>        
-      </div>-->
+    if (pageName == 'main_game') {        
+        qs('#main').innerHTML = `
       <div id="bulidingRow">
         ${getBuildigsList(params.bulidingRow)}
       </div>
@@ -241,20 +267,27 @@ const showPage = (pageName = 'lobby', params = {}) => {
             <tr><td></td><td></td><td></td><td></td></tr>
             <tr><td></td><td></td><td></td><td></td></tr>
             <tr><td></td><td></td><td></td><td></td></tr>
-        </table>            
-      </div>
-      <div id="resources">
+        </table>
+        <div id="resources">
             <div class="brick red"></div>
             <div class="brick blue"></div>
             <div class="brick brown"></div>
             <div class="brick yellow"></div>
             <div class="brick white"></div>
-          </div>`;    
+        </div>
+        <div id=yourMonument>
+            <img class="cards" src="/assets/cards/${params.player.monument}.webp">
+        </div>
+      </div>`;    
         
         qs('#myboard').addEventListener('click', (e) => {
             if (e.target.nodeName == 'TD') {
                 console.debug('COORDS', e.target.parentElement.rowIndex, e.target.cellIndex);
-                e.target.className =  e.target.className == '' ? 'selected' : '';
+                
+                for (let selected of document.querySelectorAll('.selected')) {
+                    selected.className = '';
+                }
+                e.target.className =  'selected'; //e.target.className == '' ? 'selected' : '';
             }        
         });
     }
@@ -264,8 +297,13 @@ const showPage = (pageName = 'lobby', params = {}) => {
 const isReadyBtn = (isReady = false) => {
     const button = qs('#isReadyBtn');
 
-    if (game.game_stage == 'choose_monument' && !game.monument) {
+    if (game.stage == 'choose_monument' && !game.player.monument) {
         alert('Choose a monument first!');
+        return;
+    }
+
+    if (game.stage == 'main_game' && !game.movement) {
+        alert('Make a move!');
         return;
     }
 
@@ -308,7 +346,10 @@ const logOut = () => {
 
 const defaultState = {
     isReady: false,
-    game_stage: "lobby"
+    stage: "lobby",
+    player: {
+        // NB: monument
+    }
 };
 
 let game = getState() || defaultState;
@@ -324,6 +365,7 @@ if (game.id || game.nickname) {
 }
 qs('#nickname').textContent = game.nickname;
 
+game.log = ['<b>New game</b>'];
 
 qs('#restartBtn').addEventListener('click', restartGame);
 qs('#logOutBtn').addEventListener('click', logOut);
