@@ -68,7 +68,8 @@ class Game():
         
         if self.game_stage == 'main_game':
             return self.res({
-                'players': list(map(lambda x: self.players[x]['nickname'], self.players.keys())), 
+                'players': list(map(lambda x: self.players[x]['nickname'], self.players.keys())),
+                'bulidingRow': self.buildingRow.getRow(),
                 'isReady': list(map(lambda x: self.players[x]['ready'], self.players.keys()))
             })
 

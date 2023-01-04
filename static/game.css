@@ -54,12 +54,12 @@ body {
 }
 
 #bulidingRow {
-    padding: 5px;
+    padding: 0px;
     opacity: 0.8;
     background: white;
-    
+    border-radius: 8px;
     box-shadow: 4px 10px 10px -5px rgba(0, 0, 0, 0.6);
-    transform: rotate(0.5deg);
+    transform: rotate(1deg);
 }
 
 #bulidingRow img {
@@ -174,7 +174,7 @@ span.scores {
   width: 150px;
 }
 .cards:hover {
-    box-shadow: 0 0 0 6px pink;
+    box-shadow: 0 0 0 5px lightgreen;    
 }
 
 #monument1 {
@@ -185,13 +185,13 @@ span.scores {
 }
 
 .selected_card {
-    box-shadow: 0 0 0 10px lightgreen;
+    box-shadow: 0px 0px 25px 5px red;
 }
 
 
 div#myboard {
-  width: 400px;
-  height: 400px;
+  width: 200px;
+  height: 200px;
   background: url('assets/board.png');
   background-size: 100%;
 }

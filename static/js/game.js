@@ -99,7 +99,7 @@ const getStatus = () => {
         return;
     }
 
-    if (DEBUG) console.debug(`PING ${game.id}`);
+    // if (DEBUG) console.debug(`PING ${game.id}`);
 
     // TODO: bad id
     api('get_status', { 'id': game.id, 'ready': game.isReady, 'game_stage': game.game_stage}).then((res) => {
@@ -116,27 +116,12 @@ const getStatus = () => {
             return;
         }
         
+        // TODO: check game_stage in [lobby choose_monument main_game] -> Unknown stage!
         showPage(res.game_stage, res.params);
         setGameStage(res.game_stage);
 
-        updatePlayersList(res.params);
-        switch(res.game_stage) {
-            case 'lobby':
-                //updatePlayersList(res.params);
-                break;
-            case 'choose_monument':
-                // NB: https://boardgamegeek.com/thread/2227286/monument-tier-list            
-                //updatePlayersList(res.params);                
-                //showPage('choose_monument', res.params);                
-                break;
-            case 'main_game':
-                showPage('main_game', res.params);
-                break;
-            default:
-                alert('Unknown stage!');
-                debugger;
-                console.debug('Unknown stage!', res.game_stage, game);
-        }
+        updatePlayersList(res.params);      
+        
     });        
 }
 
@@ -172,23 +157,31 @@ const getMiniBoard = () => {
         </table>`;
 };
 
+const getBuildigsList = (bulidingRow) => {
+    if (!bulidingRow) return 'NO BUILDINGS'; // TODO
 
-const showPage = (pageName = 'lobby', params = {}) => {
+    let buildingsList = '';
+    for (let building of bulidingRow) {
+        buildingsList += `<img src="/assets/buildings/${building}.png">`
+    }
+    
+    return buildingsList;
+}
+
+const showPage = (pageName = 'lobby', params = {}) => {    
     if (pageName == game.currentPage) return false;
+    console.debug('SHOW_PAGE', pageName, params);
+    
     if (pageName == 'lobby') {
         document.getElementById('main').innerHTML = `<h1>Willkommen!</h1>`;
         //document.getElementById('isReadyBtn').addEventListener('click', isReadyBtn); 
     }
 
     if (pageName == 'choose_monument') {
-        let buildingsList = '';
-        for (let building of params.bulidingRow) {
-            buildingsList += `<img src="/assets/buildings/${building}.png">`
-        }
         qs('#main').innerHTML = `
             <div id="playersList"></div>
             <div id="bulidingRow">
-                ${buildingsList}
+                ${getBuildigsList(params.bulidingRow)}
             </div>
             <div>
             <h2>Choose your monument:</h2>
@@ -237,6 +230,9 @@ const showPage = (pageName = 'lobby', params = {}) => {
           <span class="scores"> 0 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>
         </div>        
       </div>-->
+      <div id="bulidingRow">
+        ${getBuildigsList(params.bulidingRow)}
+      </div>
       <div id="myboard">
         <!--<img src="assets/home.png" style="width: 50px;position:relative;top:90px;left:88px;">
         <img src="assets/red.png" style="width: 30px;position:relative;top:155px;left:118px;">-->
