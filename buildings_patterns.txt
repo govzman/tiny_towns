@@ -1,0 +1,2 @@
+Cottage / {'1, 1': 'blue', '0, 1': 'red', '1, 0': 'yellow'}
+Fountain / {'0, 0': 'brown', '0, 1': 'gray'}

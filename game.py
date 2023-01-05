@@ -161,27 +161,79 @@ class ResourceOnBoard(Resource):
         super().__init__(name)
 
 class Building():
+
+    with open('buildings_patterns.txt') as file:
+        lines = file.readlines()
+        buildings_patterns = {}
+        # print('!', lines)
+        for i in range(len(lines)):
+            buliding, pattern = lines[i].split(' / ')
+            buildings_patterns[buliding] = eval(pattern)
+        print(buildings_patterns)
+
     def __init__(self, name='Cottage', type='cottage', id=1):
         self.name = name
         self.type = type
         self.id = id
         # self.patterns = []
-        if self.name == 'Cottage':
-            self.patterns = [{'1, 1': 'blue', '0, 1': 'red', '1, 0': 'yellow'}]
-            self.all_rotations()
-            print(self.patterns)
+        if self.name in Building.buildings_patterns:
+        # if self.name == 'Cottage':
+            # self.patterns = [{'1, 1': 'blue', '0, 1': 'red', '1, 0': 'yellow'}]
+            self.patterns = [Building.buildings_patterns[self.name]]
+            self.add_all_rotations()
+            # print(*self.patterns, sep='\n')
+        else:
+            self.patterns = [{'0, 0': 'red'}] # заглушка
 
-    def all_rotations(self):
+    def add_all_rotations(self):
         size_x = 1
         size_y = 1
+        # print('^', self.patterns)
         for cell in self.patterns[0]:
             x, y = map(int, cell.split(', '))
             size_x, size_y = max(size_x, x + 1), max(size_y, y + 1)
-        print(size_x, size_y)
+        # print(size_x, size_y)
 
-        turn90 = {}
-        for i in self.patterns[0]:
-            pass
+        # base rotations
+        for _ in range(3):
+            turn90 = {} # right 
+            for cell in self.patterns[-1]:
+                x, y = map(int, cell.split(', '))
+                turn90[f'{size_y - 1 - y}, {x}'] = self.patterns[-1][cell]
+            self.patterns.append(turn90)
+        
+        # add horizontal symmetric 
+        horizontal = {} 
+        for cell in self.patterns[0]:
+            x, y = map(int, cell.split(', '))
+            horizontal[f'{size_x - 1 - x}, {y}'] = self.patterns[0][cell]
+        self.patterns.append(horizontal)
+
+        # horizontal symmetrical rotations
+
+        for i in range(3):
+            turn90 = {} # right 
+            for cell in self.patterns[-1]:
+                x, y = map(int, cell.split(', '))
+                turn90[f'{size_y - 1 - y}, {x}'] = self.patterns[-1][cell]
+            self.patterns.append(turn90)
+
+        # add vertical symmetric 
+        vertical = {} 
+        for cell in self.patterns[0]:
+            x, y = map(int, cell.split(', '))
+            vertical[f'{x}, {size_y - y - 1}'] = self.patterns[0][cell]
+        self.patterns.append(vertical)
+
+        # horizontal symmetrical rotations
+
+        for i in range(3):
+            turn90 = {} # right 
+            for cell in self.patterns[-1]:
+                x, y = map(int, cell.split(', '))
+                turn90[f'{size_y - 1 - y}, {x}'] = self.patterns[-1][cell]
+            self.patterns.append(turn90)
+        
 
     # def __call__(self):
     #     return self.name
@@ -202,6 +254,8 @@ class BuildingRow():
     def getRow(self):
         return list(map(lambda x: x.name, self.buildings))
 
+    def __str__(self):
+        return ', '.join(list(map(lambda x: x.name, self.buildings)))
 
 class BuildingOnBoard():
     def __init__(self, name):
@@ -241,10 +295,14 @@ class Board():
         min_cord_y = min(map(lambda x: int(x.split(', ')[1]), cords.keys()))
         # print(min_cord_x, min_cord_y)
         cords = {f"{int(cord.split(', ')[0]) - min_cord_x}, {int(cord.split(', ')[1]) - min_cord_y}": cords[cord] for cord in cords}
-        print(cords)
-        for building in building_row.buildings[:1]: # 1 потому что ТЕСТ для первого здания (коттеджа)
+        # print(cords)
+        isFound = False
+        for building in building_row.buildings: # 1 потому что ТЕСТ для первого здания (коттеджа)
             if cords in building.patterns:
-                print(cords, building.name)
+                isFound = True
+                print(building.name, cords)
+        if not isFound:
+            print('not find')
             
         # for cord in cords:
         #     print(building_row.buildings[0].patterns[0][str(cord[0]) + ', ' + str(cord[1])])
@@ -282,5 +340,8 @@ class Board():
 if __name__ == '__main__':
     game = Game()
     # print(game.buildingRow.getRow())
-    input_cells = {'3, 3': 'blue', '2, 3': 'red', '3, 2': 'yellow'}
+    # input_cells = {'3, 3': 'blue', '2, 3': 'red', '3, 2': 'yellow'}
+    # input_cells = {'0, 0': 'blue', '1, 0': 'yellow', '0, 1': 'red'}
+    print(game.buildingRow)
+    input_cells = {'3, 2': 'gray', '2, 2': 'brown'}
     game.board.checkPatterns(input_cells, game.buildingRow)
