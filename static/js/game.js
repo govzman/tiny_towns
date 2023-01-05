@@ -124,7 +124,7 @@ const getStatus = () => {
             showPage(res.params.stage, res.params);
             setGameStage(res.params.stage);
             game.log.push('Started...');
-            showLog();
+            //showLog();
             
             if (game.stage == 'choose_monument') {
                 setAnnounce('Monuments stage...');
@@ -133,7 +133,10 @@ const getStatus = () => {
 
             if (game.stage == 'main_game') {
                 game.player.monument = res.params.player.monument;
-                setAnnounce('Step #'+res.game_step);                
+                // TODO:
+                game.step.active_player = 'XXX';
+                game.step.resource = 'yellow';
+                setAnnounce(`Step #${res.game_step} / Player ${game.step.active_player} / Resource ${game.step.resource}`);                
             }
         }
         // TODO:
@@ -181,9 +184,10 @@ const setAnnounce = (announceText) => {
     document.getElementById('announce').textContent = announceText;
 }
 
-const showLog = () => {
+const writeLog = (message) => {
     // TODO: check XSS
     //document.getElementById('log').innerHTML = game.log.join('<br>');
+    document.getElementById('log').append(message+'\n') // insertAdjacentHTML('beforebegin', message);
 }
 
 const getBuildigsList = (bulidingRow) => {
@@ -260,34 +264,42 @@ const showPage = (pageName = 'lobby', params = {}) => {
         ${getBuildigsList(params.bulidingRow)}
       </div>
       <div id="myboard">
-        <!--<img src="assets/home.png" style="width: 50px;position:relative;top:90px;left:88px;">
-        <img src="assets/red.png" style="width: 30px;position:relative;top:155px;left:118px;">-->
+      <div id="resources">
+        <div class="brick red"></div>
+        <div class="brick blue"></div>
+        <div class="brick brown"></div>
+        <div class="brick yellow"></div>
+        <div class="brick white"></div>
+      </div>
+    
         <table>
             <tr><td></td><td></td><td></td><td></td></tr>
             <tr><td></td><td></td><td></td><td></td></tr>
             <tr><td></td><td></td><td></td><td></td></tr>
             <tr><td></td><td></td><td></td><td></td></tr>
         </table>
-        <div id="resources">
-            <div class="brick red"></div>
-            <div class="brick blue"></div>
-            <div class="brick brown"></div>
-            <div class="brick yellow"></div>
-            <div class="brick white"></div>
-        </div>
+        
         <div id=yourMonument>
             <img class="cards" src="/assets/cards/${params.player.monument}.webp">
-        </div>
-      </div>`;    
+        </div>       
+      </div>
+      
+      `;    
         
         qs('#myboard').addEventListener('click', (e) => {
             if (e.target.nodeName == 'TD') {
-                console.debug('COORDS', e.target.parentElement.rowIndex, e.target.cellIndex);
+                const x = e.target.parentElement.rowIndex;
+                const y =  e.target.cellIndex;
+                //console.debug('COORDS', x,y);
                 
                 for (let selected of document.querySelectorAll('.selected')) {
                     selected.className = '';
                 }
-                e.target.className =  'selected'; //e.target.className == '' ? 'selected' : '';
+                e.target.className =  'selected brick yellow'; //e.target.className == '' ? 'selected' : '';
+                game.movement = {};
+                game.movement[`${x},${y}`] = game.step.resource;
+                writeLog(`Выбран ${game.step.resource} на ${x}, ${y}`)               
+
             }        
         });
     }
@@ -302,9 +314,18 @@ const isReadyBtn = (isReady = false) => {
         return;
     }
 
-    if (game.stage == 'main_game' && !game.movement) {
-        alert('Make a move!');
-        return;
+    if (game.stage == 'main_game') {
+        if (!game.movement) {
+            alert('Make a move!');
+            return;
+        }
+        api('make_move', {        
+            "movement": game.movement,
+            "id": game.id
+            })
+        .then((res) => {
+            console.debug('MAKE_MOVE', res);
+        });        
     }
 
     game.isReady = isReady;
@@ -347,6 +368,8 @@ const logOut = () => {
 const defaultState = {
     isReady: false,
     stage: "lobby",
+    step: {},
+    movement: {},
     player: {
         // NB: monument
     }
@@ -365,7 +388,10 @@ if (game.id || game.nickname) {
 }
 qs('#nickname').textContent = game.nickname;
 
-game.log = ['<b>New game</b>'];
+game.log = [];
+writeLog('New game started...')
+writeLog('Go!')
+window.log = writeLog
 
 qs('#restartBtn').addEventListener('click', restartGame);
 qs('#logOutBtn').addEventListener('click', logOut);

@@ -3,6 +3,7 @@
     padding: 0;
     margin: 0;
     text-align: center;
+    /*border: 1px solid red;    */
 }
 
 html, body {
@@ -19,6 +20,7 @@ body {
     justify-content: center;
     overflow: hidden;
     flex-wrap: wrap;
+    flex-flow: column;
 
 }
 
@@ -30,10 +32,12 @@ body {
     background-position: bottom right;
     background-repeat: no-repeat;*/
   width:100%;
-  padding: 50px;
+  max-width: 800px;
+  
   /*position: relative;*/
-  display: flex;
-  flex-wrap: wrap;
+  /*display: grid;
+  /*flex-flow: row;*/
+  
   
 }
 
@@ -63,6 +67,7 @@ body {
   background:black;
   position: fixed;
   z-index:100;
+  white-space: pre-wrap;
   left: 15px;
   top: 50px;
   color: white;
@@ -72,18 +77,19 @@ body {
   width: 150px;
   text-align: left;
   height: 150px;
-  overflow-y: scroll;
+  overflow-y:scroll;
+  display: flex;
+  flex-direction: column-reverse;
   border-radius: 3px;
 }
 
 #bulidingRow {
     padding: 0px;
-    width:100%;
     opacity: 0.8;
     background: white;
-    border-radius: 8px;
-    box-shadow: 4px 10px 10px -5px rgba(0, 0, 0, 0.6);
-    transform: rotate(1deg);
+    border-radius: 16px;
+    /*box-shadow: 4px 10px 10px -5px rgba(0, 0, 0, 0.6);*/
+    transform: rotate(0deg);
 }
 
 #bulidingRow img {
@@ -108,8 +114,9 @@ body {
 }
 
 #resources {      
-    display: flex;    
-    width: 200px;    
+    
+    flex-direction: column;    
+    width: 50px;    
 }
   
 .brick {
@@ -141,6 +148,11 @@ body {
 .brick.yellow {
   background: url('assets/yellow.png');
   background-size: 100%;
+}
+
+.selected.brick {
+  background-size: 80%;
+  background-repeat: no-repeat;
 }
 
 #playersList {
@@ -221,23 +233,28 @@ span.scores {
   font-weight: bold;
 }
 
-#yourMonument {
-  width: 100px;
+#yourMonument .cards {
+  width: 120px;
+  box-shadow: none;
+  transform: rotate(3deg);
 }
+#yourMonument .cards:hover { box-shadow: none; }
 
 div#myboard {
-  width: 200px;
-  height: 200px;
-  clear:none;
-  background: url('assets/board.png');
-  background-size: 100%;
+  padding: 25px;
+  display:inline-flex;
+  flex-flow: row;
 }
+/*body * {border: 1px solid red;}*/
 
 #myboard table {
+  background: url('assets/board.png');
+  background-size: 100%;
     padding: 5px;
-    height: 100%;
-    width: 100%;    
-    border-spacing: 7px;    
+    height: 200px;
+    width: 200px;    
+    border-spacing: 5px; 
+  
 }
 
 #myboard td {
@@ -245,7 +262,10 @@ div#myboard {
 }
 
 #myboard .selected {
-    border: 3px solid lightgreen;
+    /*border: 3px solid lightgreen;*/
+    /*box-shadow: 10px 0px 10px 5px rgba(0, 255, 0, 0.6);
+    box-shadow: inset 0px 0px 10px 5px rgba(0, 255, 0, 0.6);*/
+    opacity: 0.3;
 }
 
 #myboard td:hover {
