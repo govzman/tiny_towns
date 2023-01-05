@@ -1,18 +1,5 @@
 
 # TODO
-## Сущности
-
- - Игроки (баллы)
- - Поля игроков
- - Здания
- - Ресурсы
- - Карточки зданий
-
-## Действия
-...TODO
-
-## События
-...
-
+ - player.monument vs. player.monuments -> monuments => monuments_options
 ## Links
 - [https://boardgamegeek.com/boardgame/265736/tiny-towns]
