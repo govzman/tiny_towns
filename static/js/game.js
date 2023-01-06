@@ -320,7 +320,7 @@ const isReadyBtn = (isReady = false) => {
             return;
         }
         api('make_move', {        
-            "movement": game.movement,
+            "place_resource": game.movement,
             "id": game.id
             })
         .then((res) => {
