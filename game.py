@@ -139,7 +139,21 @@ class Game():
         # some code
         return {'isPatterns': False, 'cords': {'0, 0': 'blue'}}
 
-        
+    def place_resource(self, params):
+        if params['id'] not in self.players:
+            return {'error': {'code': 55, 'msg': 'bad id'}}
+        if self.stage != 'main_game':
+            return {'error': {'code': 56, 'msg': 'Wrong game stage'}}
+        print(params)
+        if 'movement' in params:
+            if len(params['movement']) == 1:
+                x, y = map(int, list(params['movement'].keys())[0].split(','))
+                self.players[params['id']]['board'].setCell(list(params['movement'].values())[0], [x, y])
+                print(self.players[params['id']]['board'])
+            else:
+                return {'error': {'code': 57, 'msg': 'bad request'}}
+        else:
+            return {'error': {'code': 57, 'msg': 'bad request'}}
 
     def checkTTL(self):
         try:
@@ -302,9 +316,11 @@ class Board():
     def setCell(self, build, cord): 
         self.board[cord[1]][cord[0]].set(build)
 
-    def print(self):
+    def __str__(self):
+        string = ''
         for i in self.board:
-            print(' '.join(list(map(lambda x: x.get(), i))))
+            string += '\t'.join(list(map(lambda x: x.get(), i))) + '\n'
+        return string
     
     def checkPatterns(self, cords, building_row):
         min_cord_x = min(map(lambda x: int(x.split(', ')[0]), cords.keys()))

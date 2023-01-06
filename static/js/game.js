@@ -297,8 +297,8 @@ const showPage = (pageName = 'lobby', params = {}) => {
                 }
                 e.target.className =  'selected brick yellow'; //e.target.className == '' ? 'selected' : '';
                 game.movement = {};
-                game.movement[`${x},${y}`] = game.step.resource;
-                writeLog(`Выбран ${game.step.resource} на ${x}, ${y}`)               
+                game.movement[`${y},${x}`] = game.step.resource;
+                writeLog(`Выбран ${game.step.resource} на ${y}, ${x}`)               
 
             }        
         });
@@ -319,12 +319,12 @@ const isReadyBtn = (isReady = false) => {
             alert('Make a move!');
             return;
         }
-        api('make_move', {        
-            "place_resource": game.movement,
+        api('place_resource', {        
+            "movement": game.movement,
             "id": game.id
             })
         .then((res) => {
-            console.debug('MAKE_MOVE', res);
+            console.debug('PLACE_RESOURCE', res);
         });        
     }
 
