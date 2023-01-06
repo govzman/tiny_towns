@@ -135,16 +135,18 @@ class Game():
             return {'error': {'code': 57, 'msg': 'bad request'}}
 
         # check patterns
+        answer = self.players[params['id']]['board'].check_patterns(cords, self.buildingRow)
         
-        # some code
-        return {'isPatterns': False, 'cords': {'0, 0': 'blue'}}
+        if answer == None:
+            return {'isPattern': False}
+        return {'isPattern': True, 'building': answer}
 
     def place_resource(self, params):
         if params['id'] not in self.players:
             return {'error': {'code': 55, 'msg': 'bad id'}}
         if self.stage != 'main_game':
             return {'error': {'code': 56, 'msg': 'Wrong game stage'}}
-        print(params)
+        # print(params)
         if 'movement' in params:
             if len(params['movement']) == 1:
                 x, y = map(int, list(params['movement'].keys())[0].split(','))
@@ -322,7 +324,7 @@ class Board():
             string += '\t'.join(list(map(lambda x: x.get(), i))) + '\n'
         return string
     
-    def checkPatterns(self, cords, building_row):
+    def check_patterns(self, cords, building_row):
         min_cord_x = min(map(lambda x: int(x.split(', ')[0]), cords.keys()))
         min_cord_y = min(map(lambda x: int(x.split(', ')[1]), cords.keys()))
         # print(min_cord_x, min_cord_y)
@@ -332,9 +334,9 @@ class Board():
         for building in building_row.buildings: # 1 потому что ТЕСТ для первого здания (коттеджа)
             if cords in building.patterns:
                 isFound = True
-                print(building.name, cords)
+                return building.name
         if not isFound:
-            print('not find')
+            return None
             
         # for cord in cords:
         #     print(building_row.buildings[0].patterns[0][str(cord[0]) + ', ' + str(cord[1])])
