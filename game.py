@@ -27,7 +27,7 @@ class Game():
             id = str(uuid.uuid4())
             if self.stage == 'lobby':
                 if 'nickname' in params: 
-                    self.players[id] = {'nickname': params['nickname'], 'ready': False}
+                    self.players[id] = {'nickname': params['nickname'], 'board': Board(), 'ready': False}
                     return {
                         'stage': self.stage,
                         'id': id

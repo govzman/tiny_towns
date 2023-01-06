@@ -27,6 +27,7 @@ def api():
     if 'method' not in request.json:
         return '{"error":{"code":100, "msg":"bad method"}}'
 
+    response = {}
     if request.json['method'] == 'get_status':
         response = myGame.get_status(request.json['params'])
     elif request.json['method'] == 'restart_game':
@@ -37,7 +38,10 @@ def api():
         response = myGame.set_monument(request.json['params'])
     elif request.json['method'] == 'check_patterns':
         response = myGame.check_patterns(request.json['params'])
-    return json.dumps(response)
+    elif response.json['method'] == 'make_move':
+        response = myGame.place_resource(request.json['params'])
+    if response != {}:
+        return json.dumps(response)
 
 # DEV ONLY:
 @app.after_request
