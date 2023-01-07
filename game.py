@@ -93,7 +93,7 @@ class Game():
             'isReady': list(map(lambda x: self.players[x]['ready'], self.players.keys())),
             })
 
-    def restart_game(self):        
+    def restart_game(self, params = {}):        
         self.players = {}
         self.stage = 'lobby'        
         return {'status':'ok', 'params':{'stage': 'lobby' }}
