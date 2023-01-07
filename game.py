@@ -10,17 +10,14 @@ class Game():
         self.game_step = 0
         self.game_id = str(uuid.uuid4())
         self.players = {}
-        self.monuments = ['Arch_Guild', 'Arch_Age', 'Bar_Cast', 
-        'Cath_Cat', 'Fort_Iron', 'Grove_Un', 'Mand_Pal', 'Opal_Wat', 
-        'Shr_Tree', 'Sil_For', 'Star', 'Stat_Bond', 'Rodina', 'Sky_Bath', 'Crescent']
+        self.monuments = ['Arch_Guild', 'Arch_Age', 'Bar_Cast', # ['Architect`s Guild', 'Archive of the Second Age', 'Barrett Castle', 
+        'Cath_Cat', 'Fort_Iron', 'Grove_Un', 'Mand_Pal', 'Opal_Wat', # 'Cathedral of Caterina', 'Fort Ironweed', 'Grove University', 'Mandras Palace', 'Opaleyes Watch', 
+        'Shr_Tree', 'Sil_For', 'Star', 'Stat_Bond', 'Rodina', 'Sky_Bath', 'Crescent'] # 'Shrine of the Elder Tree', 'Silva Forum', 'The Starloom', 'Statue of the Bondmaker']
         
-        # ['Architect`s Guild', 'Archive of the Second Age', 'Barrett Castle', 
-        # 'Cathedral of Caterina', 'Fort Ironweed', 'Grove University', 'Mandras Palace', 'Opaleyes Watch', 
-        # 'Shrine of the Elder Tree', 'Silva Forum', 'The Starloom', 'Statue of the Bondmaker']
         self.buildingRow = BuildingRow()
         self.buildingRow.generate()
         self.board = Board()
-        self.currentTurn = 1
+        self.turn = 1
 
     def get_status(self, params):
         if 'id' not in params:
@@ -76,6 +73,7 @@ class Game():
             return out
         
         if self.stage == 'main_game':
+            isMainBuilder =  list(self.players.keys()).index(id) == ((self.turn - 1) % len(self.players))
             return self.res({
                 'stage': self.stage,
                 'player': {
@@ -83,7 +81,8 @@ class Game():
                 },
                 'players': list(map(lambda x: self.players[x]['nickname'], self.players.keys())),
                 'bulidingRow': self.buildingRow.getRow(),
-                'isReady': list(map(lambda x: self.players[x]['ready'], self.players.keys()))
+                'isReady': list(map(lambda x: self.players[x]['ready'], self.players.keys())),
+                'isMainBuilder': isMainBuilder
             })
 
         self.checkTTL()
@@ -136,7 +135,7 @@ class Game():
 
         # check patterns
         answer = self.players[params['id']]['board'].check_patterns(cords, self.buildingRow)
-        
+
         if answer == None:
             return {'isPattern': False}
         return {'isPattern': True, 'building': answer}
@@ -378,4 +377,4 @@ if __name__ == '__main__':
     # input_cells = {'0, 0': 'blue', '1, 0': 'yellow', '0, 1': 'red'}
     print(game.buildingRow)
     input_cells = {'3, 2': 'gray', '2, 2': 'brown'}
-    game.board.checkPatterns(input_cells, game.buildingRow)
+    game.board.check_patterns(input_cells, game.buildingRow)
