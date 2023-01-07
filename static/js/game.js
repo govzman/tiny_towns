@@ -135,11 +135,11 @@ const getStatus = () => {
 
             if (game.stage == 'main_game') {
                 game.player.monument = res.params.player.monument;
-                game.is
+                //game.is
                 // TODO:
                 game.step.active_player = 'XXX';
                 game.step.resource = 'yellow';
-                console.info(`!!!! TURN ${res.turn}`)
+                //console.info(`!!!! TURN ${res.turn}`)
                 setAnnounce(`Turn #${res.turn} / Player ${game.step.active_player} / Resource ${game.step.resource} / Am I Master Builder? ${res.params.isMasterBuilder}`);                
             }
         }
@@ -297,12 +297,13 @@ const showPage = (pageName = 'lobby', params = {}) => {
             if (e.target.nodeName == 'TD') {
                 const x = e.target.parentElement.rowIndex;
                 const y =  e.target.cellIndex;
+                const color = 'yellow'; // TODO: get color
                 //console.debug('COORDS', x,y);
                 
                 for (let selected of document.querySelectorAll('.selected')) {
                     selected.className = '';
                 }
-                e.target.className =  'selected brick yellow'; //e.target.className == '' ? 'selected' : '';
+                e.target.classList.add('selected', 'brick', color); //e.target.className == '' ? 'selected' : '';
                 game.movement = {};
                 game.movement[`${y},${x}`] = game.step.resource;
                 writeLog(`Выбран ${game.step.resource} на ${y}, ${x}`)               
@@ -321,8 +322,8 @@ const isReadyBtn = (isReady = false) => {
         return;
     }
 
-    if (game.stage == 'main_game') {
-        if (!game.movement) {
+    if (game.stage == 'main_game' && !game.isReady) {
+        if (!Object.keys(game.movement).length) {
             alert('Make a move!');
             return;
         }
@@ -332,6 +333,18 @@ const isReadyBtn = (isReady = false) => {
             })
         .then((res) => {
             console.debug('PLACE_RESOURCE', res);
+            if (res.success) {
+                writeLog('Вы разметили ресурс.');
+                for (let i=0;i<1;i++) {
+                    const x = Object.keys(res.cords)[i].split(',')[0];
+                    const y = Object.keys(res.cords)[i].split(',')[1];
+                    const color = res.cords[`${x},${y}`]
+                    qs('#myboard').children[1].rows[y].cells[x].classList.remove('selected') // classList.add('brick',color) // TODO: putResource()
+                }
+                isReadyBtn();
+            } else {
+                alert("Не могу разместить ресурс")
+            }
         });        
     }
 
