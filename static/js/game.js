@@ -1,6 +1,8 @@
 const DEBUG = true;
 const PING_INTERVAL = 2000;
 
+// TEST STRING !
+
 const MONUMENT_NAMES = {
     'Arch_Guild': 'Architect`s Guild',
     'Arch_Age': 'Archive of the Second Age',
@@ -67,12 +69,12 @@ const auth = async () => {
             return;
         }
         
-        if (!result.id) {
+        if (!result.player_id) {
             // TODO Exception
             console.error('NO ID', result);
             return;
         }       
-        game.player_id = result.id;
+        game.player_id = result.player_id;
         setState();
         startTimer();
       } catch (error) {
@@ -100,10 +102,10 @@ const getStatus = () => {
         return;
     }
 
-    // if (DEBUG) console.debug(`PING ${game.player_id}`);
+    // if (DEBUG) console.debug(`PING ${game.id}`);
 
     // TODO: bad id
-    api('get_status', { 'id': game.player_id, 'ready': game.isReady, 'stage': game.stage}).then((res) => {
+    api('get_status', {'player_id': game.player_id, 'ready': game.isReady, 'stage': game.stage}).then((res) => {
         console.debug('GET_STATUS', game.isReady, game.stage, res);
         if (res.error){
             if (res.error.code == 1) {
@@ -137,6 +139,7 @@ const getStatus = () => {
                 // TODO:
                 game.step.active_player = 'XXX';
                 game.step.resource = 'yellow';
+                console.info(`!!!! TURN ${res.turn}`)
                 setAnnounce(`Turn #${res.turn} / Player ${game.step.active_player} / Resource ${game.step.resource} / Am I Master Builder? ${res.params.isMasterBuilder}`);                
             }
         }
@@ -148,8 +151,9 @@ const getStatus = () => {
 
         if (game.stage == 'main_game') {
             setAnnounce(`Turn #${res.turn} / Player ${game.step.active_player} / Resource ${game.step.resource} / Am I Master Builder? ${res.params.isMasterBuilder}`);  
+            // res.params.isReady[game.id] = false
         }
-    });
+    });        
 }
 
 const isEqual = (a, b) => {
@@ -246,7 +250,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
                 api('set_monument', {        
                     "stage": "choose_monument",
                     "monument": e.target.dataset.name,
-                    "id": game.player_id
+                    "player_id": game.player_id
                     })
                 .then((res) => {
                     if (res['status'] == 'ok')  {
@@ -324,7 +328,7 @@ const isReadyBtn = (isReady = false) => {
         }
         api('place_resource', {        
             "movement": game.movement,
-            "id": game.player_id
+            "player_id": game.player_id
             })
         .then((res) => {
             console.debug('PLACE_RESOURCE', res);
@@ -359,7 +363,7 @@ const stopTimer = () => {
 const logOut = () => {    
     console.debug('LOGOUT');
     stopTimer();
-    api('log_out', {'id': game.player_id}).then(() => {
+    api('log_out', {'player_id': game.player_id}).then(() => {
         localStorage.clear();
         window.location.reload();
     });
@@ -384,7 +388,7 @@ setGameStage();
 //game.ready = false; // TODO !
 window.game = game; // DEBUG only
 
-if (game.player_id || game.nickname) {
+if (game.player_id) {
     startTimer();
 } else {
     auth();

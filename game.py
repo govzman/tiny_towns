@@ -21,25 +21,25 @@ class Game():
         
 
     def get_status(self, params):
-        if 'id' not in params:
-            id = str(uuid.uuid4())
+        if 'player_id' not in params:
+            player_id = str(uuid.uuid4())
             if self.stage == 'lobby':
                 if 'nickname' in params: 
-                    self.players[id] = {'nickname': params['nickname'], 'board': Board(), 'ready': False}
+                    self.players[player_id] = {'nickname': params['nickname'], 'board': Board(), 'ready': False}
                     return {
                         'stage': self.stage,
-                        'id': id
+                        'player_id': player_id
                         }
                 else:
                     return util.error(2, 'miss nickname')
             else:
                 return util.error(3, 'game is already run')
 
-        id = params['id']
-        if id not in self.players:
+        player_id = params['player_id']
+        if player_id not in self.players:
             return util.error(1, 'bad id')
 
-        self.players[id]['last_response'] = time()
+        self.players[player_id]['last_response'] = time()
 
         self.setParam('ready', params)
         
@@ -60,7 +60,7 @@ class Game():
         if self.stage == 'choose_monument':
             out = self.res({
                 'stage': self.stage,
-                'player': { 'monuments': self.players[id]['monuments']},
+                'player': { 'monuments': self.players[player_id]['monuments']},
                 'bulidingRow': self.buildingRow.getRow(), 
                 'players': list(map(lambda x: self.players[x]['nickname'], self.players.keys())), 
                 'isReady': list(map(lambda x: self.players[x]['ready'], self.players.keys()))
@@ -74,11 +74,11 @@ class Game():
             return out
         
         if self.stage == 'main_game':
-            isMasterBuilder =  list(self.players.keys()).index(id) == ((self.turn - 1) % len(self.players))
+            isMasterBuilder =  list(self.players.keys()).index(player_id) == ((self.turn - 1) % len(self.players))
             return self.res({
                 'stage': self.stage,
                 'player': {
-                    'monument': self.players[id]['monument']
+                    'monument': self.players[player_id]['monument']
                 },
                 'players': list(map(lambda x: self.players[x]['nickname'], self.players.keys())),
                 'bulidingRow': self.buildingRow.getRow(),
@@ -99,30 +99,30 @@ class Game():
         return {'status':'ok', 'params':{'stage': 'lobby' }}
         
     def log_out(self, params):
-        if params['id'] in self.players:
-            del self.players[params['id']]
+        if params['player_id'] in self.players:
+            del self.players[params['player_id']]
             return {'status' : 'ok'}
         else:
             print(self.players)
             return {'error': {'code': 55, 'msg': 'bad id'}}
 
     def set_monument(self, params):
-        if params['id'] not in self.players:
+        if params['player_id'] not in self.players:
             return {'error': {'code': 55, 'msg': 'bad id'}}
         
         if self.stage != 'choose_monument':
             return {'error': {'code': 56, 'msg': 'Wrong game stage'}}
 
         if 'monument' in params:
-            if params['monument'] in self.players[params['id']]['monuments']:
-                self.players[params['id']]['monument'] = params['monument']
+            if params['monument'] in self.players[params['player_id']]['monuments']:
+                self.players[params['player_id']]['monument'] = params['monument']
                 return {'status' : 'ok'}
         else:
-            print(params, self.players[params['id']])
+            print(params, self.players[params['player_id']])
             return {'error': {'code': 57, 'msg': 'bad request'}}
 
     def check_patterns(self, params):
-        if params['id'] not in self.players:
+        if params['player_id'] not in self.players:
             return {'error': {'code': 55, 'msg': 'bad id'}}
         if self.stage != 'main_game':
             return {'error': {'code': 56, 'msg': 'Wrong game stage'}}
@@ -130,18 +130,18 @@ class Game():
         if 'cords' in params:
             cords = params['cords']
         else:
-            print(params, self.players[params['id']])
+            print(params, self.players[params['player_id']])
             return {'error': {'code': 57, 'msg': 'bad request'}}
 
         # check patterns
-        answer = self.players[params['id']]['board'].check_patterns(cords, self.buildingRow)
+        answer = self.players[params['player_id']]['board'].check_patterns(cords, self.buildingRow)
 
         if answer == None:
             return {'isPattern': False}
         return {'isPattern': True, 'building': answer}
 
     def place_resource(self, params):
-        if params['id'] not in self.players:
+        if params['player_id'] not in self.players:
             return {'error': {'code': 55, 'msg': 'bad id'}}
         if self.stage != 'main_game':
             return {'error': {'code': 56, 'msg': 'Wrong game stage'}}
@@ -149,8 +149,8 @@ class Game():
         if 'movement' in params:
             if len(params['movement']) == 1:
                 x, y = map(int, list(params['movement'].keys())[0].split(','))
-                self.players[params['id']]['board'].setCell(list(params['movement'].values())[0], [x, y])
-                self.players[params['id']]['ready'] = True
+                self.players[params['player_id']]['board'].setCell(list(params['movement'].values())[0], [x, y])
+                self.players[params['player_id']]['ready'] = True
                 if all(list(map(lambda x: self.players[x]['ready'], self.players.keys()))):
                     self.turn += 1
                 for key in self.players.keys():
@@ -175,7 +175,7 @@ class Game():
     def setParam(self, paramName, params):
         #print('PARAMS',paramName, params, self.players[params['id']][paramName])
         if (paramName in params) and ('stage' in params and self.stage == params['stage']):
-            self.players[params['id']][paramName] = params[paramName]
+            self.players[params['player_id']][paramName] = params[paramName]
         else:
             # TODO() aux.error(2, 'miss ' + paramName)
             pass
