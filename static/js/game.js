@@ -214,20 +214,19 @@ const showPage = (pageName = 'lobby', params = {}) => {
 
     if (pageName == 'choose_monument') {
         qs('#main').innerHTML = `
-            <div id="playersList"></div>
             <div id="bulidingRow">
                 ${getBuildigsList(params.bulidingRow)}
             </div>
-            <div>
             <h2>Choose your monument:</h2>
             <div id="choose_monument">
+            
                     <!--<b>${MONUMENT_NAMES[params.player.monuments[0]]}:</b>-->
                     <img class=cards id=monument1 data-name="${params.player.monuments[0]}" src="assets/cards/${params.player.monuments[0]}.webp">
                 
                     <!--<b>${MONUMENT_NAMES[params.player.monuments[1]]}:</b>-->
                     <img class=cards id=monument2 data-name="${params.player.monuments[1]}" src="assets/cards/${params.player.monuments[1]}.webp"> 
 
-            </div></div>`;
+            </div>`;
 
             qs('#choose_monument').addEventListener('click', (e) => {                
                 if (e.target.id == 'choose_monument') return;

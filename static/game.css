@@ -41,6 +41,7 @@ body {
   
 }
 
+
 #score {
   /*background-color: white;
   width: 170px;
@@ -158,8 +159,7 @@ body {
 #playersList {
     display: flex;
     flex-direction: row;
-    height: 130px; 
-
+    height: 130px;
 }
 
 .playername {
