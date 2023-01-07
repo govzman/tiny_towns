@@ -338,7 +338,7 @@ const isReadyBtn = (isReady = false) => {
                 for (let i=0;i<1;i++) {
                     const x = Object.keys(res.cords)[i].split(',')[0];
                     const y = Object.keys(res.cords)[i].split(',')[1];
-                    const color = res.cords[`${x},${y}`]
+                    //const color = res.cords[`${x},${y}`]
                     qs('#myboard').children[1].rows[y].cells[x].classList.remove('selected') // classList.add('brick',color) // TODO: putResource()
                 }
                 isReadyBtn();
