@@ -7,7 +7,8 @@ import util
 class Game():
     def __init__(self): # , players_count=2, players_names=['player1', 'player2']
         self.stage = 'lobby'
-        self.game_step = 0
+        # self.game_step = 0
+        self.turn = 1
         self.game_id = str(uuid.uuid4())
         self.players = {}
         self.monuments = ['Arch_Guild', 'Arch_Age', 'Bar_Cast', # ['Architect`s Guild', 'Archive of the Second Age', 'Barrett Castle', 
@@ -17,7 +18,7 @@ class Game():
         self.buildingRow = BuildingRow()
         self.buildingRow.generate()
         self.board = Board()
-        self.turn = 1
+        
 
     def get_status(self, params):
         if 'id' not in params:
@@ -105,7 +106,6 @@ class Game():
             print(self.players)
             return {'error': {'code': 55, 'msg': 'bad id'}}
 
-
     def set_monument(self, params):
         if params['id'] not in self.players:
             return {'error': {'code': 55, 'msg': 'bad id'}}
@@ -150,7 +150,13 @@ class Game():
             if len(params['movement']) == 1:
                 x, y = map(int, list(params['movement'].keys())[0].split(','))
                 self.players[params['id']]['board'].setCell(list(params['movement'].values())[0], [x, y])
-                print(self.players[params['id']]['board'])
+                self.players[params['id']]['ready'] = True
+                if all(list(map(lambda x: self.players[x]['ready'], self.players.keys()))):
+                    self.turn += 1
+                for key in self.players.keys():
+                    self.players[key]['ready'] = False
+                    
+                return {'success': True, 'cords': params['movement']}
             else:
                 return {'error': {'code': 57, 'msg': 'bad request'}}
         else:
@@ -178,7 +184,7 @@ class Game():
         return {
             'game_id': self.game_id, 
             #'game_stage': self.game_stage,
-            'game_step': self.game_step, 
+            'turn': self.turn, 
             'params': params
         }
 
@@ -277,7 +283,7 @@ class BuildingRow():
         self.buildings = []
         self.buildings.append(Building('Cottage', 'cottage', 0))
         #types = ['red', 'gray', 'orange', 'yellow', 'black', 'green']
-        builds = {'red': ['Farm', 'Granary', 'Greenhouse', 'Orchard'], 'gray': ['Fountain', 'Millstone', 'Shed', 'Well'], 'orange': ['Chapel', 'Chapel', 'Cloister', 'Temple'], 'yellow': ['Bakery', 'Market', 'Tailor', 'Theater'], 'black': ['Bank', 'Factory', 'Trading Post', 'Warehouse'], 'green': ['Almshouse', 'Feast Hall', 'Inn', 'Tavern']}
+        builds = {'red': ['Farm', 'Granary', 'Greenhouse', 'Orchard'], 'gray': ['Fountain', 'Millstone', 'Shed', 'Well'], 'orange': ['Abbey', 'Chapel', 'Cloister', 'Temple'], 'yellow': ['Bakery', 'Market', 'Tailor', 'Theater'], 'black': ['Bank', 'Factory', 'Trading Post', 'Warehouse'], 'green': ['Almshouse', 'Feast Hall', 'Inn', 'Tavern']}
         for type in builds.keys():
             id = randint(0, 3)
             self.buildings.append(Building(builds[type][id], type, id))

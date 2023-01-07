@@ -72,7 +72,7 @@ const auth = async () => {
             console.error('NO ID', result);
             return;
         }       
-        game.id = result.id;
+        game.player_id = result.id;
         setState();
         startTimer();
       } catch (error) {
@@ -94,16 +94,16 @@ const setGameStage = (newStage = game.stage) => {
 };
 
 const getStatus = () => {    
-    if (!game.id) {
+    if (!game.player_id) {
         console.error('NO ID!!!!!')
         //auth().then(getStatus);
         return;
     }
 
-    // if (DEBUG) console.debug(`PING ${game.id}`);
+    // if (DEBUG) console.debug(`PING ${game.player_id}`);
 
     // TODO: bad id
-    api('get_status', { 'id': game.id, 'ready': game.isReady, 'stage': game.stage}).then((res) => {
+    api('get_status', { 'id': game.player_id, 'ready': game.isReady, 'stage': game.stage}).then((res) => {
         console.debug('GET_STATUS', game.isReady, game.stage, res);
         if (res.error){
             if (res.error.code == 1) {
@@ -133,19 +133,23 @@ const getStatus = () => {
 
             if (game.stage == 'main_game') {
                 game.player.monument = res.params.player.monument;
+                game.is
                 // TODO:
                 game.step.active_player = 'XXX';
                 game.step.resource = 'yellow';
-                setAnnounce(`Step #${res.game_step} / Player ${game.step.active_player} / Resource ${game.step.resource} / Am I Master Builder? ${res.params.isMainBuilder}`);                
+                setAnnounce(`Turn #${res.turn} / Player ${game.step.active_player} / Resource ${game.step.resource} / Am I Master Builder? ${res.params.isMasterBuilder}`);                
             }
         }
         // TODO:
 
         // setAnnounce()
 
-        updatePlayersList(res.params);      
-        
-    });        
+        updatePlayersList(res.params);
+
+        if (game.stage == 'main_game') {
+            setAnnounce(`Turn #${res.turn} / Player ${game.step.active_player} / Resource ${game.step.resource} / Am I Master Builder? ${res.params.isMasterBuilder}`);  
+        }
+    });
 }
 
 const isEqual = (a, b) => {
@@ -242,7 +246,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
                 api('set_monument', {        
                     "stage": "choose_monument",
                     "monument": e.target.dataset.name,
-                    "id": game.id
+                    "id": game.player_id
                     })
                 .then((res) => {
                     if (res['status'] == 'ok')  {
@@ -320,7 +324,7 @@ const isReadyBtn = (isReady = false) => {
         }
         api('place_resource', {        
             "movement": game.movement,
-            "id": game.id
+            "id": game.player_id
             })
         .then((res) => {
             console.debug('PLACE_RESOURCE', res);
@@ -355,7 +359,7 @@ const stopTimer = () => {
 const logOut = () => {    
     console.debug('LOGOUT');
     stopTimer();
-    api('log_out', {'id': game.id}).then(() => {
+    api('log_out', {'id': game.player_id}).then(() => {
         localStorage.clear();
         window.location.reload();
     });
@@ -380,7 +384,7 @@ setGameStage();
 //game.ready = false; // TODO !
 window.game = game; // DEBUG only
 
-if (game.id || game.nickname) {
+if (game.player_id || game.nickname) {
     startTimer();
 } else {
     auth();

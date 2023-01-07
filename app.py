@@ -29,7 +29,7 @@ def api():
 
     # response = {}
 
-    if request.json['method'] in ['get_status', 'restart_game', 'log_out', 'set_monument', 'check_patterns', 'place_resource']:
+    if request.json['method'] in ['get_status', 'restart_game', 'log_out', 'set_monument', 'check_patterns', 'place_resource', 'change_readiness']:
         method = getattr(myGame, request.json['method'])
         response = method(request.json['params'])
         return json.dumps(response)
