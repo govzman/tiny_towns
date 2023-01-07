@@ -136,7 +136,7 @@ const getStatus = () => {
                 // TODO:
                 game.step.active_player = 'XXX';
                 game.step.resource = 'yellow';
-                setAnnounce(`Step #${res.game_step} / Player ${game.step.active_player} / Resource ${game.step.resource} / Am I Main Builder? ${res.params.isMainBuilder}`);                
+                setAnnounce(`Step #${res.game_step} / Player ${game.step.active_player} / Resource ${game.step.resource} / Am I Master Builder? ${res.params.isMainBuilder}`);                
             }
         }
         // TODO:
