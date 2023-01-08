@@ -262,7 +262,8 @@ div#myboard {
 /*body * {border: 1px solid red;}*/
 
 #myboard table {
-  background: url('assets/board.png');
+  /* background: url('assets/board.png'); */
+  background: url('assets/board.jpg');
   background-size: 100%;
     padding: 5px;
     height: 200px;
