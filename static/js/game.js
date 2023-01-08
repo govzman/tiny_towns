@@ -302,6 +302,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
       `;    
         
         qs('#myboard').addEventListener('click', (e) => {
+            if (game.turn.step !== 2) return;
             if (e.target.nodeName == 'TD') {
                 const x = e.target.parentElement.rowIndex;
                 const y =  e.target.cellIndex;
@@ -347,6 +348,7 @@ const isReadyBtn = (isReady = false) => {
                     qs('#myboard').children[1].rows[y].cells[x].classList.remove('selected') // classList.add('brick',color) // TODO: putResource()
                 }
                 //isReadyBtn();
+                game.turn.step = 3;
             } else {
                 alert("Не могу разместить ресурс")
             }
