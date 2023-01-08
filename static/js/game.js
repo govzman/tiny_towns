@@ -140,7 +140,7 @@ const getStatus = () => {
                 game.step.active_player = 'XXX';
                 game.step.resource = 'yellow';
                 //console.info(`!!!! TURN ${res.turn}`)
-                setAnnounce(`Turn #${res.turn} / Player ${game.step.active_player} / Resource ${game.step.resource} / Am I Master Builder? ${res.params.isMasterBuilder}`);                
+                setAnnounce(`Turn #${res.turn} / Player ${game.step.active_player} / Resource ${game.step.resource} / Master Builder is ${res.params.MasterBuilder}`);                
             }
         }
         // TODO:
@@ -150,7 +150,7 @@ const getStatus = () => {
         updatePlayersList(res.params);
 
         if (game.stage == 'main_game') {
-            setAnnounce(`Turn #${res.turn} / Player ${game.step.active_player} / Resource ${game.step.resource} / Am I Master Builder? ${res.params.isMasterBuilder}`);  
+            setAnnounce(`Turn #${res.turn} / Player ${game.step.active_player} / Resource ${game.step.resource} / Master Builder is ${game.players[res.params.MasterBuilder]}`);  
             // res.params.isReady[game.id] = false
         }
     });        

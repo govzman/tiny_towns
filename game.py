@@ -74,7 +74,7 @@ class Game():
             return out
         
         if self.stage == 'main_game':
-            isMasterBuilder =  list(self.players.keys()).index(player_id) == ((self.turn - 1) % len(self.players))
+            MasterBuilder = ((self.turn - 1) % len(self.players))
             return self.res({
                 'stage': self.stage,
                 'player': {
@@ -83,7 +83,7 @@ class Game():
                 'players': list(map(lambda x: self.players[x]['nickname'], self.players.keys())),
                 'bulidingRow': self.buildingRow.getRow(),
                 'isReady': list(map(lambda x: self.players[x]['ready'], self.players.keys())),
-                'isMasterBuilder': isMasterBuilder
+                'MasterBuilder': MasterBuilder
             })
 
         self.checkTTL()
