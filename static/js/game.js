@@ -80,17 +80,17 @@ const auth = async () => {
       }
 };
 
-const setGameStage = (newStage = game.stage, turn = 0) => {
+const setGameStage = (newStage = game.stage, turnNum = 0) => {
     // if (!newStage){
     //     return setGameStage(game.game_stage);
     // }
 
 //    if (game.game_stage != newStage) {
-        isReadyBtn();
+        toggleReadyBtn()
         //game.isReady = false;
         game.stage = newStage;
-        game.turn = turn;
-        console.debug('SET STAGE', newStage, turn);     
+        game.turn.num = turnNum;
+        console.debug('SET STAGE', newStage, turnNum);     
   //  }
 };
 
@@ -139,10 +139,11 @@ const getStatus = () => {
                 game.player.monument = res.params.player.monument;
                 //game.is
                 // TODO:
-                game.step.active_player = 'XXX';
-                game.step.resource = 'yellow';
+                game.turn.master = 0;
+                game.turn.step = 2;
+                game.turn.resource = 'yellow';
                 //console.info(`!!!! TURN ${res.turn}`)
-                setAnnounce(`Turn #${res.turn} / Player ${game.step.active_player} / Resource ${game.step.resource} / Master Builder is ${res.params.MasterBuilder}`);                
+                /////////setAnnounce(`Turn #${res.turn}: Master ${res.params.MasterBuilder} choosed ${game.turn.resource}`);
             }
         }
         // TODO:
@@ -152,7 +153,7 @@ const getStatus = () => {
         updatePlayersList(res.params);
 
         if (game.stage == 'main_game') {
-            setAnnounce(`Turn #${res.turn} / Player ${game.step.active_player} / Resource ${game.step.resource} / Master Builder is ${game.players[res.params.MasterBuilder]}`);  
+            setAnnounce(`Turn #${res.turn}: Master ${game.players[res.params.MasterBuilder]} have choosen ${game.turn.resource}`);
             // res.params.isReady[game.id] = false
         }
     });        
@@ -241,6 +242,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
             qs('#choose_monument').addEventListener('click', (e) => {                
                 if (e.target.id == 'choose_monument') return;
 
+                qs('#isReadyBtn').disabled = false;
                 e.target.classList.add('selected_card');
                 
                 if (e.target.id == 'monument1') {
@@ -264,7 +266,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
                     }
                 });
             });
-            
+            qs('#isReadyBtn').disabled = true;
     }
 
     if (pageName == 'main_game') {        
@@ -307,8 +309,8 @@ const showPage = (pageName = 'lobby', params = {}) => {
                 }
                 e.target.classList.add('selected', 'brick', color); //e.target.className == '' ? 'selected' : '';
                 game.movement = {};
-                game.movement[`${y},${x}`] = game.step.resource;
-                writeLog(`Выбран ${game.step.resource} на ${y}, ${x}`)               
+                game.movement[`${y},${x}`] = game.turn.resource;
+                writeLog(`Выбран ${game.turn.resource} на ${y}, ${x}`)               
 
             }        
         });
@@ -317,14 +319,8 @@ const showPage = (pageName = 'lobby', params = {}) => {
 };
 
 const isReadyBtn = (isReady = false) => {
-    const button = qs('#isReadyBtn');
-
-    if (game.stage == 'choose_monument' && !game.player.monument) {
-        alert('Choose a monument first!');
-        return;
-    }
-
-    if (game.stage == 'main_game' && !game.isReady) {
+    
+    if (game.stage == 'main_game' && game.turn.step == 2) {
         if (!Object.keys(game.movement).length) {
             alert('Make a move!');
             return;
@@ -336,6 +332,7 @@ const isReadyBtn = (isReady = false) => {
         .then((res) => {
             console.debug('PLACE_RESOURCE', res);
             if (res.success) {
+                // TODO: game.turn.step = 1;
                 writeLog('Вы разметили ресурс.');
                 for (let i=0;i<1;i++) {
                     const x = Object.keys(res.cords)[i].split(',')[0];
@@ -349,13 +346,13 @@ const isReadyBtn = (isReady = false) => {
             }
         });        
     }
+    toggleReadyBtn(isReady);      
+};
 
+const toggleReadyBtn = (isReady) => {
     game.isReady = isReady;
-    if (isReady) {
-        button.textContent = 'Waiting...';        
-    } else {
-        button.textContent = 'Ready!';        
-    }    
+    
+    qs('#isReadyBtn').textContent = isReady ? 'Waiting...' : 'Ready!';
 };
 
 const restartGame = () => {
@@ -390,7 +387,11 @@ const logOut = () => {
 const defaultState = {
     isReady: false,
     stage: "lobby",
-    step: {},
+    turn: {
+        // step: 1,
+        //resource: '',
+        //master: ''
+    },
     log: [],
     movement: {},
     player: {

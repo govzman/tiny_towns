@@ -121,7 +121,7 @@ body {
     width: 50px;    
 }
 
-#myboard table td { width: 30px; height: 30px;/*border:1px solid grey;*/}
+#myboard table td { width: 30px; height: 30px;/*border:1px solid green;*/}
 
 /*.test {
   border: 3px solid red;
@@ -265,11 +265,10 @@ div#myboard {
   /* background: url('assets/board.png'); */
   background: url('assets/board.jpg');
   background-size: 100%;
-    padding: 5px;
+    padding: 0px;
     height: 200px;
     width: 200px;    
     border-spacing: 5px; 
-  
 }
 
 #myboard td {
@@ -299,4 +298,9 @@ div#myboard {
 
 #isReadyBtn:hover, #isReadyBtn:focus {
     background-color: red;
+}
+
+#isReadyBtn:disabled {
+  background-color: grey;
+  opacity: 0.3;
 }
