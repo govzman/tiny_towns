@@ -86,7 +86,10 @@ const setGameStage = (newStage = game.stage, turnNum = 0) => {
     // }
 
 //    if (game.game_stage != newStage) {
-        toggleReadyBtn()
+        if (newStage != 'lobby') {
+            qs('#isReadyBtn').disabled = true;
+        }
+        toggleReadyBtn();
         //game.isReady = false;
         game.stage = newStage;
         game.turn.num = turnNum;
@@ -120,7 +123,8 @@ const getStatus = () => {
         }
         
         // TODO: check stage in [lobby choose_monument main_game] -> Unknown stage!
-        if (game.turn != res.turn) {
+        if (game.stage == 'main_game' && game.turn.num != res.turn) {
+            console.log('OOO', game.turn )
             setGameStage(game.stage, res.turn);    
         }
 
@@ -242,8 +246,8 @@ const showPage = (pageName = 'lobby', params = {}) => {
             qs('#choose_monument').addEventListener('click', (e) => {                
                 if (e.target.id == 'choose_monument') return;
 
-                qs('#isReadyBtn').disabled = false;
                 e.target.classList.add('selected_card');
+                qs('#isReadyBtn').disabled = false;
                 
                 if (e.target.id == 'monument1') {
                     qs('#monument2').classList = ['cards'];                    
@@ -266,7 +270,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
                     }
                 });
             });
-            qs('#isReadyBtn').disabled = true;
+            //qs('#isReadyBtn').disabled = true;
     }
 
     if (pageName == 'main_game') {        
@@ -303,6 +307,8 @@ const showPage = (pageName = 'lobby', params = {}) => {
                 const y =  e.target.cellIndex;
                 const color = 'yellow'; // TODO: get color
                 //console.debug('COORDS', x,y);
+
+                qs('#isReadyBtn').disabled = false;
                 
                 for (let selected of document.querySelectorAll('.selected')) {
                     selected.className = '';
