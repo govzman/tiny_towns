@@ -1,8 +1,6 @@
 const DEBUG = true;
 const PING_INTERVAL = 2000;
 
-// TEST STRING !
-
 const MONUMENT_NAMES = {
     'Arch_Guild': 'Architect`s Guild',
     'Arch_Age': 'Archive of the Second Age',
@@ -82,7 +80,7 @@ const auth = async () => {
       }
 };
 
-const setGameStage = (newStage = game.stage) => {
+const setGameStage = (newStage = game.stage, turn = 0) => {
     // if (!newStage){
     //     return setGameStage(game.game_stage);
     // }
@@ -91,7 +89,8 @@ const setGameStage = (newStage = game.stage) => {
         isReadyBtn();
         //game.isReady = false;
         game.stage = newStage;
-        console.debug('STAGE', newStage);     
+        game.turn = turn;
+        console.debug('SET STAGE', newStage, turn);     
   //  }
 };
 
@@ -121,7 +120,10 @@ const getStatus = () => {
         }
         
         // TODO: check stage in [lobby choose_monument main_game] -> Unknown stage!
-        // TODO: check step
+        if (game.turn != res.turn) {
+            setGameStage(game.stage, res.turn);    
+        }
+
         if (game.stage != res.params.stage || !game.currentPage) {
             showPage(res.params.stage, res.params);
             setGameStage(res.params.stage);
@@ -341,7 +343,7 @@ const isReadyBtn = (isReady = false) => {
                     //const color = res.cords[`${x},${y}`]
                     qs('#myboard').children[1].rows[y].cells[x].classList.remove('selected') // classList.add('brick',color) // TODO: putResource()
                 }
-                isReadyBtn();
+                //isReadyBtn();
             } else {
                 alert("Не могу разместить ресурс")
             }
@@ -389,6 +391,7 @@ const defaultState = {
     isReady: false,
     stage: "lobby",
     step: {},
+    log: [],
     movement: {},
     player: {
         // NB: monument
@@ -396,9 +399,7 @@ const defaultState = {
 };
 
 let game = getState() || defaultState;
-//console.debug('INIT STATE', JSON.stringify(game));
 setGameStage();
-//game.ready = false; // TODO !
 window.game = game; // DEBUG only
 
 if (game.player_id) {
@@ -408,10 +409,7 @@ if (game.player_id) {
 }
 qs('#nickname').textContent = game.nickname;
 
-game.log = [];
-writeLog('New game started...')
-writeLog('Go!')
-window.log = writeLog
+//game.log = [];
 
 qs('#restartBtn').addEventListener('click', restartGame);
 qs('#logOutBtn').addEventListener('click', logOut);
