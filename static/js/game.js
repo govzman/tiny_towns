@@ -93,6 +93,7 @@ const setGameStage = (newStage = game.stage, turnNum = 0) => {
         //game.isReady = false;
         game.stage = newStage;
         game.turn.num = turnNum;
+        game.turn.resource = false;
         console.debug('SET STAGE', newStage, turnNum);     
   //  }
 };
@@ -124,7 +125,7 @@ const getStatus = () => {
         
         // TODO: check stage in [lobby choose_monument main_game] -> Unknown stage!
         if (game.stage == 'main_game' && game.turn.num != res.turn) {
-            console.log('OOO', game.turn )
+            console.log('OOO', game.turn, res )
             setGameStage(game.stage, res.turn);    
         }
 
@@ -143,9 +144,9 @@ const getStatus = () => {
                 game.player.monument = res.params.player.monument;
                 //game.is
                 // TODO:
-                game.turn.master = 0;
-                game.turn.step = 2;
-                game.turn.resource = 'yellow';
+                game.turn.master = res.params.MasterBuilder;
+                //game.turn.step = 2;
+                game.turn.resource = res.params.resource || false;
                 //console.info(`!!!! TURN ${res.turn}`)
                 /////////setAnnounce(`Turn #${res.turn}: Master ${res.params.MasterBuilder} choosed ${game.turn.resource}`);
             }
@@ -157,7 +158,7 @@ const getStatus = () => {
         updatePlayersList(res.params);
 
         if (game.stage == 'main_game') {
-            setAnnounce(`Turn #${res.turn}: Master ${game.players[res.params.MasterBuilder]} have choosen ${game.turn.resource}`);
+            setAnnounce(`Turn #${game.turn.num}: Master ${game.players[res.params.MasterBuilder]} have choosen ${game.turn.resource}`);
             // res.params.isReady[game.id] = false
         }
     });        
@@ -302,11 +303,11 @@ const showPage = (pageName = 'lobby', params = {}) => {
       `;    
         
         qs('#myboard').addEventListener('click', (e) => {
-            if (game.turn.step !== 2) return;
+            if (!game.turn.resource) return;
             if (e.target.nodeName == 'TD') {
                 const x = e.target.parentElement.rowIndex;
                 const y =  e.target.cellIndex;
-                const color = 'yellow'; // TODO: get color
+                const color = game.turn.resource;
                 //console.debug('COORDS', x,y);
 
                 qs('#isReadyBtn').disabled = false;
@@ -327,7 +328,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
 
 const isReadyBtn = (isReady = false) => {
     
-    if (game.stage == 'main_game' && game.turn.step == 2) {
+    if (game.stage == 'main_game' && game.turn.resource) {
         if (!Object.keys(game.movement).length) {
             alert('Make a move!');
             return;
@@ -348,7 +349,7 @@ const isReadyBtn = (isReady = false) => {
                     qs('#myboard').children[1].rows[y].cells[x].classList.remove('selected') // classList.add('brick',color) // TODO: putResource()
                 }
                 //isReadyBtn();
-                game.turn.step = 3;
+                ///game.turn.step = 3;
             } else {
                 alert("Не могу разместить ресурс")
             }
