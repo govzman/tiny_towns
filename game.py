@@ -12,6 +12,7 @@ class Game():
         self.current_resource = False
         self.game_id = str(uuid.uuid4())
         self.players = {}
+        self.events = []
         self.monuments = ['Arch_Guild', 'Arch_Age', 'Bar_Cast', # ['Architect`s Guild', 'Archive of the Second Age', 'Barrett Castle', 
         'Cath_Cat', 'Fort_Iron', 'Grove_Un', 'Mand_Pal', 'Opal_Wat', # 'Cathedral of Caterina', 'Fort Ironweed', 'Grove University', 'Mandras Palace', 'Opaleyes Watch', 
         'Shr_Tree', 'Sil_For', 'Star', 'Stat_Bond', 'Rodina', 'Sky_Bath', 'Crescent'] # 'Shrine of the Elder Tree', 'Silva Forum', 'The Starloom', 'Statue of the Bondmaker']
@@ -85,6 +86,7 @@ class Game():
                 'players': list(map(lambda x: self.players[x]['nickname'], self.players.keys())),
                 'bulidingRow': self.buildingRow.getRow(),
                 'isReady': list(map(lambda x: self.players[x]['ready'], self.players.keys())),
+                'events': self.events[-min(5, len(self.events)):],
                 'MasterBuilder': MasterBuilder,
                 'currentResource': self.current_resource
             })
@@ -158,12 +160,14 @@ class Game():
                     self.players[params['player_id']]['ready'] = True
                 else:
                     return {'error': {'code': 59, 'msg': 'wrong turn'}}
+                
+                self.events.append(self.players[params['player_id']]['nickname'] + ' поставил(а) ресурс')
                 if all(list(map(lambda x: self.players[x]['ready'], self.players.keys()))):
                     self.turn += 1
                     for key in self.players.keys():
                         self.players[key]['ready'] = False
-                    print('!!!', self.players)
                     self.current_resource = False
+                    self.events.append('Следующий ход!')
                 return {'success': True, 'cords': params['movement']}
             else:
                 return {'error': {'code': 57, 'msg': 'bad request'}}
