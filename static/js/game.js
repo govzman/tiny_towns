@@ -304,7 +304,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
             console.log('CLICK', e, e.target.className)
             if (e.target.className.includes('brick')) {
                 const resource = e.target.className.split(' ')[1]; // TODO: rewrite
-                api('choose_resource', {'params':{'resource': resource}}).then( res => {
+                api('choose_resource', {'resource': resource}).then( res => {
                     console.log('CHOOSE_RESOURCE', res);
                 });
             }
