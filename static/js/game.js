@@ -93,7 +93,7 @@ const setGameStage = (newStage = game.stage, turnNum = 0) => {
         //game.isReady = false;
         game.stage = newStage;
         game.turn.num = turnNum;
-        game.turn.resource = false;
+        game.turn.currentResource = false;
         console.debug('SET STAGE', newStage, turnNum);     
   //  }
 };
@@ -126,7 +126,7 @@ const getStatus = () => {
         // TODO: check stage in [lobby choose_monument main_game] -> Unknown stage!
         if (game.stage == 'main_game' && game.turn.num != res.turn) {
             //console.log('OOO', game.turn, res )
-            setGameStage(game.stage, res.turn);    
+            setGameStage(game.stage, res.turn);
         }
 
         if (game.stage != res.params.stage || !game.currentPage) {
@@ -139,24 +139,19 @@ const getStatus = () => {
                 setAnnounce('Monuments stage...');
                 
             }
-
-            if (game.stage == 'main_game') {
-                game.player.monument = res.params.player.monument;
-                game.turn.master = res.params.MasterBuilder;
-                game.turn.resource = res.params.resource || false;
-
-                // TODO: check if you're the master
-                // className = 'selectable'
-            }
         }
-        // TODO:
-
-        // setAnnounce()
-
+        
         updatePlayersList(res.params);
 
         if (game.stage == 'main_game') {
-            setAnnounce(game.turn.resource ?`Turn #${game.turn.num}: Master ${game.players[res.params.MasterBuilder]} has choosen ${game.turn.resource}` : `Turn #${game.turn.num}: Waiting for ${game.players[res.params.MasterBuilder]}`);
+            game.player.monument = res.params.player.monument;
+            game.turn.master = res.params.MasterBuilder;
+            game.turn.currentResource = res.params.currentResource || false;
+
+                // TODO: check if you're the master
+                // className = 'selectable'
+            
+            setAnnounce(game.turn.currentResource ?`Turn #${game.turn.num}: Master ${game.players[res.params.MasterBuilder]} has choosen ${game.turn.currentResource}` : `Turn #${game.turn.num}: Waiting for ${game.players[res.params.MasterBuilder]}`);
             // res.params.isReady[game.id] = false
         }
     });        
@@ -311,11 +306,11 @@ const showPage = (pageName = 'lobby', params = {}) => {
         });
 
         qs('#myboard').addEventListener('click', (e) => {
-            if (!game.turn.resource) return;
+            if (!game.turn.currentResource) return;
             if (e.target.nodeName == 'TD') {
                 const x = e.target.parentElement.rowIndex;
                 const y =  e.target.cellIndex;
-                const color = game.turn.resource;
+                const color = game.turn.currentResource;
                 //console.debug('COORDS', x,y);
 
                 qs('#isReadyBtn').disabled = false;
@@ -325,8 +320,8 @@ const showPage = (pageName = 'lobby', params = {}) => {
                 }
                 e.target.classList.add('selected', 'brick', color); //e.target.className == '' ? 'selected' : '';
                 game.movement = {};
-                game.movement[`${y},${x}`] = game.turn.resource;
-                writeLog(`Выбран ${game.turn.resource} на ${y}, ${x}`)               
+                game.movement[`${y},${x}`] = game.turn.currentResource;
+                writeLog(`Выбран ${game.turn.currentResource} на ${y}, ${x}`)               
 
             }        
         });
@@ -336,7 +331,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
 
 const isReadyBtn = (isReady = false) => {
     
-    if (game.stage == 'main_game' && game.turn.resource) {
+    if (game.stage == 'main_game' && game.turn.currentResource) {
         if (!Object.keys(game.movement).length) {
             alert('Make a move!');
             return;
