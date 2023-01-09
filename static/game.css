@@ -116,9 +116,24 @@ body {
 }
 
 #resources {      
-    
+    height: 150px;
     flex-direction: column;    
-    width: 50px;    
+    width: 30px;
+    border-radius: 5px;
+    margin: 5px;    
+}
+
+#resources.selectable {
+  
+  background-color: pink;
+  animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+  50% {
+    /*opacity: 0.8;*/
+    background: red;
+  }
 }
 #resources.selectable .brick:hover {
   border-radius: 5px;  
