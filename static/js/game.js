@@ -108,7 +108,7 @@ const getStatus = () => {
     // if (DEBUG) console.debug(`PING ${game.id}`);
 
     // TODO: bad id
-    api('get_status', {'player_id': game.player_id, 'ready': game.isReady, 'stage': game.stage}).then((res) => {
+    api('get_status', {'player_id': game.player_id, 'ready': game.isReady, 'turn_num': game.turn.num,  'stage': game.stage}).then((res) => {
         console.debug('GET_STATUS', game.isReady, game.stage, res);
         if (res.error){
             if (res.error.code == 1) {
