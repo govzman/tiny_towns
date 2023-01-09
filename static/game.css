@@ -120,6 +120,11 @@ body {
     flex-direction: column;    
     width: 50px;    
 }
+#resources.selectable .brick:hover {
+  border-radius: 5px;  
+  background-color: lightgreen;
+  cursor: pointer; 
+}
 
 #myboard table td { width: 30px; height: 30px;/*border:1px solid green;*/}
 

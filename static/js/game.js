@@ -125,7 +125,7 @@ const getStatus = () => {
         
         // TODO: check stage in [lobby choose_monument main_game] -> Unknown stage!
         if (game.stage == 'main_game' && game.turn.num != res.turn) {
-            console.log('OOO', game.turn, res )
+            //console.log('OOO', game.turn, res )
             setGameStage(game.stage, res.turn);    
         }
 
@@ -142,13 +142,11 @@ const getStatus = () => {
 
             if (game.stage == 'main_game') {
                 game.player.monument = res.params.player.monument;
-                //game.is
-                // TODO:
                 game.turn.master = res.params.MasterBuilder;
-                //game.turn.step = 2;
                 game.turn.resource = res.params.resource || false;
-                //console.info(`!!!! TURN ${res.turn}`)
-                /////////setAnnounce(`Turn #${res.turn}: Master ${res.params.MasterBuilder} choosed ${game.turn.resource}`);
+
+                // TODO: check if you're the master
+                // className = 'selectable'
             }
         }
         // TODO:
@@ -280,7 +278,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
         ${getBuildigsList(params.bulidingRow)}
       </div>
       <div id="myboard">
-      <div id="resources">
+      <div id="resources" class="selectable">
         <div class="brick red"></div>
         <div class="brick blue"></div>
         <div class="brick brown"></div>
@@ -302,6 +300,16 @@ const showPage = (pageName = 'lobby', params = {}) => {
       
       `;    
         
+        qs('#resources').addEventListener('click', (e) => {
+            console.log('CLICK', e, e.target.className)
+            if (e.target.className.includes('brick')) {
+                const resource = e.target.className.split(' ')[1]; // TODO: rewrite
+                api('choose_resource', {'params':{'resource': resource}}).then( res => {
+                    console.log('CHOOSE_RESOURCE', res);
+                });
+            }
+        });
+
         qs('#myboard').addEventListener('click', (e) => {
             if (!game.turn.resource) return;
             if (e.target.nodeName == 'TD') {
