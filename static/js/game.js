@@ -148,8 +148,7 @@ const getStatus = () => {
             game.turn.master = res.params.MasterBuilder;
             game.turn.currentResource = res.params.currentResource || false;
 
-                // TODO: check if you're the master
-                // className = 'selectable'
+            qs('#resources').className = isMaster() ? 'selectable' : '';                
             
             setAnnounce(game.turn.currentResource ?`Turn #${game.turn.num}: Master ${game.players[res.params.MasterBuilder]} has choosen ${game.turn.currentResource}` : `Turn #${game.turn.num}: Waiting for ${game.players[res.params.MasterBuilder]}`);
             // res.params.isReady[game.id] = false
@@ -297,6 +296,11 @@ const showPage = (pageName = 'lobby', params = {}) => {
         
         qs('#resources').addEventListener('click', (e) => {
             console.log('CLICK', e, e.target.className)
+            if (!isMaster()) {
+                alert('You are not master!');
+                return;
+            }
+            
             if (e.target.className.includes('brick')) {
                 const resource = e.target.className.split(' ')[1]; // TODO: rewrite
                 api('choose_resource', {'player_id': game.player_id, 'resource': resource}).then( res => {
@@ -328,6 +332,13 @@ const showPage = (pageName = 'lobby', params = {}) => {
     }
     game.currentPage = pageName;    
 };
+
+const isMaster = () => {
+    const res = game.players[game.turn.master] == game.nickname;
+    console.log('MASTER', game.turn.master, game.players, res);
+    return res;
+}
+
 
 const isReadyBtn = (isReady = false) => {
     
