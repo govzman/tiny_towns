@@ -177,6 +177,7 @@ class Game():
             return {'error': {'code': 58, 'msg': 'Wrong player choosed resource'}}
         
         self.current_resource = params['resource']
+        return {'success': True, 'current_resource': params['resource']}
 
 
     def checkTTL(self):
