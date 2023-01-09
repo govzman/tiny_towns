@@ -349,6 +349,7 @@ const isReadyBtn = (isReady = false) => {
         }
         api('place_resource', {        
             "movement": game.movement,
+            'turn_num': game.turn.num,
             "player_id": game.player_id
             })
         .then((res) => {
