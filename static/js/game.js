@@ -158,7 +158,7 @@ const getStatus = () => {
         updatePlayersList(res.params);
 
         if (game.stage == 'main_game') {
-            setAnnounce(`Turn #${game.turn.num}: Master ${game.players[res.params.MasterBuilder]} have choosen ${game.turn.resource}`);
+            setAnnounce(game.turn.resource ?`Turn #${game.turn.num}: Master ${game.players[res.params.MasterBuilder]} has choosen ${game.turn.resource}` : `Turn #${game.turn.num}: Waiting for ${game.players[res.params.MasterBuilder]}`);
             // res.params.isReady[game.id] = false
         }
     });        
