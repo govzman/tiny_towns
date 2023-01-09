@@ -9,6 +9,7 @@ class Game():
         self.stage = 'lobby'
         # self.game_step = 0
         self.turn = 1
+        self.current_resource = False
         self.game_id = str(uuid.uuid4())
         self.players = {}
         self.monuments = ['Arch_Guild', 'Arch_Age', 'Bar_Cast', # ['Architect`s Guild', 'Archive of the Second Age', 'Barrett Castle', 
@@ -83,7 +84,8 @@ class Game():
                 'players': list(map(lambda x: self.players[x]['nickname'], self.players.keys())),
                 'bulidingRow': self.buildingRow.getRow(),
                 'isReady': list(map(lambda x: self.players[x]['ready'], self.players.keys())),
-                'MasterBuilder': MasterBuilder
+                'MasterBuilder': MasterBuilder,
+                'currentResource': self.current_resource
             })
 
         self.checkTTL()
@@ -153,14 +155,29 @@ class Game():
                 self.players[params['player_id']]['ready'] = True
                 if all(list(map(lambda x: self.players[x]['ready'], self.players.keys()))):
                     self.turn += 1
-                for key in self.players.keys():
-                    self.players[key]['ready'] = False
-                    
+                    for key in self.players.keys():
+                        self.players[key]['ready'] = False
+                    self.current_resource = False
                 return {'success': True, 'cords': params['movement']}
             else:
                 return {'error': {'code': 57, 'msg': 'bad request'}}
         else:
             return {'error': {'code': 57, 'msg': 'bad request'}}
+
+    def choose_resource(self, params):
+        if params['player_id'] not in self.players:
+            return {'error': {'code': 55, 'msg': 'bad id'}}
+        if self.stage != 'main_game':
+            return {'error': {'code': 56, 'msg': 'Wrong game stage'}}
+        if params['player_id'] not in self.players:
+            return {'error': {'code': 55, 'msg': 'bad id'}}
+
+        isMasterBuilder = ((self.turn - 1) % len(self.players)) == (list(self.players.keys()).index(params['player_id']))
+        if not isMasterBuilder:
+            return {'error': {'code': 58, 'msg': 'Wrong player choosed resource'}}
+        
+        self.current_resource = params['resource']
+
 
     def checkTTL(self):
         try:
