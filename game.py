@@ -42,7 +42,8 @@ class Game():
 
         self.players[player_id]['last_response'] = time()
 
-        self.setParam('ready', params)
+        if self.stage != 'main_game':
+            self.setParam('ready', params)
         
         if self.stage == 'lobby':            
             if all(map(lambda x: self.players[x]['ready'], self.players.keys())):
@@ -152,11 +153,16 @@ class Game():
             if len(params['movement']) == 1:
                 x, y = map(int, list(params['movement'].keys())[0].split(','))
                 self.players[params['player_id']]['board'].setCell(list(params['movement'].values())[0], [x, y])
-                self.players[params['player_id']]['ready'] = True
+                print('!!!', params['turn_num'], self.turn)
+                if params['turn_num'] == self.turn:
+                    self.players[params['player_id']]['ready'] = True
+                else:
+                    return {'error': {'code': 59, 'msg': 'wrong turn'}}
                 if all(list(map(lambda x: self.players[x]['ready'], self.players.keys()))):
                     self.turn += 1
                     for key in self.players.keys():
                         self.players[key]['ready'] = False
+                    print('!!!', self.players)
                     self.current_resource = False
                 return {'success': True, 'cords': params['movement']}
             else:
@@ -177,7 +183,7 @@ class Game():
             return {'error': {'code': 58, 'msg': 'Wrong player choosed resource'}}
         
         self.current_resource = params['resource']
-        return {'success': True, 'current_resource': params['resource']}
+        return {'success': True, 'currentResource': params['resource']}
 
 
     def checkTTL(self):
