@@ -169,8 +169,10 @@ const updatePlayersList = (params) => {
 
         for (let playerName of game.players) {
             //if (playerName == game.nickname) continue;
-            const status = game.playersReadiness[game.players.indexOf(playerName)] ? `<strong>${playerName}</strong>` : `${playerName}`;//'🟢':'🟡';
-            playersList.innerHTML += `<div>${status} <span class="scores"> 0 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>${getMiniBoard()}</div>`;            
+            const playerNum = game.players.indexOf(playerName);
+            const status = game.playersReadiness[playerNum] ? `<strong>${playerName}</strong>` : `${playerName}`;//'🟢':'🟡';
+            console.log('MASTER', isMaster(playerNum), game.turn.master, playerNum, game.players)
+            playersList.innerHTML += `<div class="${isMaster(playerNum)?'master':''}">${status} <span class="scores"> 0 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>${getMiniBoard()}</div>`;            
         }                      
     }
 };
@@ -274,7 +276,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
         <div class="brick blue"></div>
         <div class="brick brown"></div>
         <div class="brick yellow"></div>
-        <div class="brick white"></div>
+        <div class="brick grey"></div>
       </div>
     
         <table>
@@ -294,7 +296,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
         qs('#resources').addEventListener('click', (e) => {
             console.log('CLICK', e, e.target.className)
             if (!isMaster()) {
-                alert('You are not master!');
+                //alert('You are not master!');
                 return;
             }
             
@@ -330,10 +332,11 @@ const showPage = (pageName = 'lobby', params = {}) => {
     game.currentPage = pageName;    
 };
 
-const isMaster = () => {
-    const res = game.players[game.turn.master] == game.nickname;
-    console.log('MASTER', game.turn.master, game.players, res);
-    return res;
+const isMaster = (playerNum = game.players.indexOf(game.nickname)) => {
+    //const res = game.players[game.turn.master] == game.nickname;
+    //console.log('MASTER', game.turn.master, game.players, res);
+    //return res;
+    return game.turn.master == playerNum;
 }
 
 

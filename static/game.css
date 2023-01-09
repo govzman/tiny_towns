@@ -164,8 +164,8 @@ body {
   background-size: 100%;
 }
 
-.brick.white {
-  background: url('assets/white.png');
+.brick.grey {
+  background: url('assets/grey.png');
   background-size: 100%;
 }
 
@@ -194,6 +194,10 @@ body {
     display: flex;
     flex-direction: row;
     height: 130px;
+}
+
+.master {
+  background-color: red;
 }
 
 .playername {
