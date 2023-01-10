@@ -154,22 +154,22 @@ body {
   background-repeat: no-repeat;
 }
 
-.brick.red {
+.red {
   background: url('assets/red.png');
   background-size: 100%;
 }
 
-.brick.blue {
+.blue {
   background: url('assets/blue.png');
   background-size: 100%;
 }
 
-.brick.grey {
+.grey {
   background: url('assets/grey.png');
   background-size: 100%;
 }
 
-.brick.brown {
+.brown {
   background: url('assets/brown.png');
   background-size: 100%;
 }
@@ -197,7 +197,9 @@ body {
 }
 
 .master {
-  background-color: red;
+  
+  border-radius: 15px;
+  border: 1px solid pink;
 }
 
 .playername {

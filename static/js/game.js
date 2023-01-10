@@ -129,12 +129,11 @@ const getStatus = () => {
         if (game.stage != res.params.stage || !game.currentPage) {
             showPage(res.params.stage, res.params);
             setGameStage(res.params.stage);
-            game.log.push('Started...');
+            //game.log.push('Started...');
             //showLog();
             
             if (game.stage == 'choose_monument') {
-                setAnnounce('Monuments stage...');
-                
+                setAnnounce('Monuments stage...');                
             }
         }
         
@@ -143,12 +142,26 @@ const getStatus = () => {
         if (game.stage == 'main_game') {
             game.player.monument = res.params.player.monument;
             game.turn.master = res.params.MasterBuilder;
-            game.turn.currentResource = res.params.currentResource || false;
+            game.turn.currentResource = res.params.currentResource || false;            
+
+            document.getElementById('log').innerText = res.params.events.join('\n'); // TODO:
+
+
 
             qs('#resources').className = isMaster() ? 'selectable' : '';                
             
-            setAnnounce(game.turn.currentResource ?`Turn #${game.turn.num}: Master ${game.players[res.params.MasterBuilder]} has choosen ${game.turn.currentResource}` : `Turn #${game.turn.num}: Waiting for ${game.players[res.params.MasterBuilder]}`);
-            // res.params.isReady[game.id] = false
+            setAnnounce(game.turn.currentResource ?`Turn #${game.turn.num}: Master ${game.players[res.params.MasterBuilder]} has choosen ${game.turn.currentResource}` : `Turn #${game.turn.num}: Waiting for ${game.players[res.params.MasterBuilder]}`);            
+
+            
+            // UPDATE MYBOARD: [REWRITE!]
+            const td = qs('#myboard').childNodes[3].getElementsByTagName('td'); 
+            const myboard = game.playersBoards[game.players.indexOf(game.nickname)];
+            console.log('MYBOARD', myboard);
+            for (let x=0; x<4; x++) {
+                for (let y=0; y<4; y++) {
+                    td[x*4+y].className = 'brick ' + myboard[x][y];
+                }
+            }
         }
     });        
 }
@@ -159,10 +172,11 @@ const isEqual = (a, b) => {
     return JSON.stringify(a) == JSON.stringify(b);
 };
 
-const updatePlayersList = (params) => {
-    if (!isEqual(game.players,params.players) || !isEqual(game.playersReadiness, params.isReady)) {
+const updatePlayersList = (params) => {    
+    if (JSON.stringify(params.playersBoards) != JSON.stringify(game.playersBoards) || !isEqual(game.players,params.players) || !isEqual(game.playersReadiness, params.isReady)) { // WTF! TODO!
         game.players = params.players;
         game.playersReadiness = params.isReady;
+        game.playersBoards = params.playersBoards;
         
         const playersList = qs("#playersList");
         playersList.innerHTML = '';
@@ -172,30 +186,34 @@ const updatePlayersList = (params) => {
             const playerNum = game.players.indexOf(playerName);
             const status = game.playersReadiness[playerNum] ? `<strong>${playerName}</strong>` : `${playerName}`;//'🟢':'🟡';
             console.log('MASTER', isMaster(playerNum), game.turn.master, playerNum, game.players)
-            playersList.innerHTML += `<div class="${isMaster(playerNum)?'master':''}">${status} <span class="scores"> 0 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>${getMiniBoard()}</div>`;            
+            playersList.innerHTML += `<div class="${isMaster(playerNum)?'master':''}">${status} <span class="scores"> 0 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>${getMiniBoard(playerNum)}</div>`;            
         }                      
     }
 };
 
-const getMiniBoard = () => {
-    return `
-        <table class=miniboard>
-            <tr><td></td><td></td><td></td><td></td></tr>
-            <tr><td></td><td></td><td></td><td></td></tr>
-            <tr><td></td><td></td><td></td><td></td></tr>
-            <tr><td></td><td></td><td></td><td></td></tr>
-        </table>`;
+const getMiniBoard = (playerNum) => {
+    if (!game.playersBoards) return;
+    console.log('MINIBOARD', playerNum, game.playersBoards[playerNum])
+    let miniboard = [];
+    for (let i=0;i<4;i++) {        
+        let cols = [];
+        for (let j=0;j<4;j++) {
+            cols.push(`<td class="${game.playersBoards[playerNum][i][j]}"></td>`);
+        }
+        miniboard.push(`<tr>${cols.join('')}</tr>`)
+    }
+    return `<table class=miniboard>${miniboard.join('')}</table>`;
 };
 
 const setAnnounce = (announceText) => {
     document.getElementById('announce').textContent = announceText;
 }
 
-const writeLog = (message) => {
-    // TODO: check XSS
-    //document.getElementById('log').innerHTML = game.log.join('<br>');
-    document.getElementById('log').append(message+'\n') // insertAdjacentHTML('beforebegin', message);
-}
+// const writeLog = (message) => {
+//     // TODO: check XSS
+//     //document.getElementById('log').innerHTML = game.log.join('<br>');
+//     document.getElementById('log').append(message+'\n') // insertAdjacentHTML('beforebegin', message);
+// }
 
 const getBuildigsList = (bulidingRow) => {
     if (!bulidingRow) return 'NO BUILDINGS'; // TODO
@@ -284,8 +302,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
             <tr><td></td><td></td><td></td><td></td></tr>
             <tr><td></td><td></td><td></td><td></td></tr>
             <tr><td></td><td></td><td></td><td></td></tr>
-        </table>
-        
+        </table>        
         <div id=yourMonument>
             <img class="cards" src="/assets/cards/${params.player.monument}.webp">
         </div>       
@@ -324,7 +341,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
                 e.target.classList.add('selected', 'brick', color); //e.target.className == '' ? 'selected' : '';
                 game.movement = {};
                 game.movement[`${y},${x}`] = game.turn.currentResource;
-                writeLog(`Выбран ${game.turn.currentResource} на ${y}, ${x}`)               
+                //writeLog(`Выбран ${game.turn.currentResource} на ${y}, ${x}`)               
 
             }        
         });
@@ -356,7 +373,7 @@ const isReadyBtn = (isReady = false) => {
             console.debug('PLACE_RESOURCE', res);
             if (res.success) {
                 // TODO: game.turn.step = 1;
-                writeLog('Вы разметили ресурс.');
+                //writeLog('Вы разметили ресурс.');
                 for (let i=0;i<1;i++) {
                     const x = Object.keys(res.cords)[i].split(',')[0];
                     const y = Object.keys(res.cords)[i].split(',')[1];
@@ -416,7 +433,7 @@ const defaultState = {
         //resource: '',
         //master: ''
     },
-    log: [],
+    //log: [],
     movement: {},
     player: {
         // NB: monument
