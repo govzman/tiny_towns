@@ -88,7 +88,8 @@ class Game():
                 'isReady': list(map(lambda x: self.players[x]['ready'], self.players.keys())),
                 'events': self.events[-min(5, len(self.events)):],
                 'MasterBuilder': MasterBuilder,
-                'currentResource': self.current_resource
+                'currentResource': self.current_resource,
+                'playersBoards': {list(self.players.keys()).index(key): self.players[key]['board'].getBoard() for key in self.players} 
             })
 
         self.checkTTL()
@@ -155,7 +156,6 @@ class Game():
             if len(params['movement']) == 1:
                 x, y = map(int, list(params['movement'].keys())[0].split(','))
                 self.players[params['player_id']]['board'].setCell(list(params['movement'].values())[0], [x, y])
-                print('!!!', params['turn_num'], self.turn)
                 if params['turn_num'] == self.turn:
                     self.players[params['player_id']]['ready'] = True
                 else:
@@ -350,6 +350,9 @@ class Board():
 
     def setCell(self, build, cord): 
         self.board[cord[1]][cord[0]].set(build)
+
+    def getBoard(self):
+        return [[self.board[j][i].get() for i in range(4)] for j in range(4)] 
 
     def __str__(self):
         string = ''
