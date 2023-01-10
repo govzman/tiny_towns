@@ -154,12 +154,15 @@ const getStatus = () => {
 
             
             // UPDATE MYBOARD: [REWRITE!]
-            const td = qs('#myboard').childNodes[3].getElementsByTagName('td'); 
-            const myboard = game.playersBoards[game.players.indexOf(game.nickname)];
-            console.log('MYBOARD', myboard);
-            for (let x=0; x<4; x++) {
-                for (let y=0; y<4; y++) {
-                    td[x*4+y].className = 'brick ' + myboard[x][y];
+            console.log("UPDATE")
+            const myNum = game.players.indexOf(game.nickname);
+            if (JSON.stringify(game.playersBoards[myNum]) != JSON.stringify(res.params.playersBoards[myNum])) { /// !!!!! CHECK
+                console.log('MYBOARD',game.playersBoards[myNum], res.params.playersBoards[myNum])
+                const td = qs('#myboard').childNodes[3].getElementsByTagName('td');
+                for (let x=0; x<4; x++) {
+                    for (let y=0; y<4; y++) {
+                        td[x*4+y].className = 'brick ' + game.playersBoards[myNum][x][y];
+                    }
                 }
             }
         }
@@ -184,16 +187,15 @@ const updatePlayersList = (params) => {
         for (let playerName of game.players) {
             //if (playerName == game.nickname) continue;
             const playerNum = game.players.indexOf(playerName);
-            const status = game.playersReadiness[playerNum] ? `<strong>${playerName}</strong>` : `${playerName}`;//'🟢':'🟡';
-            console.log('MASTER', isMaster(playerNum), game.turn.master, playerNum, game.players)
+            const status = game.playersReadiness[playerNum] ? `<strong>🟢 ${playerName}</strong>` : `🟡 ${playerName}`;
+            //console.log('MASTER', isMaster(playerNum), game.turn.master, playerNum, game.players)
             playersList.innerHTML += `<div class="${isMaster(playerNum)?'master':''}">${status} <span class="scores"> 0 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>${getMiniBoard(playerNum)}</div>`;            
         }                      
     }
 };
 
 const getMiniBoard = (playerNum) => {
-    if (!game.playersBoards) return '<table class=miniboard><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr></table>';
-    console.log('MINIBOARD', playerNum, game.playersBoards[playerNum])
+    if (!game.playersBoards) return '<table class=miniboard><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr></table>'; // REWRITE    
     let miniboard = [];
     for (let i=0;i<4;i++) {        
         let cols = [];
