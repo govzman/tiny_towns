@@ -192,7 +192,7 @@ const updatePlayersList = (params) => {
 };
 
 const getMiniBoard = (playerNum) => {
-    if (!game.playersBoards) return;
+    if (!game.playersBoards) return '<table class=miniboard><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr></table>';
     console.log('MINIBOARD', playerNum, game.playersBoards[playerNum])
     let miniboard = [];
     for (let i=0;i<4;i++) {        
