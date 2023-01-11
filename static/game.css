@@ -108,11 +108,14 @@ body {
   background-repeat: no-repeat;    
   background-size: 100%;
   margin: 10px;
-  background-color: yellow;
+  background-color: rgb(197, 201, 117);
+  border-radius: 2px;
 }
 
 .miniboard td {
-    border: 1px solid lightgreen;
+    border: 1px solid rgb(134, 140, 68);
+    border-radius: 2px;
+    background-color: rgb(203, 190, 109);
 }
 
 #resources {      
@@ -283,7 +286,7 @@ span.scores {
 div#myboard {
   padding: 25px;
   display:inline-flex;
-  flex-flow: row;
+  flex-flow: row;  
 }
 /*body * {border: 1px solid red;}*/
 
@@ -295,6 +298,7 @@ div#myboard {
     height: 200px;
     width: 200px;    
     border-spacing: 5px; 
+    border-radius: 3px;
 }
 
 #myboard td {

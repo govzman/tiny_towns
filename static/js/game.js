@@ -148,16 +148,17 @@ const getStatus = () => {
 
 
 
-            qs('#resources').className = isMaster() ? 'selectable' : '';                
+            qs('#resources').className = ( isMaster() && !game.turn.currentResource ) ? 'selectable' : '';                
             
-            setAnnounce(game.turn.currentResource ?`Turn #${game.turn.num}: Master ${game.players[res.params.MasterBuilder]} has choosen ${game.turn.currentResource}` : `Turn #${game.turn.num}: Waiting for ${game.players[res.params.MasterBuilder]}`);            
+            setAnnounce(game.turn.currentResource ?`Turn #${game.turn.num}: Master ${game.players[res.params.MasterBuilder]} has choosen ${game.turn.currentResource}. Put it!` : (game.players[res.params.MasterBuilder] != game.nickname ? `Turn #${game.turn.num}: Waiting for ${game.players[res.params.MasterBuilder]}` : 'Your turn, Master! Choose resourse...') );  // REWRITE
 
             
             // UPDATE MYBOARD: [REWRITE!]
             console.log("UPDATE")
             const myNum = game.players.indexOf(game.nickname);
-            if (JSON.stringify(game.playersBoards[myNum]) != JSON.stringify(res.params.playersBoards[myNum])) { /// !!!!! CHECK
+            if (game.isReady == undefined || JSON.stringify(game.playersBoards[myNum]) != JSON.stringify(res.params.playersBoards[myNum])) { /// !!!!! CHECK
                 console.log('MYBOARD',game.playersBoards[myNum], res.params.playersBoards[myNum])
+                game.isReady = false;
                 const td = qs('#myboard').childNodes[3].getElementsByTagName('td');
                 for (let x=0; x<4; x++) {
                     for (let y=0; y<4; y++) {
@@ -188,8 +189,9 @@ const updatePlayersList = (params) => {
             //if (playerName == game.nickname) continue;
             const playerNum = game.players.indexOf(playerName);
             const status = game.playersReadiness[playerNum] ? `<strong>🟢 ${playerName}</strong>` : `🟡 ${playerName}`;
-            //console.log('MASTER', isMaster(playerNum), game.turn.master, playerNum, game.players)
-            playersList.innerHTML += `<div class="${isMaster(playerNum)?'master':''}">${status} <span class="scores"> 0 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>${getMiniBoard(playerNum)}</div>`;            
+            
+            // <span class="scores"> 0 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>
+            playersList.innerHTML += `<div class="${isMaster(playerNum)?'master':''}">${status}${getMiniBoard(playerNum)}</div>`;            
         }                      
     }
 };
