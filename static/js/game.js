@@ -136,8 +136,6 @@ const getStatus = () => {
 
             document.getElementById('log').innerText = res.params.events.join('\n'); // TODO:
 
-
-
             qs('#resources').className = ( isMaster() && !game.turn.currentResource ) ? 'selectable' : '';                
             
             setAnnounce(`Turn #${game.turn.num}: ` + (game.turn.currentResource ?`Master ${game.players[res.params.MasterBuilder]} has choosen ${game.turn.currentResource}. Place it!` : (game.players[res.params.MasterBuilder] != game.nickname ? `Waiting for ${game.players[res.params.MasterBuilder]}` : 'Your turn, Master! Choose resourse...')) );  // REWRITE
@@ -147,7 +145,7 @@ const getStatus = () => {
             console.log("UPDATE")
             const myNum = game.players.indexOf(game.nickname);
             if (game.isReady == undefined || JSON.stringify(game.playersBoards[myNum]) != JSON.stringify(res.params.playersBoards[myNum])) { /// !!!!! CHECK
-                console.log('MYBOARD',game.playersBoards[myNum], res.params.playersBoards[myNum])
+                //console.log('MYBOARD',game.playersBoards[myNum], res.params.playersBoards[myNum])
                 game.isReady = false;
                 const td = qs('#myboard').childNodes[3].getElementsByTagName('td');
                 for (let x=0; x<4; x++) {
@@ -222,7 +220,7 @@ const getBuildigsList = (bulidingRow, selectable = true) => {
 const showPage = (pageName = 'lobby', params = {}) => {  
     //console.log('TEST', pageName, game.currentPage, pageName == game.currentPage)  
     if (pageName == game.currentPage) return false;
-    console.debug('SHOW_PAGE', pageName, params);
+    //console.debug('SHOW_PAGE', pageName, params);
     
     if (pageName == 'lobby') {
         //document.getElementById('main').innerHTML = `<h1>Willkommen!</h1>`;
@@ -321,10 +319,14 @@ const showPage = (pageName = 'lobby', params = {}) => {
 
             const myboard = game.playersBoards[game.players.indexOf(game.nickname)];
             
-            game.building = {cells: []};
+            game.building = {
+                type: 'blue', // TODO: getTypeByName(buildingName)
+                cells: [],
+                patterns: []
+            };
             for (let pattern of getPatterns(buildingName)) {
-                const patternWidth = 2; // max(x)+1
-                const patternHeight = 2; // max(y)+1
+                const patternWidth = 2; // TODO: max(x)+1 
+                const patternHeight = 2; // TODO: max(y)+1
 
                 for (let i=0;i<=4-patternWidth;i++) {
                     for (let j=0;j<=4-patternHeight;j++) {                    
@@ -334,15 +336,15 @@ const showPage = (pageName = 'lobby', params = {}) => {
                             const y = parseInt(p.split(', ')[1])
                             
                             if (myboard[i+y][j+x] == pattern[`${x}, ${y}`]) {
-                                matchedCoords.push({x: i+x, y: j+y}); // color: pattern[`${x}, ${y}`]
+                                matchedCoords.push(`${i+x},${j+y}`) // {x: i+x, y: j+y}); // color: pattern[`${x}, ${y}`]
                             }
                         }
                         
                         if (matchedCoords.length == Object.keys(pattern).length) {
                             //console.log('MATCHED', matchedCoords)
-                            game.building.cells.push(...matchedCoords);                            
+                            game.building.cells.push(...matchedCoords);
+                            game.building.patterns.push(matchedCoords);
                         }
-
                     }
                 }
                 //console.log('PATTERN', myboard, pattern);
@@ -350,29 +352,51 @@ const showPage = (pageName = 'lobby', params = {}) => {
 
             const td = qs('#myboard').childNodes[3].getElementsByTagName('td');
             for (let c of game.building.cells) {
-                td[c.x * 4 + c.y].classList.add('possible');
-            }
-            
+                td[parseInt(c.split(',')[0]) * 4 + parseInt(c.split(',')[1])].classList.add('possible');
+            }            
             console.log('BUILDING', game.building)       
         });
 
         qs('#myboard').addEventListener('click', (e) => {            
-            if (!game.turn.currentResource || !game.building) return;
+            if (!game.turn.currentResource && !game.building) return;
+            console.log('CLICK',e)
             if (e.target.nodeName == 'TD') {
                 const x = e.target.parentElement.rowIndex;
-                const y =  e.target.cellIndex;
-                const color = game.turn.currentResource;
-                console.debug('COORDS', x,y);
+                const y =  e.target.cellIndex;                
+                //console.debug('COORDS', x,y);
 
-                qs('#isReadyBtn').disabled = false;
-                
-                for (let selected of document.querySelectorAll('.selected')) {
-                    selected.className = '';
+                if (game.building) {
+                    const type = game.building.type;
+                    if (game.building.cells.includes(`${x},${y}`)) {
+                        e.target.style = `background-size:100%;background-image: url("/assets/${type}_house.png");`;
+                        
+                        let patternCells = [];
+                        for (let p of game.building.patterns) {
+                            if (p.includes(`${x},${y}`)) {
+                                patternCells.push(p);
+                            }
+                        }
+                        console.log('PATTERN', patternCells);
+                        // TODO: check if patternCells.length == 1
+                        api('place_building', {x,y, type, cells: patternCells[0]}).then((res) => {
+                            // TODO:
+                            console.log('PLACE_BUILDING', res);
+                        });
+                        game.building = false;
+                    }
                 }
-                e.target.classList.add('selected', 'brick', color); //e.target.className == '' ? 'selected' : '';
-                game.movement = {};
-                game.movement[`${y},${x}`] = game.turn.currentResource;
-                //writeLog(`Выбран ${game.turn.currentResource} на ${y}, ${x}`)               
+
+                if (game.turn.currentResource) {                    
+                    qs('#isReadyBtn').disabled = false;
+                    
+                    for (let selected of document.querySelectorAll('.selected')) {
+                        selected.className = '';
+                    }
+                    e.target.classList.add('selected', 'brick', game.turn.currentResource); //e.target.className == '' ? 'selected' : '';
+                    game.movement = {};
+                    game.movement[`${y},${x}`] = game.turn.currentResource;
+                    //writeLog(`Выбран ${game.turn.currentResource} на ${y}, ${x}`)   
+                }            
 
             }        
         });
