@@ -2,11 +2,23 @@ const DEBUG = true;
 const PING_INTERVAL = 2000;
 
 const getPatterns = (buildingName) => {
-    // TODO: get building
+    let patterns = [];
+    // TODO: get building by name + type
+    const p = {'1, 1': 'blue', '0, 1': 'red', '1, 0': 'yellow'};
+    /*
+
+    0,0  1,0  2,0
+    0,1  1,1  2,1
+    0,2  1,2  2,2
+
+     .  *  .
+     *  *  .
+     .  .  .
+
+    */
     // TODO: rotate 
-    return [
-        {'1, 1': 'blue', '0, 1': 'red', '1, 0': 'yellow'}
-    ];
+    patterns.push(p)
+    return patterns;
 };
 
 const qs = (selector) => {
@@ -378,7 +390,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
                         }
                         console.log('PATTERN', patternCells);
                         // TODO: check if patternCells.length == 1
-                        api('place_building', {x,y, name: game.building.name, cells: patternCells[0]}).then((res) => {
+                        api('place_building', {'player_id': game.player_id, x,y, name: game.building.name, cells: patternCells[0]}).then((res) => {
                             // TODO:
                             console.log('PLACE_BUILDING', res);
                         });
@@ -386,7 +398,8 @@ const showPage = (pageName = 'lobby', params = {}) => {
                     }
                 }
 
-                if (game.turn.currentResource) {                    
+                if (game.turn.currentResource) {
+                    // TODO: Проверку на то стоит ли уже на клетке ресурс в момент, когда игрок ставит новый ресурс                    
                     qs('#isReadyBtn').disabled = false;
                     
                     for (let selected of document.querySelectorAll('.selected')) {
