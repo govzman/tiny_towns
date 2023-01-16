@@ -127,24 +127,54 @@ class Game():
             print(params, self.players[params['player_id']])
             return {'error': {'code': 57, 'msg': 'bad request'}}
 
-    def check_patterns(self, params):
+    # def check_patterns(self, params):
+    #     if params['player_id'] not in self.players:
+    #         return {'error': {'code': 55, 'msg': 'bad id'}}
+    #     if self.stage != 'main_game':
+    #         return {'error': {'code': 56, 'msg': 'Wrong game stage'}}
+
+    #     if 'cords' in params:
+    #         cords = params['cords']
+    #     else:
+    #         print(params, self.players[params['player_id']])
+    #         return {'error': {'code': 57, 'msg': 'bad request'}}
+
+    #     # check patterns
+    #     answer = self.players[params['player_id']]['board'].check_patterns(cords, self.buildingRow)
+
+    #     if answer == None:
+    #         return {'isPattern': False}
+    #     return {'isPattern': True, 'building': answer}
+
+    def place_building(self, params):
         if params['player_id'] not in self.players:
             return {'error': {'code': 55, 'msg': 'bad id'}}
         if self.stage != 'main_game':
             return {'error': {'code': 56, 'msg': 'Wrong game stage'}}
 
-        if 'cords' in params:
-            cords = params['cords']
+        if 'cells' in params:
+            cells = params['cells']
         else:
             print(params, self.players[params['player_id']])
             return {'error': {'code': 57, 'msg': 'bad request'}}
 
+        cords = {}
+        for cell in cells:
+            cords[cell.replace(',', ', ')] = self.players[params['player_id']]['board'].getCell(list(map(int, list(reversed(cell.split(','))))))
+
+        print('!', cords)
         # check patterns
         answer = self.players[params['player_id']]['board'].check_patterns(cords, self.buildingRow)
+        print('!!', answer)
+        if answer != params['name']:
+            return {'isSuccess': False}
+        
+        for cell in cells:
+            self.players[params['player_id']]['board'].setCell('empty', list(reversed(list(map(int, cell.split(','))))))
 
-        if answer == None:
-            return {'isPattern': False}
-        return {'isPattern': True, 'building': answer}
+        self.players[params['player_id']]['board'].setCell(answer, [params['y'], params['x']])
+        
+        return {'isSuccess': True, 'building': answer}
 
     def place_resource(self, params):
         if params['player_id'] not in self.players:
@@ -188,6 +218,9 @@ class Game():
         
         self.current_resource = params['resource']
         return {'success': True, 'currentResource': params['resource']}
+
+    # def place_building(self, params):
+
 
 
     def checkTTL(self):
