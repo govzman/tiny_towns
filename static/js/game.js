@@ -320,6 +320,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
             const myboard = game.playersBoards[game.players.indexOf(game.nickname)];
             
             game.building = {
+                name: buildingName,
                 type: 'blue', // TODO: getTypeByName(buildingName)
                 cells: [],
                 patterns: []
@@ -365,10 +366,9 @@ const showPage = (pageName = 'lobby', params = {}) => {
                 const y =  e.target.cellIndex;                
                 //console.debug('COORDS', x,y);
 
-                if (game.building) {
-                    const type = game.building.type;
+                if (game.building) {                    
                     if (game.building.cells.includes(`${x},${y}`)) {
-                        e.target.style = `background-size:100%;background-image: url("/assets/${type}_house.png");`;
+                        e.target.style = `background-size:100%;background-image: url("/assets/${game.building.type}_house.png");`;
                         
                         let patternCells = [];
                         for (let p of game.building.patterns) {
@@ -378,7 +378,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
                         }
                         console.log('PATTERN', patternCells);
                         // TODO: check if patternCells.length == 1
-                        api('place_building', {x,y, type, cells: patternCells[0]}).then((res) => {
+                        api('place_building', {x,y, name: game.building.name, cells: patternCells[0]}).then((res) => {
                             // TODO:
                             console.log('PLACE_BUILDING', res);
                         });
