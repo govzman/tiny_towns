@@ -94,12 +94,50 @@ body {
     transform: rotate(0deg);
 }
 
-#bulidingRow img {
-    /*border-radius: 3px;*/
-    width: 100px;
-   /* box-shadow: 4px 10px 10px -5px rgba(0, 0, 0, 0.6);*/
-    margin:3px;
+#bulidingRow div {
+    display: inline-block;
+    width: 95px;
+    height: 160px;
+   /*box-shadow: 4px 10px 10px -5px rgba(255, 0, 0, 0.6);
+   border: 2px solid white;*/
+   background-size: 100%;
+   background-repeat: no-repeat;
+   border-radius: 5px;
+    margin:3px;    
 }
+
+
+
+.cards {
+  margin: 5px;
+  /*box-shadow: 8px 8px 14px -5px rgba(0, 0, 0, 0.6);*/
+  border: 2px solid rgba(0,0,0,0);
+  border-radius: 8px;
+  margin: 10px;
+  width: 150px;
+}
+.cards:hover {
+    box-shadow: 0 0 0 5px lightgreen; 
+    /*border: 2px solid greenyellow;*/
+    cursor: pointer;   
+}
+
+.notSelectable:hover {
+  cursor: default;
+  box-shadow: 0 0 0 0 black; 
+}
+
+#yourMonument .cards {
+
+  width: 110px;
+  /*box-shadow: none;*/
+  transform: rotate(3deg);
+  height:188px;
+  background-size:100%;
+}
+/*#yourMonument .cards:hover { box-shadow: none; }*/
+
+
 .miniboard {
   width: 80px;
   height: 80px;
@@ -144,7 +182,11 @@ body {
   cursor: pointer; 
 }
 
-#myboard table td { width: 30px; height: 30px;/*border:1px solid green;*/}
+#myboard table td { 
+  width: 30px; 
+  height: 30px;
+  /*cursor: pointer;*/
+}
 
 /*.test {
   border: 3px solid red;
@@ -155,6 +197,12 @@ body {
   height: 30px;
   background-position: center;
   background-repeat: no-repeat;
+}
+
+#myboard table td.possible {
+  border: 3px solid blue;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 .red {
@@ -188,10 +236,10 @@ body {
   background-size: 20px;
 }
 
-#myboard .selected {
+/*#myboard .selected {
   border: 1px solid lightgreen;
   border-radius: 5px;
-}
+}*/
 
 #playersList {
     display: flex;
@@ -212,8 +260,10 @@ body {
   margin-right: 15px;
   border-radius: 15px;
   text-align: center;
-  background-color: lightgreen;
+  background-color: orange;
 }
+
+.ready {background-color: lightgreen;}
 
 span.scores {
   background-color: white;
@@ -244,18 +294,11 @@ span.scores {
   border-radius: 8px;
 }*/
 
-#choose_monument {
-  width: 100%;
-}
-.cards {
-  margin: 5px;
-  box-shadow: 8px 8px 14px -5px rgba(0, 0, 0, 0.6);
-  border-radius: 8px;
-  margin: 10px;
-  width: 150px;
-}
-.cards:hover {
-    box-shadow: 0 0 0 5px lightgreen;    
+#choose_monument div {
+  background-size: 100%;
+  width:130px;
+  height: 223px;
+  display: inline-flex;
 }
 
 #monument1 {
@@ -265,8 +308,11 @@ span.scores {
     transform: rotate(2deg);
 }
 
-.selected_card {
-    box-shadow: 0px 0px 25px 5px red;
+
+
+.selected {
+    /*box-shadow: 0px 0px 25px 5px red;*/
+    border: 2px solid lightgreen;
 }
 
 #announce {
@@ -276,12 +322,6 @@ span.scores {
   font-weight: bold;
 }
 
-#yourMonument .cards {
-  width: 120px;
-  box-shadow: none;
-  transform: rotate(3deg);
-}
-#yourMonument .cards:hover { box-shadow: none; }
 
 div#myboard {
   padding: 25px;

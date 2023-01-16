@@ -1,22 +1,12 @@
 const DEBUG = true;
 const PING_INTERVAL = 2000;
 
-const MONUMENT_NAMES = {
-    'Arch_Guild': 'Architect`s Guild',
-    'Arch_Age': 'Archive of the Second Age',
-    'Bar_Cast': 'Barrett Castle',
-    'Cath_Cat': 'Cathedral of Caterina',
-    'Fort_Iron': 'Fort Ironweed',
-    'Grove_Un': 'Grove University',
-    'Mand_Pal': 'Mandras Palace',
-    'Opal_Wat': 'Opaleyes Watch',
-    'Shr_Tree': 'Shrine of the Elder Tree',
-    'Sil_For': 'Silva Forum',
-    'Star': 'The Starloom',
-    'Stat_Bond': 'Statue of the Bondmaker',
-    'Rodina': 'Grand Mausoleum of the Rodina',
-    'Sky_Bath': 'The Sky Baths',
-    'Crescent': 'Obelisk of the Crescent'
+const getPatterns = (buildingName) => {
+    // TODO: get building
+    // TODO: rotate 
+    return [
+        {'1, 1': 'blue', '0, 1': 'red', '1, 0': 'yellow'}
+    ];
 };
 
 const qs = (selector) => {
@@ -150,7 +140,7 @@ const getStatus = () => {
 
             qs('#resources').className = ( isMaster() && !game.turn.currentResource ) ? 'selectable' : '';                
             
-            setAnnounce(game.turn.currentResource ?`Turn #${game.turn.num}: Master ${game.players[res.params.MasterBuilder]} has choosen ${game.turn.currentResource}. Put it!` : (game.players[res.params.MasterBuilder] != game.nickname ? `Turn #${game.turn.num}: Waiting for ${game.players[res.params.MasterBuilder]}` : 'Your turn, Master! Choose resourse...') );  // REWRITE
+            setAnnounce(`Turn #${game.turn.num}: ` + (game.turn.currentResource ?`Master ${game.players[res.params.MasterBuilder]} has choosen ${game.turn.currentResource}. Place it!` : (game.players[res.params.MasterBuilder] != game.nickname ? `Waiting for ${game.players[res.params.MasterBuilder]}` : 'Your turn, Master! Choose resourse...')) );  // REWRITE
 
             
             // UPDATE MYBOARD: [REWRITE!]
@@ -188,16 +178,15 @@ const updatePlayersList = (params) => {
         for (let playerName of game.players) {
             //if (playerName == game.nickname) continue;
             const playerNum = game.players.indexOf(playerName);
-            const status = game.playersReadiness[playerNum] ? `<strong>🟢 ${playerName}</strong>` : `🟡 ${playerName}`;
             
             // <span class="scores"> 0 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>
-            playersList.innerHTML += `<div class="${isMaster(playerNum)?'master':''}">${status}${getMiniBoard(playerNum)}</div>`;            
+            playersList.innerHTML += `<div class="${isMaster(playerNum)?'master':''}"><strong class="playername ${game.playersReadiness[playerNum]? 'ready':""}">${status} ${playerName}</strong>${getMiniBoard(playerNum)}</div>`;            
         }                      
     }
 };
 
 const getMiniBoard = (playerNum) => {
-    if (!game.playersBoards) return '<table class=miniboard><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr></table>'; // REWRITE    
+    if (!game.playersBoards) return ''; //<table class=miniboard><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr></table>'; // REWRITE    
     let miniboard = [];
     for (let i=0;i<4;i++) {        
         let cols = [];
@@ -219,12 +208,12 @@ const setAnnounce = (announceText) => {
 //     document.getElementById('log').append(message+'\n') // insertAdjacentHTML('beforebegin', message);
 // }
 
-const getBuildigsList = (bulidingRow) => {
+const getBuildigsList = (bulidingRow, selectable = true) => {
     if (!bulidingRow) return 'NO BUILDINGS'; // TODO
 
     let buildingsList = '';
-    for (let building of bulidingRow) {
-        buildingsList += `<img src="/assets/buildings/${building}.png">`
+    for (let buildingName of bulidingRow) {
+        buildingsList += `<div class="${selectable?'cards':'cards notSelectable'}" id="${buildingName}" style="background-image: url('/assets/buildings/${buildingName}.png');"></div>`
     }
     
     return buildingsList;
@@ -244,23 +233,18 @@ const showPage = (pageName = 'lobby', params = {}) => {
     if (pageName == 'choose_monument') {
         qs('#main').innerHTML = `
             <div id="bulidingRow">
-                ${getBuildigsList(params.bulidingRow)}
+                ${getBuildigsList(params.bulidingRow, false)}
             </div>
             <h2>Choose your monument:</h2>
-            <div id="choose_monument">
-            
-                    <!--<b>${MONUMENT_NAMES[params.player.monuments[0]]}:</b>-->
-                    <img class=cards id=monument1 data-name="${params.player.monuments[0]}" src="assets/cards/${params.player.monuments[0]}.webp">
-                
-                    <!--<b>${MONUMENT_NAMES[params.player.monuments[1]]}:</b>-->
-                    <img class=cards id=monument2 data-name="${params.player.monuments[1]}" src="assets/cards/${params.player.monuments[1]}.webp"> 
-
+            <div id="choose_monument">            
+                    <div class=cards id=monument1 data-name="${params.player.monuments[0]}" style="background-image:url('assets/cards/${params.player.monuments[0]}.webp');"></div>                
+                    <div class=cards id=monument2 data-name="${params.player.monuments[1]}" style="background-image:url('assets/cards/${params.player.monuments[1]}.webp');"></div>
             </div>`;
 
             qs('#choose_monument').addEventListener('click', (e) => {                
                 if (e.target.id == 'choose_monument') return;
 
-                e.target.classList.add('selected_card');
+                e.target.classList.add('selected');
                 qs('#isReadyBtn').disabled = false;
                 
                 if (e.target.id == 'monument1') {
@@ -293,14 +277,13 @@ const showPage = (pageName = 'lobby', params = {}) => {
         ${getBuildigsList(params.bulidingRow)}
       </div>
       <div id="myboard">
-      <div id="resources" class="selectable">
-        <div class="brick red"></div>
-        <div class="brick blue"></div>
-        <div class="brick brown"></div>
-        <div class="brick yellow"></div>
-        <div class="brick grey"></div>
-      </div>
-    
+        <div id="resources" class="selectable">
+            <div class="brick red"></div>
+            <div class="brick blue"></div>
+            <div class="brick brown"></div>
+            <div class="brick yellow"></div>
+            <div class="brick grey"></div>
+        </div>    
         <table>
             <tr><td></td><td></td><td></td><td></td></tr>
             <tr><td></td><td></td><td></td><td></td></tr>
@@ -308,14 +291,14 @@ const showPage = (pageName = 'lobby', params = {}) => {
             <tr><td></td><td></td><td></td><td></td></tr>
         </table>        
         <div id=yourMonument>
-            <img class="cards" src="/assets/cards/${params.player.monument}.webp">
+            <div class="cards" style="background-image: url('/assets/cards/${params.player.monument}.webp');"></div>
         </div>       
       </div>
       
       `;    
         
         qs('#resources').addEventListener('click', (e) => {
-            console.log('CLICK', e, e.target.className)
+            
             if (!isMaster()) {
                 //alert('You are not master!');
                 return;
@@ -329,13 +312,57 @@ const showPage = (pageName = 'lobby', params = {}) => {
             }
         });
 
-        qs('#myboard').addEventListener('click', (e) => {
-            if (!game.turn.currentResource) return;
+        qs('#bulidingRow').addEventListener('click', (e) => {
+            const buildingName = e.target.id;
+
+            if (!buildingName) return;
+            //console.debug('CHECK_BUILDING', buildingName);
+            // TODO: document.getElementById(buildingName).classList.add('selected');
+
+            const myboard = game.playersBoards[game.players.indexOf(game.nickname)];
+            
+            game.building = {cells: []};
+            for (let pattern of getPatterns(buildingName)) {
+                const patternWidth = 2; // max(x)+1
+                const patternHeight = 2; // max(y)+1
+
+                for (let i=0;i<=4-patternWidth;i++) {
+                    for (let j=0;j<=4-patternHeight;j++) {                    
+                        let matchedCoords = [];
+                        for (let p in pattern) {
+                            const x = parseInt(p.split(', ')[0])
+                            const y = parseInt(p.split(', ')[1])
+                            
+                            if (myboard[i+y][j+x] == pattern[`${x}, ${y}`]) {
+                                matchedCoords.push({x: i+x, y: j+y}); // color: pattern[`${x}, ${y}`]
+                            }
+                        }
+                        
+                        if (matchedCoords.length == Object.keys(pattern).length) {
+                            //console.log('MATCHED', matchedCoords)
+                            game.building.cells.push(...matchedCoords);                            
+                        }
+
+                    }
+                }
+                //console.log('PATTERN', myboard, pattern);
+            }
+
+            const td = qs('#myboard').childNodes[3].getElementsByTagName('td');
+            for (let c of game.building.cells) {
+                td[c.x * 4 + c.y].classList.add('possible');
+            }
+            
+            console.log('BUILDING', game.building)       
+        });
+
+        qs('#myboard').addEventListener('click', (e) => {            
+            if (!game.turn.currentResource || !game.building) return;
             if (e.target.nodeName == 'TD') {
                 const x = e.target.parentElement.rowIndex;
                 const y =  e.target.cellIndex;
                 const color = game.turn.currentResource;
-                //console.debug('COORDS', x,y);
+                console.debug('COORDS', x,y);
 
                 qs('#isReadyBtn').disabled = false;
                 
@@ -374,7 +401,7 @@ const isReadyBtn = (isReady = false) => {
             "player_id": game.player_id
             })
         .then((res) => {
-            console.debug('PLACE_RESOURCE', res);
+            //console.debug('PLACE_RESOURCE', res);
             if (res.success) {
                 // TODO: game.turn.step = 1;
                 //writeLog('Вы разметили ресурс.');
