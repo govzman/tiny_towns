@@ -344,7 +344,7 @@ class BuildingRow():
         self.buildings = []
         self.buildings.append(Building('Cottage', 'cottage', 0))
         #types = ['red', 'gray', 'orange', 'yellow', 'black', 'green']
-        builds = {'red': ['Farm', 'Granary', 'Greenhouse', 'Orchard'], 'gray': ['Fountain', 'Millstone', 'Shed', 'Well'], 'orange': ['Abbey', 'Chapel', 'Cloister', 'Temple'], 'yellow': ['Bakery', 'Market', 'Tailor', 'Theater'], 'black': ['Bank', 'Factory', 'Trading Post', 'Warehouse'], 'green': ['Almshouse', 'Feast Hall', 'Inn', 'Tavern']}
+        builds = {'red': ['Farm', 'Granary', 'Greenhouse', 'Orchard'], 'grey': ['Fountain', 'Millstone', 'Shed', 'Well'], 'orange': ['Abbey', 'Chapel', 'Cloister', 'Temple'], 'yellow': ['Bakery', 'Market', 'Tailor', 'Theater'], 'black': ['Bank', 'Factory', 'Trading Post', 'Warehouse'], 'green': ['Almshouse', 'Feast Hall', 'Inn', 'Tavern']}
         for type in builds.keys():
             id = randint(0, 3)
             self.buildings.append(Building(builds[type][id], type, id))
