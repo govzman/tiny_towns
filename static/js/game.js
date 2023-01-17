@@ -1,23 +1,59 @@
 const DEBUG = true;
 const PING_INTERVAL = 2000;
 
+const buildings = {
+    'Cottage':[['', 'yellow'],['red', 'blue']],
+    'Fountain':[['brown'],['grey']],
+    'Millstone':[['brown'],['grey']],
+    'Shed':[['brown'],['grey']],
+    'Well':[['brown'],['grey']],
+    'Feast Hall':[['brown'],['brown'],['blue']],
+    'Tavern':[['red'],['red'],['blue']],
+    'Inn':[['yellow'],['grey'],['blue']],
+    'Almshouse':[['grey'],['grey'],['blue']],
+    'Temple':[['grey', 'blue'],['red', ''],['red', '']],
+    'Abbey':[['grey', 'blue'],['grey', ''],['red', '']],
+    'Chapel':[['grey', 'blue'],['blue', ''],['grey', '']],
+    'Cloister':[['grey', 'blue'],['red', ''],['brown', '']],
+    'Orchard':[['yellow', 'brown'],['grey', 'yellow']],
+    'Farm':[['brown', 'brown'],['yellow', 'yellow']],
+    'Granary':[['brown', 'red'],['yellow', 'yellow']],
+    'Greenhouse':[['brown', 'brown'],['blue', 'yellow']],
+    'Warehouse':[['red', 'yellow'],['', 'brown'],['red', 'yellow']],
+    'Factory':[['red', 'brown'],['grey', ''],['grey', ''],['red', '']],
+    'Trading Post':[['grey', 'grey'],['brown', 'brown'],['red', '']],
+    'Bank':[['brown', 'yellow'],['blue', 'yellow'],['red', '']],
+    'Theatre':[['brown', ''],['blue', 'grey'],['brown', '']],
+    'Bakery':[['red', ''],['blue', 'yellow'],['red', '']],
+    'Tailor':[['grey', ''],['blue', 'yellow'],['grey', '']],
+    'Market':[['grey', ''],['blue', 'brown'],['grey', ''] ] 
+}
+
 const getPatterns = (buildingName) => {
-    let patterns = [];
-    // TODO: get building by name + type
-    const p = {'1, 1': 'blue', '0, 1': 'red', '1, 0': 'yellow'};
-    /*
+    const rotate = (matrix, count = 1) => {
+        for (let i=0; i<count; i++) {
+            matrix = matrix[0].map((val, index) => matrix.map(row => row[index]).reverse())
+        }
+        return matrix;
+    }
+         
+    const transpose = (matrix) => {        
+        let [row] = matrix;
+        return row.map((value, column) => matrix.map(row => row[column]))
+    }
+    
+    const mirrorV = (matrix) => rotate(transpose(matrix))
+    const mirrorH = (matrix) => mirrorV(rotate(mirrorV(transpose((matrix)))));
+    
+    let patterns = []
+    const m = buildings[buildingName];
 
-    0,0  1,0  2,0
-    0,1  1,1  2,1
-    0,2  1,2  2,2
-
-     .  *  .
-     *  *  .
-     .  .  .
-
-    */
-    // TODO: rotate 
-    patterns.push(p)
+    for (let i=0;i<4;i++) {
+        patterns.push(rotate(m, i));
+        patterns.push(rotate(mirrorH(m),i))
+        patterns.push(rotate(mirrorV(m),i))
+        patterns.push(rotate(mirrorH(mirrorV(m)),i))    
+    }
     return patterns;
 };
 
@@ -338,23 +374,25 @@ const showPage = (pageName = 'lobby', params = {}) => {
                 patterns: []
             };
             for (let pattern of getPatterns(buildingName)) {
-                const patternWidth = 2; // TODO: max(x)+1 
-                const patternHeight = 2; // TODO: max(y)+1
+                const patternWidth = pattern.length;
+                const patternHeight = pattern[0].length;
+                
 
                 for (let i=0;i<=4-patternWidth;i++) {
-                    for (let j=0;j<=4-patternHeight;j++) {                    
+                    for (let j=0;j<=4-patternHeight;j++) { 
+                        let patternCellsCount = 0;                  
                         let matchedCoords = [];
-                        for (let p in pattern) {
-                            const x = parseInt(p.split(', ')[0])
-                            const y = parseInt(p.split(', ')[1])
-                            
-                            if (myboard[i+y][j+x] == pattern[`${x}, ${y}`]) {
-                                matchedCoords.push(`${i+x},${j+y}`) // {x: i+x, y: j+y}); // color: pattern[`${x}, ${y}`]
+                        for (let x=0;x<patternWidth;x++) {
+                            for (let y=0;y<patternHeight;y++) {
+                                
+                                if (!pattern[x][y]) continue;                                
+                                if (myboard[i+x][j+y] == pattern[x][y]) {                                    
+                                    matchedCoords.push(`${i+x},${j+y}`)
+                                }
+                                patternCellsCount++;
                             }
                         }
-                        
-                        if (matchedCoords.length == Object.keys(pattern).length) {
-                            //console.log('MATCHED', matchedCoords)
+                        if (matchedCoords.length == patternCellsCount) {                            
                             game.building.cells.push(...matchedCoords);
                             game.building.patterns.push(matchedCoords);
                         }
@@ -372,7 +410,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
 
         qs('#myboard').addEventListener('click', (e) => {            
             if (!game.turn.currentResource && !game.building) return;
-            console.log('CLICK',e)
+            //console.log('CLICK',e)
             if (e.target.nodeName == 'TD') {
                 const x = e.target.parentElement.rowIndex;
                 const y =  e.target.cellIndex;                
