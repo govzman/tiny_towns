@@ -230,6 +230,41 @@ body {
   background-size: 100%;
 }
 
+.green_house {
+  background: url('assets/green_house.png');
+  background-size: 100%;
+}
+
+.yellow_house {
+  background: url('assets/yellow_house.png');
+  background-size: 100%;
+}
+
+.red_house {
+  background: url('assets/red_house.png');
+  background-size: 100%;
+}
+
+.orange_house {
+  background: url('assets/orange_house.png');
+  background-size: 100%;
+}
+
+.grey_house {
+  background: url('assets/grey_house.png');
+  background-size: 100%;
+}
+
+.black_house {
+  background: url('assets/black_house.png');
+  background-size: 100%;
+}
+
+.blue_house {
+  background: url('assets/blue_house.png');
+  background-size: 100%;
+}
+
 #myboard .brick {        
   background-position: center;
   background-repeat: no-repeat;

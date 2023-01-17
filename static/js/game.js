@@ -392,9 +392,9 @@ const showPage = (pageName = 'lobby', params = {}) => {
                                 patternCellsCount++;
                             }
                         }
-                        if (matchedCoords.length == patternCellsCount) {                            
+                        if (matchedCoords.length == patternCellsCount && !game.building.patterns.includes(JSON.stringify(matchedCoords))) {  // REWRITE
                             game.building.cells.push(...matchedCoords);
-                            game.building.patterns.push(matchedCoords);
+                            game.building.patterns.push(JSON.stringify(matchedCoords)); // REWRITE
                         }
                     }
                 }
@@ -418,17 +418,19 @@ const showPage = (pageName = 'lobby', params = {}) => {
 
                 if (game.building) {                    
                     if (game.building.cells.includes(`${x},${y}`)) {
-                        e.target.style = `background-size:100%;background-image: url("/assets/${game.building.type}_house.png");`;
+                        // OLD: e.target.style = `background-size:100%;background-image: url("/assets/${game.building.type}_house.png");`;
                         
-                        let patternCells = [];
+                        let possiblePatterns = [];
                         for (let p of game.building.patterns) {
-                            if (p.includes(`${x},${y}`)) {
-                                patternCells.push(p);
+                            if (JSON.parse(p).includes(`${x},${y}`)) {
+                                possiblePatterns.push(JSON.parse(p));
                             }
                         }
-                        console.log('PATTERN', patternCells);
-                        // TODO: check if patternCells.length == 1
-                        api('place_building', {'player_id': game.player_id, x,y, name: game.building.name, cells: patternCells[0]}).then((res) => {
+                        //console.log('PATTERN', possiblePatterns);
+                        if (possiblePatterns.length > 1) {
+                            alert(possiblePatterns.length) // TODO:
+                        }
+                        api('place_building', {'player_id': game.player_id, x,y, name: game.building.name, cells: possiblePatterns[0]}).then((res) => {
                             // TODO:
                             console.log('PLACE_BUILDING', res);
                         });
