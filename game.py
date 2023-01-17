@@ -127,24 +127,26 @@ class Game():
             print(params, self.players[params['player_id']])
             return {'error': {'code': 57, 'msg': 'bad request'}}
 
-    # def check_patterns(self, params):
-    #     if params['player_id'] not in self.players:
-    #         return {'error': {'code': 55, 'msg': 'bad id'}}
-    #     if self.stage != 'main_game':
-    #         return {'error': {'code': 56, 'msg': 'Wrong game stage'}}
+    def find_patterns(self, params):
+        if params['player_id'] not in self.players:
+            return {'error': {'code': 55, 'msg': 'bad id'}}
+        if self.stage != 'main_game':
+            return {'error': {'code': 56, 'msg': 'Wrong game stage'}}
 
-    #     if 'cords' in params:
-    #         cords = params['cords']
-    #     else:
-    #         print(params, self.players[params['player_id']])
-    #         return {'error': {'code': 57, 'msg': 'bad request'}}
+        if 'building' in params:
+            building = params['building']
+        else:
+            print(params, self.players[params['player_id']])
+            return {'error': {'code': 57, 'msg': 'bad request'}}
 
-    #     # check patterns
-    #     answer = self.players[params['player_id']]['board'].check_patterns(cords, self.buildingRow)
+        # check patterns
+        found_patterns = self.players[params['player_id']]['board'].find_patterns(building)
 
-    #     if answer == None:
-    #         return {'isPattern': False}
-    #     return {'isPattern': True, 'building': answer}
+        if found_patterns == []:
+            return {'isPattern': False}
+
+        return {'isPattern': True, 'found_patterns': found_patterns}
+
 
     def place_building(self, params):
         if params['player_id'] not in self.players:
@@ -263,11 +265,9 @@ class Building():
     with open('buildings_patterns.txt') as file:
         lines = file.readlines()
         buildings_patterns = {}
-        # print('!', lines)
         for i in range(len(lines)):
             buliding, pattern = lines[i].split(' / ')
             buildings_patterns[buliding] = eval(pattern)
-        print(buildings_patterns)
 
     def __init__(self, name='Cottage', type='cottage', id=1):
         self.name = name
@@ -387,6 +387,9 @@ class Board():
     def getBoard(self):
         return [[self.board[j][i].get() for i in range(4)] for j in range(4)] 
 
+    def setBoard(self, board):
+        self.board = board
+
     def __str__(self):
         string = ''
         for i in self.board:
@@ -406,6 +409,37 @@ class Board():
                 return building.name
         if not isFound:
             return None
+
+    def find_patterns(self, building):
+        found_patterns = []
+        
+        # building_patterns = Building.buildings_patterns[building]
+        building_patterns = Building(building).patterns
+        # print(building_patterns)
+
+        for pattern in building_patterns:
+            max_cord_x = max(map(lambda x: int(x.split(', ')[0]), pattern.keys()))
+            max_cord_y = max(map(lambda x: int(x.split(', ')[1]), pattern.keys()))
+            for x in range(4 - max_cord_x):
+                for y in range(4 - max_cord_y):
+                    isPattern = True
+                    for cell in pattern:
+                        cell_x, cell_y = map(int, cell.split(', '))
+                        # print(pattern, cell_x + x, cell_y + y, self.board[cell_x + x][cell_y + y].get(), pattern[cell])
+                        if pattern[cell] != self.board[cell_x + x][cell_y + y].get():
+                            isPattern = False
+                            break
+                    if isPattern:
+                        # print('!', [cell for cell in pattern])
+                        new_pattern = {f"{int(cell.split(', ')[0]) + x}, {int(cell.split(', ')[1]) + y}": pattern[cell] for cell in pattern}
+                        if new_pattern not in found_patterns:
+                            found_patterns.append(new_pattern)
+
+
+        # print('Building')
+
+        return found_patterns
+
             
         # for cord in cords:
         #     print(building_row.buildings[0].patterns[0][str(cord[0]) + ', ' + str(cord[1])])
@@ -441,10 +475,18 @@ class Board():
 # player1.getBoard()
 
 if __name__ == '__main__':
-    game = Game()
+    # game = Game()
+    board = Board()
+    board.setBoard([
+            [Cell(), Cell('yellow'), Cell(), Cell()],
+            [Cell('red'), Cell('blue'), Cell('red'), Cell()], 
+            [Cell(), Cell('yellow'), Cell(), Cell()], 
+            [Cell(), Cell(), Cell(), Cell()]
+            ])
+
+    # print(list(map(list, board.find_patterns('Cottage')[0].keys())))
+    print(board.find_patterns('Cottage'))
     # print(game.buildingRow.getRow())
     # input_cells = {'3, 3': 'blue', '2, 3': 'red', '3, 2': 'yellow'}
     # input_cells = {'0, 0': 'blue', '1, 0': 'yellow', '0, 1': 'red'}
-    print(game.buildingRow)
-    input_cells = {'3, 2': 'gray', '2, 2': 'brown'}
-    game.board.check_patterns(input_cells, game.buildingRow)
+
