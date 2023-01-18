@@ -89,7 +89,7 @@ class Game():
                 'events': self.events[-min(5, len(self.events)):],
                 'MasterBuilder': MasterBuilder,
                 'currentResource': self.current_resource,
-                'playersBoards': {list(self.players.keys()).index(key): self.players[key]['board'].getBoard() for key in self.players} 
+                'playersBoards': {list(self.players.keys()).index(key): self.players[key]['board'].getBoard(mode='server') for key in self.players} 
             })
 
         self.checkTTL()
@@ -384,8 +384,15 @@ class Board():
     def setCell(self, build, cord): 
         self.board[cord[1]][cord[0]].set(build)
 
-    def getBoard(self):
-        return [[self.board[j][i].get() for i in range(4)] for j in range(4)] 
+    def getBoard(self, mode=''):
+        board = [[self.board[j][i].get() for i in range(4)] for j in range(4)]
+        if mode == 'server':
+            builds = {'Cottage': 'blue', 'Farm': 'red', 'Granary': 'red', 'Greenhouse': 'red', 'Orchard': 'red', 'Fountain': 'grey', 'Millstone': 'grey', 'Shed': 'grey', 'Well': 'grey', 'Abbey': 'orange', 'Chapel': 'orange', 'Cloister': 'orange', 'Temple': 'orange', 'Bakery': 'yellow', 'Market': 'yellow', 'Tailor': 'yellow', 'Theater': 'yellow',  'Bank': 'black', 'Factory': 'black', 'Trading Post': 'black', 'Warehouse': 'black', 'Almshouse': 'green', 'Feast Hall': 'green', 'Inn': 'green', 'Tavern': 'green'}  
+            for i in range(4):
+                for j in range(4):
+                    if board[i][j] in builds:
+                        board[i][j] = builds[board[i][j]] + '_house'
+        return board
 
     def setBoard(self, board):
         self.board = board

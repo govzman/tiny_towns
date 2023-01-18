@@ -1,25 +1,25 @@
 Cottage / {'1, 1': 'blue', '0, 1': 'red', '1, 0': 'yellow'}
-Fountain / {'0, 0': 'brown', '0, 1': 'gray'}
-Millstone / {'0, 0': 'brown', '0, 1': 'gray'}
-Shed / {'0, 0': 'brown', '0, 1': 'gray'}
-Well / {'0, 0': 'brown', '0, 1': 'gray'}
+Fountain / {'0, 0': 'brown', '0, 1': 'grey'}
+Millstone / {'0, 0': 'brown', '0, 1': 'grey'}
+Shed / {'0, 0': 'brown', '0, 1': 'grey'}
+Well / {'0, 0': 'brown', '0, 1': 'grey'}
 Feast hall / {'0, 0': 'brown', '0, 1': 'brown', '0, 2': 'blue'}
 Tavern / {'0, 0': 'red', '0, 1': 'red', '0, 2': 'blue'}
-Inn / {'0, 0': 'yellow', '0, 1': 'gray', '0, 2': 'blue'}
-Almshouse / {'0, 0': 'gray', '0, 1': 'gray', '0, 2': 'blue'}
-Temple / {'0, 2': 'red', '0, 1': 'red', '0, 0': 'gray', '1, 0': 'blue'}
-Abbey / {'0, 2': 'red', '0, 1': 'gray', '0, 0': 'gray', '1, 0': 'blue'}
-Chapel / {'0, 2': 'gray', '0, 1': 'blue', '0, 0': 'gray', '1, 0': 'blue'}
-Cloister / {'0, 2': 'brown', '0, 1': 'red', '0, 0': 'gray', '1, 0': 'blue'}
-Orchard / {'0, 0': 'yellow', '1, 1': 'yellow', '1, 0': 'brown', '0, 1': 'gray'}
+Inn / {'0, 0': 'yellow', '0, 1': 'grey', '0, 2': 'blue'}
+Almshouse / {'0, 0': 'grey', '0, 1': 'grey', '0, 2': 'blue'}
+Temple / {'0, 2': 'red', '0, 1': 'red', '0, 0': 'grey', '1, 0': 'blue'}
+Abbey / {'0, 2': 'red', '0, 1': 'grey', '0, 0': 'grey', '1, 0': 'blue'}
+Chapel / {'0, 2': 'grey', '0, 1': 'blue', '0, 0': 'grey', '1, 0': 'blue'}
+Cloister / {'0, 2': 'brown', '0, 1': 'red', '0, 0': 'grey', '1, 0': 'blue'}
+Orchard / {'0, 0': 'yellow', '1, 1': 'yellow', '1, 0': 'brown', '0, 1': 'grey'}
 Farm / {'0, 0': 'brown', '1, 1': 'yellow', '1, 0': 'brown', '0, 1': 'yellow'}
 Granary / {'0, 0': 'brown', '1, 1': 'yellow', '1, 0': 'red', '0, 1': 'yellow'}
 Greenhouse / {'0, 0': 'brown', '1, 1': 'yellow', '1, 0': 'brown', '0, 1': 'blue'}
 Warehouse / {'0, 0': 'red', '0, 2': 'red', '1, 0': 'yellow', '1, 2': 'yellow', '1, 1': 'brown'} 
-Factory / {'0, 0': 'red', '0, 3': 'red', '1, 0': 'brown', '0, 2': 'gray', '0, 1': 'gray'}
-Trading post / {'0, 0': 'gray', '0, 2': 'red', '1, 0': 'gray', '0, 1': 'brown', '1, 1': 'brown'}
+Factory / {'0, 0': 'red', '0, 3': 'red', '1, 0': 'brown', '0, 2': 'grey', '0, 1': 'grey'}
+Trading post / {'0, 0': 'grey', '0, 2': 'red', '1, 0': 'grey', '0, 1': 'brown', '1, 1': 'brown'}
 Bank / {'0, 0': 'brown', '0, 2': 'red', '1, 0': 'yellow', '1, 1': 'yellow', '0, 1': 'blue'}
-Theatre / {'0, 0': 'brown', '0, 1': 'blue', '0, 2': 'brown', '1, 1': 'gray'}
+Theatre / {'0, 0': 'brown', '0, 1': 'blue', '0, 2': 'brown', '1, 1': 'grey'}
 Bakery / {'0, 0': 'red', '0, 1': 'blue', '0, 2': 'red', '1, 1': 'yellow'}
-Tailor / {'0, 0': 'gray', '0, 1': 'blue', '0, 2': 'gray', '1, 1': 'yellow'}
-Market / {'0, 0': 'gray', '0, 1': 'blue', '0, 2': 'gray', '1, 1': 'brown'}
+Tailor / {'0, 0': 'grey', '0, 1': 'blue', '0, 2': 'grey', '1, 1': 'yellow'}
+Market / {'0, 0': 'grey', '0, 1': 'blue', '0, 2': 'grey', '1, 1': 'brown'}
