@@ -188,19 +188,8 @@ const getStatus = () => {
             
             setAnnounce(`Turn #${game.turn.num}: ` + (game.turn.currentResource ?`Master ${game.players[res.params.MasterBuilder]} has choosen ${game.turn.currentResource}. Place it!` : (game.players[res.params.MasterBuilder] != game.nickname ? `Waiting for ${game.players[res.params.MasterBuilder]}` : 'Your turn, Master! Choose resourse...')) );  // REWRITE
 
-            
-            // UPDATE MYBOARD: [REWRITE!]
-            console.log("UPDATE")
-            const myNum = game.players.indexOf(game.nickname);
-            if (game.isReady == undefined || JSON.stringify(game.playersBoards[myNum]) != JSON.stringify(res.params.playersBoards[myNum])) { /// !!!!! CHECK
-                //console.log('MYBOARD',game.playersBoards[myNum], res.params.playersBoards[myNum])
-                game.isReady = false;
-                const td = qs('#myboard').childNodes[3].getElementsByTagName('td');
-                for (let x=0; x<4; x++) {
-                    for (let y=0; y<4; y++) {
-                        td[x*4+y].className = 'brick ' + game.playersBoards[myNum][x][y];
-                    }
-                }
+            if (game.isReady == undefined || JSON.stringify(game.playersBoards[game.myNum]) != JSON.stringify(res.params.playersBoards[game.myNum])) { // TODO: REWRITE
+                updateBoard();
             }
         }
     });        
@@ -212,11 +201,27 @@ const isEqual = (a, b) => {
     return JSON.stringify(a) == JSON.stringify(b);
 };
 
+const updateBoard = () => {
+    console.log("UPDATE") 
+    //const myNum = game.players.indexOf(game.nickname); // TODO: REWRITE
+
+    //console.log('MYBOARD',game.playersBoards[myNum], res.params.playersBoards[myNum])
+    game.isReady = false;
+    const td = qs('#myboard').childNodes[3].getElementsByTagName('td');
+    for (let x=0; x<4; x++) {
+        for (let y=0; y<4; y++) {
+            const figure = game.playersBoards[game.myNum][x][y];
+            td[x*4+y].className =  figure.includes('_house') ? figure : `brick ${figure}`;
+        }
+    }
+}
+
 const updatePlayersList = (params) => {    
     if (JSON.stringify(params.playersBoards) != JSON.stringify(game.playersBoards) || !isEqual(game.players,params.players) || !isEqual(game.playersReadiness, params.isReady)) { // WTF! TODO!
         game.players = params.players;
         game.playersReadiness = params.isReady;
         game.playersBoards = params.playersBoards;
+        game.myNum = params.players.indexOf(game.nickname)
         
         const playersList = qs("#playersList");
         playersList.innerHTML = '';
@@ -261,7 +266,7 @@ const getBuildigsList = (bulidingRow, selectable = true) => {
     for (let building of bulidingRow) {
         const buildingName = building.split(':')[1];
         const buildingType = building.split(':')[0];
-        buildingsList += `<div class="${selectable?'cards':'cards notSelectable'}" data-type="${buildingType}" id="${buildingName}" style="background-image: url('/assets/buildings/${buildingName}.png');"></div>`
+        buildingsList += `<div class="${selectable?'cards':'cards notSelectable'}" data-type="${buildingType}_house" id="${buildingName}" style="background-image: url('/assets/buildings/${buildingName}.png');"></div>`
     }
     
     return buildingsList;
@@ -396,7 +401,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
                         }
                     }
                 }
-                console.log('PATTERN', game.building, myboard, pattern);
+                //console.log('PATTERN', game.building, myboard, pattern);
             }
 
             const td = qs('#myboard').childNodes[3].getElementsByTagName('td');
@@ -409,6 +414,8 @@ const showPage = (pageName = 'lobby', params = {}) => {
         qs('#myboard').addEventListener('click', (e) => {            
             if (!game.turn.currentResource && !game.building) return;
             //console.log('CLICK',e)
+            
+            // To put a building:
             if (e.target.nodeName == 'TD') {
                 const x = e.target.parentElement.rowIndex;
                 const y =  e.target.cellIndex;   
@@ -416,8 +423,6 @@ const showPage = (pageName = 'lobby', params = {}) => {
 
                 if (game.building) {                    
                     if (game.building.cells.includes(`${x},${y}`)) {
-                        e.target.style = `background-image: url("/assets/${game.building.type}_house.png");`;
-                        
                         let possiblePatterns = [];
                         for (let p of game.building.patterns) {
                             if (JSON.parse(p).includes(`${x},${y}`)) {
@@ -425,6 +430,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
                             }
                         }
                         //console.log('PATTERN', possiblePatterns);
+                        let patternNum = 0;
                         if (possiblePatterns.length > 1) {
                             //alert(possiblePatterns.length) // TODO:
                             let boards = '';
@@ -432,16 +438,30 @@ const showPage = (pageName = 'lobby', params = {}) => {
                             for (let p of possiblePatterns) {
                                 boards += getMiniBoard(myNum)
                             }
-                            qs('#main').innerHTML += '<div id="dialog">Выберите клетки:'+boards+'</div>'
+                            qs('#main').innerHTML += '<div id="dialog">Выберите клетки:'+boards+'</div>';
+                            // TODO: patternNum
                         }
-                        api('place_building', {'player_id': game.player_id, x,y, name: game.building.name, cells: possiblePatterns[0]}).then((res) => {
+                        
+                        
+                        const td = qs('#myboard').childNodes[3].getElementsByTagName('td'); // TODO: rewrite -> updateBoard
+                        for (let c of possiblePatterns[patternNum]) {
+                            if (c != `${x},${y}`){
+                                td[parseInt(c.split(',')[0]) * 4 + parseInt(c.split(',')[1])].className = '';
+                            } else {
+                                console.log('OLOLO')
+                            }
+                        }
+                        e.target.className = game.building.type;
+                        
+                        api('place_building', {'player_id': game.player_id, x,y, name: game.building.name, cells: possiblePatterns[patternNum]}).then((res) => {
                             // TODO:
                             console.log('PLACE_BUILDING', res);
+                            //updateBoard();
                         });
                         game.building = false;
                     }
                 }
-
+                // To put a resource:
                 if (game.turn.currentResource) {
                     // TODO: Проверку на то стоит ли уже на клетке ресурс в момент, когда игрок ставит новый ресурс                    
                     qs('#isReadyBtn').disabled = false;
