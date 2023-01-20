@@ -431,7 +431,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
                             }
                         }
                         //console.log('PATTERN', possiblePatterns);
-                        const placeBuilding = (pattern) => {
+                        const placeBuilding = (pattern, x, y) => {
                             const td = qs('#myboard').childNodes[3].getElementsByTagName('td'); // TODO: rewrite -> updateBoard
                             for (let c of pattern) { 
                                 if (c != `${x},${y}`){
@@ -447,7 +447,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
                         }
                         
                         if (possiblePatterns.length == 1) {
-                            placeBuilding(possiblePatterns[0]);
+                            placeBuilding(possiblePatterns[0],x,y);
                         } else {
                             let boards = '';                            
                             for (let p of possiblePatterns) {
@@ -468,7 +468,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
                                 // TODO: REWRITE
                                 const pattern = JSON.parse(findParent(e.target).dataset.pattern.replaceAll("'",'"'));
                                 console.log("FIND_PARENT", pattern)
-                                placeBuilding(pattern);
+                                placeBuilding(pattern,x,y);
                                 qs('#dialog').remove();
                             })
                         }
