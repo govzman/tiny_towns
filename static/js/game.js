@@ -357,6 +357,8 @@ const showPage = (pageName = 'lobby', params = {}) => {
             if (e.target.className.includes('brick')) {
                 const resource = e.target.className.split(' ')[1]; // TODO: rewrite
                 game.turn.currentResource = resource;
+                qs('#resources').className = '';
+                //game.turn.num++;
                 api('choose_resource', {'player_id': game.player_id, 'resource': resource}).then( res => {
                     console.log('CHOOSE_RESOURCE', res);
                     // TODO:

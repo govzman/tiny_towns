@@ -176,11 +176,12 @@ body {
     flex-direction: column;    
     width: 30px;
     border-radius: 5px;
-    margin: 5px;    
+    margin: 5px;
+    opacity: 0.3;
 }
 
 #resources.selectable {
-  
+  opacity: 1;
   background-color: pink;
   animation: blinker 1s linear infinite;
 }
