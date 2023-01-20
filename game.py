@@ -269,7 +269,7 @@ class Building():
             buliding, pattern = lines[i].split(' / ')
             buildings_patterns[buliding] = eval(pattern)
 
-    def __init__(self, name='Cottage', type='cottage', id=1):
+    def __init__(self, name='Cottage', type='blue', id=1):
         self.name = name
         self.type = type
         self.id = id
@@ -342,7 +342,7 @@ class BuildingRow():
 
     def generate(self): # generate row
         self.buildings = []
-        self.buildings.append(Building('Cottage', 'cottage', 0))
+        self.buildings.append(Building('Cottage', 'blue', 0))
         #types = ['red', 'gray', 'orange', 'yellow', 'black', 'green']
         builds = {'red': ['Farm', 'Granary', 'Greenhouse', 'Orchard'], 'grey': ['Fountain', 'Millstone', 'Shed', 'Well'], 'orange': ['Abbey', 'Chapel', 'Cloister', 'Temple'], 'yellow': ['Bakery', 'Market', 'Tailor', 'Theater'], 'black': ['Bank', 'Factory', 'Trading Post', 'Warehouse'], 'green': ['Almshouse', 'Feast Hall', 'Inn', 'Tavern']}
         for type in builds.keys():
@@ -350,7 +350,7 @@ class BuildingRow():
             self.buildings.append(Building(builds[type][id], type, id))
 
     def getRow(self):
-        return list(map(lambda x: x.name, self.buildings))
+        return list(map(lambda x: f"{x.type}:{x.name}", self.buildings))
 
     def __str__(self):
         return ', '.join(list(map(lambda x: x.name, self.buildings)))

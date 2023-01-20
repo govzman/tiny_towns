@@ -258,22 +258,20 @@ const getBuildigsList = (bulidingRow, selectable = true) => {
     if (!bulidingRow) return 'NO BUILDINGS'; // TODO
 
     let buildingsList = '';
-    for (let buildingName of bulidingRow) {
-        buildingsList += `<div class="${selectable?'cards':'cards notSelectable'}" id="${buildingName}" style="background-image: url('/assets/buildings/${buildingName}.png');"></div>`
+    for (let building of bulidingRow) {
+        const buildingName = building.split(':')[1];
+        const buildingType = building.split(':')[0];
+        buildingsList += `<div class="${selectable?'cards':'cards notSelectable'}" data-type="${buildingType}" id="${buildingName}" style="background-image: url('/assets/buildings/${buildingName}.png');"></div>`
     }
     
     return buildingsList;
 }
 
 const showPage = (pageName = 'lobby', params = {}) => {  
-    //console.log('TEST', pageName, game.currentPage, pageName == game.currentPage)  
     if (pageName == game.currentPage) return false;
-    //console.debug('SHOW_PAGE', pageName, params);
-    
+        
     if (pageName == 'lobby') {
-        //document.getElementById('main').innerHTML = `<h1>Willkommen!</h1>`;
-        setAnnounce('Hello!')
-        //document.getElementById('isReadyBtn').addEventListener('click', isReadyBtn); 
+        setAnnounce('Hello!')        
     }
 
     if (pageName == 'choose_monument') {
@@ -369,7 +367,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
             
             game.building = {
                 name: buildingName,
-                type: 'blue', // TODO: getTypeByName(buildingName)
+                type: e.target.dataset.type,
                 cells: [],
                 patterns: []
             };
@@ -398,7 +396,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
                         }
                     }
                 }
-                //console.log('PATTERN', myboard, pattern);
+                console.log('PATTERN', game.building, myboard, pattern);
             }
 
             const td = qs('#myboard').childNodes[3].getElementsByTagName('td');
@@ -413,12 +411,12 @@ const showPage = (pageName = 'lobby', params = {}) => {
             //console.log('CLICK',e)
             if (e.target.nodeName == 'TD') {
                 const x = e.target.parentElement.rowIndex;
-                const y =  e.target.cellIndex;                
+                const y =  e.target.cellIndex;   
                 //console.debug('COORDS', x,y);
 
                 if (game.building) {                    
                     if (game.building.cells.includes(`${x},${y}`)) {
-                        // OLD: e.target.style = `background-size:100%;background-image: url("/assets/${game.building.type}_house.png");`;
+                        e.target.style = `background-image: url("/assets/${game.building.type}_house.png");`;
                         
                         let possiblePatterns = [];
                         for (let p of game.building.patterns) {
@@ -428,7 +426,13 @@ const showPage = (pageName = 'lobby', params = {}) => {
                         }
                         //console.log('PATTERN', possiblePatterns);
                         if (possiblePatterns.length > 1) {
-                            alert(possiblePatterns.length) // TODO:
+                            //alert(possiblePatterns.length) // TODO:
+                            let boards = '';
+                            const myNum = 0; // TODO:
+                            for (let p of possiblePatterns) {
+                                boards += getMiniBoard(myNum)
+                            }
+                            qs('#main').innerHTML += '<div id="dialog">Выберите клетки:'+boards+'</div>'
                         }
                         api('place_building', {'player_id': game.player_id, x,y, name: game.building.name, cells: possiblePatterns[0]}).then((res) => {
                             // TODO:

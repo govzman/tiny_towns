@@ -23,6 +23,9 @@ body {
     flex-flow: column;
 
 }
+#dialog {
+  position: fixed;width:300px;top:50%;height:200px;background:green;
+}
 
 #main {
     /*width: 100%;
@@ -154,6 +157,9 @@ body {
     border: 1px solid rgb(134, 140, 68);
     border-radius: 2px;
     background-color: rgb(203, 190, 109);
+    background-size: 80%;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 #resources {      
@@ -185,6 +191,7 @@ body {
 #myboard table td { 
   width: 30px; 
   height: 30px;
+  background-size:100%;
   /*cursor: pointer;*/
 }
 
@@ -192,11 +199,12 @@ body {
   border: 3px solid red;
   opacity: 0.5;
 }*/
-.brick {
+#myboard .brick {
   width: 30px;
   height: 30px;
   background-position: center;
   background-repeat: no-repeat;
+  background-size: 20px;
 }
 
 #myboard table td.possible {
@@ -207,68 +215,56 @@ body {
 
 .red {
   background: url('assets/red.png');
-  background-size: 100%;
 }
 
 .blue {
   background: url('assets/blue.png');
-  background-size: 100%;
 }
 
 .grey {
   background: url('assets/grey.png');
-  background-size: 100%;
 }
 
 .brown {
   background: url('assets/brown.png');
-  background-size: 100%;
 }
 
 .yellow {
   background: url('assets/yellow.png');
-  background-size: 100%;
 }
 
 .green_house {
   background: url('assets/green_house.png');
-  background-size: 100%;
 }
 
 .yellow_house {
   background: url('assets/yellow_house.png');
-  background-size: 100%;
 }
 
 .red_house {
   background: url('assets/red_house.png');
-  background-size: 100%;
 }
 
 .orange_house {
   background: url('assets/orange_house.png');
-  background-size: 100%;
 }
 
 .grey_house {
   background: url('assets/grey_house.png');
-  background-size: 100%;
 }
 
 .black_house {
   background: url('assets/black_house.png');
-  background-size: 100%;
 }
 
 .blue_house {
   background: url('assets/blue_house.png');
-  background-size: 100%;
 }
 
-#myboard .brick {        
+/*#myboard .brick {        
   background-position: center;
   background-repeat: no-repeat;
-  background-size: 20px;
+  /*background-size: 20px;
 }
 
 /*#myboard .selected {
