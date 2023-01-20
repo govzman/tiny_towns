@@ -236,13 +236,14 @@ const updatePlayersList = (params) => {
     }
 };
 
-const getMiniBoard = (playerNum) => {
+const getMiniBoard = (playerNum, pattern = false) => {
     if (!game.playersBoards) return ''; //<table class=miniboard><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr></table>'; // REWRITE    
     let miniboard = [];
     for (let i=0;i<4;i++) {        
         let cols = [];
         for (let j=0;j<4;j++) {
-            cols.push(`<td class="${game.playersBoards[playerNum][i][j]}"></td>`);
+            const highlighted = pattern && pattern.includes(`${i},${j}`);            
+            cols.push(`<td class="${game.playersBoards[playerNum][i][j]}${highlighted ? ' highlighted':''}"></td>`);
         }
         miniboard.push(`<tr>${cols.join('')}</tr>`)
     }
@@ -430,35 +431,47 @@ const showPage = (pageName = 'lobby', params = {}) => {
                             }
                         }
                         //console.log('PATTERN', possiblePatterns);
-                        let patternNum = 0;
-                        if (possiblePatterns.length > 1) {
-                            //alert(possiblePatterns.length) // TODO:
-                            let boards = '';
-                            const myNum = 0; // TODO:
+                        const placeBuilding = (pattern) => {
+                            const td = qs('#myboard').childNodes[3].getElementsByTagName('td'); // TODO: rewrite -> updateBoard
+                            for (let c of pattern) { 
+                                if (c != `${x},${y}`){
+                                    td[parseInt(c.split(',')[0]) * 4 + parseInt(c.split(',')[1])].className = '';
+                                }
+                            }
+                            e.target.className = game.building.type;                            
+                            
+                            api('place_building', {'player_id': game.player_id, x,y, name: game.building.name, cells: pattern}).then((res) => {   // possiblePatterns[patternNum]
+                                console.log('PLACE_BUILDING', res);    // TODO: //updateBoard();
+                            });
+                            game.building = false;
+                        }
+                        
+                        if (possiblePatterns.length == 1) {
+                            placeBuilding(possiblePatterns[0]);
+                        } else {
+                            let boards = '';                            
                             for (let p of possiblePatterns) {
-                                boards += getMiniBoard(myNum)
+                                boards += `<div data-pattern="${JSON.stringify(p).replaceAll('"',"'")}" style="width: 100px;display:inline-block;">${getMiniBoard(game.myNum, p)}</div>`;                                
                             }
-                            qs('#main').innerHTML += '<div id="dialog">Выберите клетки:'+boards+'</div>';
-                            // TODO: patternNum
+                            qs('#main').innerHTML += '<div id="dialog"><h1>Выберите клетки:</h1>'+boards+'</div>';
+                            qs('#dialog').addEventListener('click', (e) => {
+                                console.debug('CHOOSE', e)
+                                
+                                const findParent = (el) => {
+                                    while (el.parentNode) {
+                                        el = el.parentNode;
+                                        if (el.tagName === 'DIV')
+                                            return el;
+                                    }
+                                    return null;
+                                };
+                                // TODO: REWRITE
+                                const pattern = JSON.parse(findParent(e.target).dataset.pattern.replaceAll("'",'"'));
+                                console.log("FIND_PARENT", pattern)
+                                placeBuilding(pattern);
+                                qs('#dialog').remove();
+                            })
                         }
-                        
-                        
-                        const td = qs('#myboard').childNodes[3].getElementsByTagName('td'); // TODO: rewrite -> updateBoard
-                        for (let c of possiblePatterns[patternNum]) {
-                            if (c != `${x},${y}`){
-                                td[parseInt(c.split(',')[0]) * 4 + parseInt(c.split(',')[1])].className = '';
-                            } else {
-                                console.log('OLOLO')
-                            }
-                        }
-                        e.target.className = game.building.type;
-                        
-                        api('place_building', {'player_id': game.player_id, x,y, name: game.building.name, cells: possiblePatterns[patternNum]}).then((res) => {
-                            // TODO:
-                            console.log('PLACE_BUILDING', res);
-                            //updateBoard();
-                        });
-                        game.building = false;
                     }
                 }
                 // To put a resource:
