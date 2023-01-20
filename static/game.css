@@ -276,7 +276,7 @@ body {
   opacity: 0.5;
 }
 
-.selected {
+#choose_monument .selected {
   border: 2px solid lightgreen;
   box-shadow: 4px 5px 15px 10px rgba(255, 0, 0, 0.6);
 }
