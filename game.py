@@ -173,9 +173,11 @@ class Game():
         
         for cell in cells:
             self.players[params['player_id']]['board'].setCell('empty', list(reversed(list(map(int, cell.split(','))))))
-
+        
         self.players[params['player_id']]['board'].setCell(answer, [params['y'], params['x']])
         
+        self.events.append(f"{self.players[params['player_id']]['nickname']} построил {params['name']}")
+
         return {'isSuccess': True, 'building': answer}
 
     def place_resource(self, params):
@@ -193,7 +195,7 @@ class Game():
                 else:
                     return {'error': {'code': 59, 'msg': 'wrong turn'}}
                 
-                self.events.append(self.players[params['player_id']]['nickname'] + ' поставил(а) ресурс')
+                self.events.append(f"{self.players[params['player_id']]['nickname']} поставил(а) ресурс")
                 if all(list(map(lambda x: self.players[x]['ready'], self.players.keys()))):
                     self.turn += 1
                     for key in self.players.keys():
