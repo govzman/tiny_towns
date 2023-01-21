@@ -512,7 +512,7 @@ const isMaster = (playerNum = game.players.indexOf(game.nickname)) => {
 
 const isReadyBtn = (isReady = false) => {
     qs('#isReadyBtn').className = '';
-    qs('#myboard').className = ''; // no active
+    if (qs('#myboard')) qs('#myboard').className = ''; // no active
 
     if (game.stage == 'main_game' && game.turn.currentResource) {
         if (!Object.keys(game.movement).length) {
