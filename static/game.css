@@ -180,7 +180,7 @@ body {
     opacity: 0.3;
 }
 
-#resources.selectable {
+#resources.selectable, .blink {
   opacity: 1;
   background-color: pink;
   animation: blinker 1s linear infinite;
@@ -390,10 +390,14 @@ div#myboard {
 }
 
 
-#myboard td.empty:hover {
-    border: 1px solid lightgreen;
-    border-radius: 5px;
-    cursor: pointer;
+#myboard.active td.empty:hover {
+    border: 1px solid yellow;
+}
+
+#myboard.active td.empty {
+  border: 1px solid lightgreen;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 #isReadyBtn {

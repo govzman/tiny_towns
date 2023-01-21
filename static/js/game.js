@@ -357,7 +357,11 @@ const showPage = (pageName = 'lobby', params = {}) => {
             if (e.target.className.includes('brick')) {
                 const resource = e.target.className.split(' ')[1]; // TODO: rewrite
                 game.turn.currentResource = resource;
+                
                 qs('#resources').className = '';
+                qs('#isReadyBtn').className = 'blink';
+                qs('#myboard').className = 'active';
+                
                 //game.turn.num++;
                 api('choose_resource', {'player_id': game.player_id, 'resource': resource}).then( res => {
                     console.log('CHOOSE_RESOURCE', res);
@@ -507,7 +511,9 @@ const isMaster = (playerNum = game.players.indexOf(game.nickname)) => {
 
 
 const isReadyBtn = (isReady = false) => {
-    
+    qs('#isReadyBtn').className = '';
+    if (qs('#myboard')) qs('#myboard').className = ''; // no active
+
     if (game.stage == 'main_game' && game.turn.currentResource) {
         if (!Object.keys(game.movement).length) {
             alert('Make a move!');
