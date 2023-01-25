@@ -467,10 +467,10 @@ const showPage = (pageName = 'lobby', params = {}) => {
                             for (let p of possiblePatterns) {
                                 boards += `<div data-pattern="${JSON.stringify(p).replaceAll('"',"'")}" style="width: 100px;display:inline-block;">${getMiniBoard(game.myNum, p)}</div>`;                                
                             }
-                            qs('#dialog').innerHTML = `<h1>Choose the cells:</h1><div>${boards}</div>`;
+                            qs('#dialog').innerHTML = `<h1>Choose the cells:</h1><div>${boards}</div><button onClick="document.getElementById('dialog').style.display = 'none'">Cancel</button>`;
                             qs('#dialog').style.display = 'flex';
                             qs('#dialog').addEventListener('click', (e) => {
-                                //console.debug('DIALOG', e)
+                                console.debug('DIALOG', e)
                                 
                                 const findParent = (el) => {
                                     while (el.parentNode) {
@@ -481,6 +481,8 @@ const showPage = (pageName = 'lobby', params = {}) => {
                                     return null;
                                 };
                                 // TODO: REWRITE
+                                if (!findParent(e.target).dataset.pattern) return false;
+                                
                                 const pattern = JSON.parse(findParent(e.target).dataset.pattern.replaceAll("'",'"'));
                                 console.log("FIND_PARENT", pattern, x, y);
                                 placeBuilding(pattern, x, y, buildingName);
