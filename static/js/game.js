@@ -239,11 +239,11 @@ const updatePlayersList = (params) => {
 const getMiniBoard = (playerNum, pattern = false) => {
     if (!game.playersBoards) return ''; //<table class=miniboard><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr></table>'; // REWRITE    
     let miniboard = [];
-    for (let i=0;i<4;i++) {        
+    for (let j=0;j<4;j++) {        
         let cols = [];
-        for (let j=0;j<4;j++) {
+        for (let i=0;i<4;i++) {
             const highlighted = pattern && pattern.includes(`${i},${j}`);            
-            cols.push(`<td class="${game.playersBoards[playerNum][i][j]}${highlighted ? ' highlighted':''}"></td>`);
+            cols.push(`<td class="${game.playersBoards[playerNum][j][i]}${highlighted ? ' highlighted':''}"></td>`);
         }
         miniboard.push(`<tr>${cols.join('')}</tr>`)
     }
@@ -275,13 +275,7 @@ const getBuildigsList = (bulidingRow, selectable = true) => {
 
 
 const onClickResources = (e) => {
-            
-    if (!isMaster()) {
-        //alert('You are not master!');
-        return;
-    }
-    
-    if (e.target.className.includes('brick')) {
+    if (isMaster() && e.target.className.includes('brick')) {
         const resource = e.target.className.split(' ')[1]; // TODO: rewrite
         game.turn.currentResource = resource;
         
@@ -335,14 +329,13 @@ const showPage = (pageName = 'lobby', params = {}) => {
                 .then((res) => {
                     if (res['status'] == 'ok')  {
                         game.player.monument = e.target.dataset.name;
-                        console.debug('MONUMENT', e.target.dataset.name);
+                        //console.debug('MONUMENT', e.target.dataset.name);
                     } else {
                         alert('Error: bad monument');
                         console.error('SET_MONUMENT', res)
                     }
                 });
             });
-            //qs('#isReadyBtn').disabled = true;
     }
 
     if (pageName == 'main_game') {        
@@ -389,10 +382,9 @@ const showPage = (pageName = 'lobby', params = {}) => {
                 patterns: []
             };
             for (let pattern of getPatterns(buildingName)) {
-                const patternWidth = pattern.length;
-                const patternHeight = pattern[0].length;
+                const patternWidth = pattern[0].length;
+                const patternHeight = pattern.length;
                 
-
                 for (let i=0;i<=4-patternWidth;i++) {
                     for (let j=0;j<=4-patternHeight;j++) { 
                         let patternCellsCount = 0;                  
@@ -400,8 +392,8 @@ const showPage = (pageName = 'lobby', params = {}) => {
                         for (let x=0;x<patternWidth;x++) {
                             for (let y=0;y<patternHeight;y++) {
                                 
-                                if (!pattern[x][y]) continue;                                
-                                if (myboard[i+x][j+y] == pattern[x][y]) {                                    
+                                if (!pattern[y][x]) continue;
+                                if (myboard[y+j][x+i] == pattern[y][x]) {
                                     matchedCoords.push(`${i+x},${j+y}`)
                                 }
                                 patternCellsCount++;
@@ -413,84 +405,86 @@ const showPage = (pageName = 'lobby', params = {}) => {
                         }
                     }
                 }
-                //console.log('PATTERN', game.building, myboard, pattern);
             }
 
             const td = qs('#myboard').childNodes[3].getElementsByTagName('td');
             for (let c of game.building.cells) {
-                td[parseInt(c.split(',')[0]) * 4 + parseInt(c.split(',')[1])].classList.add('possible');
+                td[parseInt(c.split(',')[1]) * 4 + parseInt(c.split(',')[0])].classList.add('possible');
             }            
             console.log('BUILDING', game.building)       
         });
 
         qs('#myboard').addEventListener('click', (e) => {            
             if (!game.turn.currentResource && !game.building) return;
-            //console.log('CLICK',e)
             
-            // To put a building:
             if (e.target.nodeName == 'TD') {
-                const x = e.target.parentElement.rowIndex;
-                const y =  e.target.cellIndex;   
-                //console.debug('COORDS', x,y);
-                qs('#isReadyBtn').className = 'blink';
-
-                if (game.building) {                    
-                    if (game.building.cells.includes(`${x},${y}`)) {
-                        let possiblePatterns = [];
-
-                        for (let p of game.building.patterns) {
-                            if (JSON.parse(p).includes(`${x},${y}`)) {
-                                possiblePatterns.push(JSON.parse(p));
+                const x =  e.target.cellIndex;
+                const y = e.target.parentElement.rowIndex;
+                
+                // To put a building:
+                if (game.building && game.building.cells.includes(`${x},${y}`)) {                    
+                    //if () {
+                    const placeBuilding = (pattern, cellX, cellY, name) => {
+                        const td = qs('#myboard').childNodes[3].getElementsByTagName('td'); // TODO: rewrite -> updateBoard
+                        for (let c of pattern) { 
+                            if (c != `${cellX},${cellY}`){
+                                console.log('TEST', c, pattern, cellX, cellY)
+                                td[parseInt(c.split(',')[0]) + 4 * parseInt(c.split(',')[1])].className = '';
                             }
                         }
-                        //console.log('PATTERN', possiblePatterns);
-                        const placeBuilding = (pattern, cellX, cellY, name) => {
-                            const td = qs('#myboard').childNodes[3].getElementsByTagName('td'); // TODO: rewrite -> updateBoard
-                            for (let c of pattern) { 
-                                if (c != `${cellX},${cellY}`){
-                                    console.log('TEST', c, pattern, cellX,cellY)
-                                    td[parseInt(c.split(',')[0]) * 4 + parseInt(c.split(',')[1])].className = '';
-                                }
-                            }
-                            td[cellX * 4 + cellY].className = game.building.type;                            
-                            
-                            api('place_building', {'player_id': game.player_id, x: cellX,y: cellY, name, cells: pattern}).then((res) => {   // possiblePatterns[patternNum]
-                                console.log('PLACE_BUILDING', pattern, cellX, cellY, res);    // TODO: //updateBoard();
-                            });
-                            game.building = false;
-                        }
-                        const buildingName = game.building.name;
-                        if (possiblePatterns.length == 1) {
-                            placeBuilding(possiblePatterns[0], x, y, buildingName);
-                        } else {
-                            let boards = '';                            
-                            for (let p of possiblePatterns) {
-                                boards += `<div data-pattern="${JSON.stringify(p).replaceAll('"',"'")}" style="width: 100px;display:inline-block;">${getMiniBoard(game.myNum, p)}</div>`;                                
-                            }
-                            qs('#dialog').innerHTML = `<h1>Choose the cells:</h1><div>${boards}</div><button onClick="document.getElementById('dialog').style.display = 'none'">Cancel</button>`;
-                            qs('#dialog').style.display = 'flex';
-                            qs('#dialog').addEventListener('click', (e) => {
-                                console.debug('DIALOG', e)
-                                
-                                const findParent = (el) => {
-                                    while (el.parentNode) {
-                                        el = el.parentNode;
-                                        if (el.tagName === 'DIV')
-                                            return el;
-                                    }
-                                    return null;
-                                };
-                                // TODO: REWRITE
-                                if (!findParent(e.target).dataset.pattern) return false;
-                                
-                                const pattern = JSON.parse(findParent(e.target).dataset.pattern.replaceAll("'",'"'));
-                                console.log("FIND_PARENT", pattern, x, y);
-                                placeBuilding(pattern, x, y, buildingName);
-                                qs('#dialog').style.display = 'none';//remove();
-                            }, true);
+                        td[cellX + cellY * 4].className = game.building.type;                            
+                        
+                        api('place_building', {'player_id': game.player_id, x: cellX, y: cellY, name, cells: pattern}).then((res) => {   // possiblePatterns[patternNum]
+                            console.log('PLACE_BUILDING', pattern, cellX, cellY, res);    // TODO: //updateBoard();
+                        });
+                        game.building = false;
+                    }
+
+
+                    let possiblePatterns = [];
+                    const buildingName = game.building.name;
+
+                    for (let p of game.building.patterns) {
+                        if (JSON.parse(p).includes(`${x},${y}`)) {
+                            possiblePatterns.push(JSON.parse(p));
                         }
                     }
+                    
+                    if (possiblePatterns.length == 1) {
+                        placeBuilding(possiblePatterns[0], x, y, buildingName);
+                        return;
+                    } else {
+                        let boards = '';                            
+                        for (let p of possiblePatterns) {
+                            boards += `<div data-pattern="${JSON.stringify(p).replaceAll('"',"'")}" style="width: 100px;display:inline-block;">${getMiniBoard(game.myNum, p)}</div>`;                                
+                        }
+                        qs('#dialog').innerHTML = `<h1>Choose the cells:</h1><div>${boards}</div><button onClick="document.getElementById('dialog').style.display = 'none'">Cancel</button>`;
+                        qs('#dialog').style.display = 'flex';
+                        qs('#dialog').addEventListener('click', (e) => {
+                            console.debug('DIALOG', e)
+                            
+                            const findParent = (el) => {
+                                while (el.parentNode) {
+                                    el = el.parentNode;
+                                    if (el.tagName === 'DIV')
+                                        return el;
+                                }
+                                return null;
+                            };
+                            // TODO: REWRITE
+                            if (!findParent(e.target).dataset.pattern) return false;
+
+                            const pattern = JSON.parse(findParent(e.target).dataset.pattern.replaceAll("'",'"'));
+                            console.log("FIND_PARENT", pattern, x, y);
+                            placeBuilding(pattern, x, y, buildingName);
+                            qs('#dialog').style.display = 'none';//remove();
+                        }, true);
+                        
+                        return;
+                    }
+                    //}
                 }
+
                 // To put a resource:
                 if (game.turn.currentResource) {
                     // TODO: Проверку на то стоит ли уже на клетке ресурс в момент, когда игрок ставит новый ресурс                    
@@ -501,10 +495,12 @@ const showPage = (pageName = 'lobby', params = {}) => {
                     }
                     e.target.classList.add('selected', 'brick', game.turn.currentResource); //e.target.className == '' ? 'selected' : '';
                     game.movement = {};
-                    game.movement[`${y},${x}`] = game.turn.currentResource;
+                    game.movement[`${x},${y}`] = game.turn.currentResource;
                     //writeLog(`Выбран ${game.turn.currentResource} на ${y}, ${x}`)   
-                }            
+                }
 
+                //console.debug('COORDS', x,y);                
+                qs('#isReadyBtn').className = 'blink';
             }        
         });
     }

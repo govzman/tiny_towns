@@ -174,7 +174,7 @@ class Game():
         for cell in cells:
             self.players[params['player_id']]['board'].setCell('empty', list(map(int, cell.split(','))))
         
-        self.players[params['player_id']]['board'].setCell(answer, [params['y'], params['x']])
+        self.players[params['player_id']]['board'].setCell(answer, [params['x'], params['y']])
         
         self.events.append(f"{self.players[params['player_id']]['nickname']} построил {params['name']}")
 

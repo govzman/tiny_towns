@@ -32,45 +32,25 @@ body {
   cursor: pointer;
 }
 
-#main {
-    /*width: 100%;
-    height: 100%;
-    background-image: url('/assets/bricks.png');
-    background-size: 30%;
-    background-position: bottom right;
-    background-repeat: no-repeat;*/
+#main {    
   width:100%;
   max-width: 800px;
-  
-  /*position: relative;*/
-  /*display: grid;
-  /*flex-flow: row;*/
-  
-  
 }
 
-
+/*
 #score {
-  /*background-color: white;
-  width: 170px;
-  border-radius: 15px;*/
   font-size: 150%;
-  /*text-align: center;
-  padding: 10px;
-  opacity: 0.3;
-  color:black;*/
   position: fixed;
   right: 50px;
   top:10px;
   z-index: 100;
 }
-
 #score button {
     border:0;
     background-color: white;
 
 }
-
+*/
 #log {
   clear:none;
   background:black;
@@ -204,13 +184,11 @@ body {
   height: 30px;
   background-size:100%;
   background-repeat: no-repeat;
+  border: 3px solid rgba(0,0,0,0);
+  border-radius: 5px;
   /*cursor: pointer;*/
 }
 
-/*.test {
-  border: 3px solid red;
-  opacity: 0.5;
-}*/
 #myboard .brick {
   width: 30px;
   height: 30px;
@@ -221,7 +199,6 @@ body {
 
 #myboard table td.possible {
   border: 3px solid blue;
-  border-radius: 5px;
   cursor: pointer;
 }
 
@@ -273,8 +250,8 @@ body {
   background: url('assets/blue_house.png');
 }
 #myboard .selected {
-  border: 2px solid lightgreen;
-  border-radius: 5px;
+  border: 3px solid lightgreen;
+  /*border-radius: 5px;*/
   opacity: 0.5;
 }
 
@@ -282,66 +259,6 @@ body {
   border: 2px solid lightgreen;
   box-shadow: 4px 5px 15px 10px rgba(255, 0, 0, 0.6);
 }
-/*#myboard .brick {        
-  background-position: center;
-  background-repeat: no-repeat;
-  /*background-size: 20px;
-}
-
-
-
-#playersList {
-    display: flex;
-    flex-direction: row;
-    height: 130px;
-}
-
-.master {
-  
-  border-radius: 15px;
-  border: 1px solid pink;
-}
-
-.playername {
-  display: inline-block;
-  color: black;
-  padding: 3px 15px 3px 15px;
-  margin-right: 15px;
-  border-radius: 15px;
-  text-align: center;
-  background-color: orange;
-}
-
-.ready {background-color: lightgreen;}
-
-span.scores {
-  background-color: white;
-  color:black;
-  font-weight: bold;
-  padding: 5px 10px 5px 10px;
-  border-radius: 15px;
-  opacity: 0.8;
-  position: relative;
-}
-/*
-.red span.playername {background-color: lightcoral;}
-.green span.playername {background-color: lightgreen;}
-.blue span.playername {background-color: lightblue;}
-
-#boards, #cards, #resources {      
-  display: flex;
-  padding: 15px;      
-}
-
-/*.card {
-  width: 80px;
-  height: 135px;
-  background: url('assets/card.png');
-  background-size: 100%;
-  margin: 5px;
-  box-shadow: 8px 8px 8px 4px rgba(0, 0, 0, 0.6);
-  border-radius: 8px;
-}*/
 
 #choose_monument div {
   
@@ -355,12 +272,10 @@ span.scores {
 #monument1 {
     transform: rotate(-1deg);
 }
+
 #monument2 {
     transform: rotate(2deg);
 }
-
-
-
 
 #announce {
   width: 100%;
@@ -375,7 +290,6 @@ div#myboard {
   display:inline-flex;
   flex-flow: row;  
 }
-/*body * {border: 1px solid red;}*/
 
 #myboard table {
   /* background: url('assets/board.png'); */
@@ -398,8 +312,8 @@ div#myboard {
 }
 
 #myboard.active td.empty {
-  border: 1px solid lightgreen;
-  border-radius: 5px;
+  border: 3px solid lightgreen;
+  /*border-radius: 5px;*/
   cursor: pointer;
 }
 
