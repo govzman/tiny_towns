@@ -24,7 +24,7 @@ body {
 
 }
 #dialog {
-  position: fixed;top:0;left:0;width:100%;height:100%;text-align:center;z-index:1000;background-color: black;opacity: 0.9;
+  display:none;align-items:center;flex-direction: column;justify-content:center;position: fixed;top:0;left:0;width:100%;height:100%;text-align:center;z-index:1000;background-color: black;opacity: 0.9;
 }
 
 #dialog div table.miniboard:hover {
