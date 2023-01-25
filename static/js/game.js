@@ -359,7 +359,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
                 game.turn.currentResource = resource;
                 
                 qs('#resources').className = '';
-                qs('#isReadyBtn').className = 'blink';
+                //qs('#isReadyBtn').className = 'blink';
                 qs('#myboard').className = 'active';
                 
                 //game.turn.num++;
@@ -429,6 +429,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
                 const x = e.target.parentElement.rowIndex;
                 const y =  e.target.cellIndex;   
                 //console.debug('COORDS', x,y);
+                qs('#isReadyBtn').className = 'blink';
 
                 if (game.building) {                    
                     if (game.building.cells.includes(`${x},${y}`)) {

@@ -141,7 +141,8 @@ body {
   /*box-shadow: none;*/
   transform: rotate(3deg);
   height:188px;
-  background-size:100%;
+  background-position: center;
+  background-size:103%;
 }
 /*#yourMonument .cards:hover { box-shadow: none; }*/
 
@@ -343,9 +344,11 @@ span.scores {
 }*/
 
 #choose_monument div {
-  background-size: 100%;
+  
+  background-size: 103%;
+  background-position: center;
   width:130px;
-  height: 223px;
+  height: 222px;
   display: inline-flex;
 }
 
@@ -417,9 +420,11 @@ div#myboard {
 
 #isReadyBtn:hover, #isReadyBtn:focus {
     background-color: red;
+    cursor: pointer;
 }
 
 #isReadyBtn:disabled {
   background-color: grey;
   opacity: 0.3;
+  cursor: default;
 }
