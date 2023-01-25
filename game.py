@@ -162,7 +162,7 @@ class Game():
 
         cords = {}
         for cell in cells:
-            cords[cell.replace(',', ', ')] = self.players[params['player_id']]['board'].getCell(list(map(int, list(reversed(cell.split(','))))))
+            cords[cell.replace(',', ', ')] = self.players[params['player_id']]['board'].getCell(list(map(int, cell.split(','))))
 
         print('!', cords)
         # check patterns
@@ -172,7 +172,7 @@ class Game():
             return {'isSuccess': False}
         
         for cell in cells:
-            self.players[params['player_id']]['board'].setCell('empty', list(reversed(list(map(int, cell.split(','))))))
+            self.players[params['player_id']]['board'].setCell('empty', list(map(int, cell.split(','))))
         
         self.players[params['player_id']]['board'].setCell(answer, [params['y'], params['x']])
         
