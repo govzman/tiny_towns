@@ -432,7 +432,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
                             }
                         }
                         td[cellX + cellY * 4].className = type;
-                        console.log("TEST", td, cellX, cellY, type, name)                            
+                        //console.log("TEST", td, cellX, cellY, type, name)                            
                         
                         api('place_building', {'player_id': game.player_id, x: cellX, y: cellY, name, cells: pattern}).then((res) => {   // possiblePatterns[patternNum]
                             console.log('PLACE_BUILDING', pattern, cellX, cellY, res);    // TODO: //updateBoard();
