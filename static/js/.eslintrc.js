@@ -150,7 +150,11 @@ module.exports = {
         'yield-star-spacing': ['error', 'after']
     },
     parserOptions: {
-        ecmaVersion: 'latest'
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        ecmaFeatures: {
+            impliedStrict: false
+        }
     },
     env: {
         browser: true,
