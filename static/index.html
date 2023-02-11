@@ -21,8 +21,28 @@
   <div id="playersList"></div>  
   <div id="announce"></div>
   <div id="dialog"></div>
-  <div id="main"></div>
   <div id="log"></div>
+  <div id="main">
+    <div id="bulidingRow"></div>
+    <div id="myboard">
+      <div id="resources" class="selectable">
+          <div class="brick red"></div>
+          <div class="brick blue"></div>
+          <div class="brick brown"></div>
+          <div class="brick yellow"></div>
+          <div class="brick grey"></div>
+      </div>    
+      <table>
+          <tr><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td></td><td></td><td></td></tr>
+      </table>        
+      <div id=yourMonument>
+          <!-- <div class="cards" style="background-image: url('/assets/cards/${params.player.monument}.webp');"></div>-->
+      </div>       
+    </div>
+  </div>
   <button id="isReadyBtn">Ready!</button>
   <script type="module" src="./js/app.js"></script>
   <script>

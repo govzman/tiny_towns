@@ -1,5 +1,5 @@
 import {api, qs, setState, getState, isEqual} from './utils.js';
-import {buildingsPatterns} from './dict.js';
+import {getPatterns} from './game.js';
 import {showMessage} from './ui.js';
 
 const setAnnounce = (announceText) => {
@@ -21,38 +21,11 @@ const game = getState() || defaultState;
 if (window.DEBUG) {
     window.game = game;
 }
-
-const getPatterns = (buildingName) => {
-    const rotate = (matrix, count = 1) => {
-        for (let i = 0; i < count; i++) {
-            matrix = matrix[0].map((val, index) => matrix.map((row) => row[index]).reverse());
-        }
-        return matrix;
-    };
-
-    const transpose = (matrix) => {
-        const [row] = matrix;
-        return row.map((value, column) => matrix.map((row) => row[column]));
-    };
-
-    const mirrorV = (matrix) => rotate(transpose(matrix));
-    const mirrorH = (matrix) => mirrorV(rotate(mirrorV(transpose((matrix)))));
-
-    const patterns = [];
-    const m = buildingsPatterns[buildingName];
-
-    for (let i = 0;i < 4;i++) {
-        patterns.push(rotate(m, i));
-        patterns.push(rotate(mirrorH(m), i));
-        patterns.push(rotate(mirrorV(m), i));
-        patterns.push(rotate(mirrorH(mirrorV(m)), i));
-    }
-    return patterns;
-};
+window.game = game; // TODO
 
 const imp = (params = {}) => {
     // Impersonate params:
-    params['player_id'] = game.playerId;
+    params.player_id = game.playerId;
     return params;
 };
 
@@ -74,6 +47,15 @@ const auth = async () => {
     game.timer = setInterval(getStatus, PING_INTERVAL);
 };
 
+const logOut = () => {
+    clearInterval(game.timer);
+    api('log_out', imp()).then(() => {
+        localStorage.clear();
+        window.location.reload();
+    });
+    return false;
+};
+
 const getMyPlayerNum = () => {
     return game.players.indexOf(game.nickname);
 };
@@ -82,19 +64,22 @@ const isMaster = (playerNum = getMyPlayerNum()) => {
     return game.turn.master === playerNum;
 };
 
+const toggleReadyBtn = (isReady) => {
+    game.isReady = isReady;
+    qs('#isReadyBtn').textContent = isReady ? 'Waiting...' : 'Ready!';
+};
+
 const setGameStage = (newStage = game.stage, turnNum = 0) => {
     if (newStage !== 'lobby') {
         qs('#isReadyBtn').disabled = true;
     }
     toggleReadyBtn();
-    //game.isReady = false;
     game.stage = newStage;
     game.turn.num = turnNum;
     game.turn.currentResource = false;
 };
 
 const updateBoard = () => {
-    //console.debug('UPDATE');
     game.isReady = false;
     const td = qs('#myboard').childNodes[3].getElementsByTagName('td');
     for (let x = 0; x < 4; x++) {
@@ -119,14 +104,10 @@ const getStatus = () => {
                 //showMessage('BAD AUTH'); // TODO
                 logOut();
                 clearInterval(game.timer);
-            } /*else {
-                qs('#main').innerText = res.error.msg;
-                console.error('UNKNOWN ERR', res, res.error);
-            }*/
+            }
             return;
         }
 
-        // TODO: check stage in [lobby choose_monument main_game] -> Unknown stage!
         if (game.stage === 'main_game' && game.turn.num !== res.turn) {
             //console.log('OOO', game.turn, res )
             setGameStage(game.stage, res.turn);
@@ -135,8 +116,6 @@ const getStatus = () => {
         if (game.stage !== res.params.stage || !game.currentPage) {
             showPage(res.params.stage, res.params);
             setGameStage(res.params.stage);
-            //game.log.push('Started...');
-            //showLog();
 
             if (game.stage === 'choose_monument') {
                 setAnnounce('Monuments stage...');
@@ -165,8 +144,6 @@ const getStatus = () => {
         }
     });
 };
-
-
 
 const updatePlayersList = (params) => {
     if (
@@ -212,12 +189,6 @@ const getMiniBoard = (playerNum, pattern = false) => {
     return `<table class=miniboard>${miniboard.join('')}</table>`;
 };
 
-// const writeLog = (message) => {
-//     // TODO: check XSS
-//     //document.getElementById('log').innerHTML = game.log.join('<br>');
-//     document.getElementById('log').append(message+'\n') // insertAdjacentHTML('beforebegin', message);
-// }
-
 const getBuildigsList = (bulidingRow, selectable = true) => {
     if (!bulidingRow) {
         return 'NO BUILDINGS';
@@ -239,19 +210,6 @@ const getBuildigsList = (bulidingRow, selectable = true) => {
     return buildingsList;
 };
 
-const onClickResources = (e) => {
-    if (isMaster() && e.target.className.includes('brick')) {
-        const resource = e.target.className.split(' ')[1]; // TODO: rewrite
-        game.turn.currentResource = resource;
-
-        qs('#resources').className = '';
-        //qs('#isReadyBtn').className = 'blink';
-        qs('#myboard').className = 'active';
-
-        api('choose_resource', imp({resource: resource}));
-    }
-};
-
 const showPage = (pageName = 'lobby', params = {}) => {
     if (pageName === game.currentPage) {
         return false;
@@ -262,7 +220,9 @@ const showPage = (pageName = 'lobby', params = {}) => {
     }
 
     if (pageName === 'choose_monument') {
-        qs('#main').innerHTML = `
+        ///qs('#buildingRow').innerHTML = getBuildigsList(params.bulidingRow, false);
+        // TODO:
+        qs('#dialog').innerHTML = `
             <div id="bulidingRow">
                 ${getBuildigsList(params.bulidingRow, false)}
             </div>
@@ -307,32 +267,21 @@ const showPage = (pageName = 'lobby', params = {}) => {
     }
 
     if (pageName === 'main_game') {
-        qs('#main').innerHTML = `
-      <div id="bulidingRow">
-        ${getBuildigsList(params.bulidingRow)}
-      </div>
-      <div id="myboard">
-        <div id="resources" class="selectable">
-            <div class="brick red"></div>
-            <div class="brick blue"></div>
-            <div class="brick brown"></div>
-            <div class="brick yellow"></div>
-            <div class="brick grey"></div>
-        </div>    
-        <table>
-            <tr><td></td><td></td><td></td><td></td></tr>
-            <tr><td></td><td></td><td></td><td></td></tr>
-            <tr><td></td><td></td><td></td><td></td></tr>
-            <tr><td></td><td></td><td></td><td></td></tr>
-        </table>        
-        <div id=yourMonument>
-            <div class="cards" style="background-image: url('/assets/cards/${params.player.monument}.webp');"></div>
-        </div>       
-      </div>
-      
-      `;
+        qs('#buildingRow').innerHTML = getBuildigsList(params.bulidingRow);
+        qs('#yourMonument').innerHTML = `<div class="cards" style="background-image: url('/assets/cards/${params.player.monument}.webp');"></div>`;
 
-        qs('#resources').addEventListener('click', onClickResources);
+        qs('#resources').addEventListener('click', (e) => {
+            if (isMaster() && e.target.className.includes('brick')) {
+                const resource = e.target.className.split(' ')[1]; // TODO: rewrite
+                game.turn.currentResource = resource;
+
+                qs('#resources').className = '';
+                //qs('#isReadyBtn').className = 'blink';
+                qs('#myboard').className = 'active';
+
+                api('choose_resource', imp({resource: resource}));
+            }
+        });
 
         qs('#bulidingRow').addEventListener('click', (e) => {
             const buildingName = e.target.id;
@@ -442,7 +391,6 @@ const showPage = (pageName = 'lobby', params = {}) => {
                         `;
                         qs('#dialog').style.display = 'flex';
                         qs('#dialog').addEventListener('click', (e) => {
-                            //console.debug('DIALOG', e)
                             const findParent = (el) => {
                                 while (el.parentNode) {
                                     el = el.parentNode;
@@ -458,7 +406,6 @@ const showPage = (pageName = 'lobby', params = {}) => {
                             }
 
                             const pattern = JSON.parse(findParent(e.target).dataset.pattern.replaceAll('\'', '"'));
-                            //console.log("FIND_PARENT", pattern, x, y);
                             placeBuilding(pattern, x, y, buildingType, buildingName);
                             qs('#dialog').style.display = 'none';//remove();
                         }, true);
@@ -469,7 +416,6 @@ const showPage = (pageName = 'lobby', params = {}) => {
 
                 // To put a resource:
                 if (game.turn.currentResource) {
-                    // TODO: Проверку на то стоит ли уже на клетке ресурс в момент, когда игрок ставит новый ресурс
                     qs('#isReadyBtn').disabled = false;
 
                     for (const selected of document.querySelectorAll('.selected')) {
@@ -478,7 +424,6 @@ const showPage = (pageName = 'lobby', params = {}) => {
                     e.target.classList.add('selected', 'brick', game.turn.currentResource);
                     game.movement = {};
                     game.movement[`${x},${y}`] = game.turn.currentResource;
-                    //writeLog(`Выбран ${game.turn.currentResource} на ${y}, ${x}`)
                 }
 
                 qs('#isReadyBtn').className = 'blink';
@@ -486,11 +431,6 @@ const showPage = (pageName = 'lobby', params = {}) => {
         });
     }
     game.currentPage = pageName;
-};
-
-const toggleReadyBtn = (isReady) => {
-    game.isReady = isReady;
-    qs('#isReadyBtn').textContent = isReady ? 'Waiting...' : 'Ready!';
 };
 
 const isReadyBtn = (isReady = false) => {
@@ -501,7 +441,6 @@ const isReadyBtn = (isReady = false) => {
 
     if (game.stage === 'main_game' && game.turn.currentResource) {
         if (!Object.keys(game.movement).length) {
-            //showMessage('Make a move!');
             return;
         }
         api('place_resource', imp({
@@ -509,7 +448,6 @@ const isReadyBtn = (isReady = false) => {
             turn_num: game.turn.num
         }))
             .then((res) => {
-            //console.debug('PLACE_RESOURCE', res);
                 if (res.success) {
                     for (let i = 0;i < 1;i++) {
                         const x = Object.keys(res.cords)[i].split(',')[0];
@@ -523,23 +461,7 @@ const isReadyBtn = (isReady = false) => {
     toggleReadyBtn(isReady);
 };
 
-const restartGame = () => {
-    api('restart_game');
-    //localStorage.clear();
-    document.location.reload();
-};
-
-const logOut = () => {
-    clearInterval(game.timer);
-    api('log_out', imp()).then(() => {
-        localStorage.clear();
-        window.location.reload();
-    });
-    return false;
-};
-
 // -----------------------------------------------------
-
 setGameStage();
 if (game.playerId) {
     getStatus(); // ???
@@ -549,6 +471,9 @@ if (game.playerId) {
 }
 qs('#nickname').textContent = game.nickname;
 
-qs('#restartBtn').addEventListener('click', restartGame);
 qs('#logOutBtn').addEventListener('click', logOut);
 qs('#isReadyBtn').addEventListener('click', () => isReadyBtn(!game.isReady));
+qs('#restartBtn').addEventListener('click', () => {
+    api('restart_game');
+    document.location.reload();
+});
