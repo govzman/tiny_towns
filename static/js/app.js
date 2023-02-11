@@ -69,12 +69,21 @@ const toggleReadyBtn = (isReady) => {
     qs('#isReadyBtn').textContent = isReady ? 'Waiting...' : 'Ready!';
 };
 
-const setGameStage = (newStage = game.stage, turnNum = 0) => {
-    if (newStage !== 'lobby') {
+const onStageChanged = (stageName) => {
+    console.log("STAGE CHANGED", stageName);
+};
+
+const setGameStage = (stageName = game.stage, turnNum = 0) => {
+    console.log('SET_STAGE', stageName);
+    if (game.stage !== stageName) {
+        onStageChanged(stageName);
+    }
+
+    if (stageName !== 'lobby') {
         qs('#isReadyBtn').disabled = true;
     }
     toggleReadyBtn();
-    game.stage = newStage;
+    game.stage = stageName;
     game.turn.num = turnNum;
     game.turn.currentResource = false;
 };
@@ -113,7 +122,7 @@ const getStatus = () => {
             setGameStage(game.stage, res.turn);
         }
 
-        if (game.stage !== res.params.stage || !game.currentPage) {
+        if (game.stage !== res.params.stage) { // || !game.currentPage
             showPage(res.params.stage, res.params);
             setGameStage(res.params.stage);
 
@@ -189,15 +198,15 @@ const getMiniBoard = (playerNum, pattern = false) => {
     return `<table class=miniboard>${miniboard.join('')}</table>`;
 };
 
-const getBuildigsList = (bulidingRow, selectable = true) => {
+const getBuildigsList = (buildingRow, selectable = true) => {
     //return 'TODO getBuildingList'; // TODO !
 
-    if (!bulidingRow) {
+    if (!buildingRow) {
         return 'NO BUILDINGS';
     } // TODO
 
     let buildingsList = '';
-    for (const building of bulidingRow) {
+    for (const building of buildingRow) {
         const buildingName = building.split(':')[1];
         const buildingType = building.split(':')[0];
         buildingsList += `
@@ -222,28 +231,26 @@ const showPage = (pageName = 'lobby', params = {}) => {
     }
 
     if (pageName === 'choose_monument') {
-        qs('#buildingRow').innerHTML = getBuildigsList(params.bulidingRow, false);
+        //qs('#buildingRow').innerHTML = getBuildigsList(params.bulidingRow, false);
         // TODO:
-        showDialog(`
-            <div id="bulidingRow">
-                ${getBuildigsList(params.bulidingRow, false)}
-            </div>
-            <h2>Choose your monument:</h2>
-            <div id="choose_monument">            
-                <div 
-                    class="cards clickable" id=monument1 
-                    data-name="${params.player.monuments[0]}" 
-                    style="background-image:url('assets/cards/${params.player.monuments[0]}.webp');"
-                ></div>                
-                <div
-                    class="cards clickable" id=monument2
-                    data-name="${params.player.monuments[1]}"
-                    style="background-image:url('assets/cards/${params.player.monuments[1]}.webp');"
-                ></div>
-            </div>`,
-
-        //qs('#choose_monument').addEventListener('click', 
-        (e) => {
+        const chooseLayout = `
+        <div class="buildingRow">
+            ${getBuildigsList(params.bulidingRow, false)}
+        </div>
+        <h2>Choose your monument:</h2>
+        <div id="choose_monument">            
+            <div 
+                class="cards clickable" id=monument1 
+                data-name="${params.player.monuments[0]}" 
+                style="background-image:url('assets/cards/${params.player.monuments[0]}.webp');"
+            ></div>                
+            <div
+                class="cards clickable" id=monument2
+                data-name="${params.player.monuments[1]}"
+                style="background-image:url('assets/cards/${params.player.monuments[1]}.webp');"
+            ></div>
+        </div>`;
+        const onChooseMonument = (e) => {
             if (e.target.id === 'choose_monument') {
                 return;
             }
@@ -264,10 +271,11 @@ const showPage = (pageName = 'lobby', params = {}) => {
                 .then((res) => {
                     if (res.status === 'ok') {
                         game.player.monument = e.target.dataset.name;
-                        qs('#dialog').style.display = 'none'; // TODO:                         
+                        qs('#dialog').style.display = 'none'; // TODO:
                     }
                 });
-        });
+        };
+        showDialog(chooseLayout, onChooseMonument);
     }
 
     if (pageName === 'main_game') {
@@ -288,153 +296,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
             }
         });
 
-        qs('#bulidingRow').addEventListener('click', (e) => {
-            const buildingName = e.target.id;
-
-            if (!buildingName) {
-                return;
-            }
-
-            const myboard = game.playersBoards[game.players.indexOf(game.nickname)];
-
-            game.building = {
-                name: buildingName,
-                type: e.target.dataset.type,
-                cells: [],
-                patterns: []
-            };
-            for (const pattern of getPatterns(buildingName)) {
-                const patternWidth = pattern[0].length;
-                const patternHeight = pattern.length;
-
-                for (let i = 0;i <= 4 - patternWidth;i++) {
-                    for (let j = 0;j <= 4 - patternHeight;j++) {
-                        let patternCellsCount = 0;
-                        const matchedCoords = [];
-                        for (let x = 0;x < patternWidth;x++) {
-                            for (let y = 0;y < patternHeight;y++) {
-                                if (!pattern[y][x]) {
-                                    continue;
-                                }
-                                if (myboard[y + j][x + i] === pattern[y][x]) {
-                                    matchedCoords.push(`${i + x},${j + y}`);
-                                }
-                                patternCellsCount++;
-                            }
-                        }
-                        if (
-                            matchedCoords.length === patternCellsCount &&
-                            !game.building.patterns.includes(JSON.stringify(matchedCoords))
-                        ) {  // REWRITE
-                            game.building.cells.push(...matchedCoords);
-                            game.building.patterns.push(JSON.stringify(matchedCoords)); // REWRITE
-                        }
-                    }
-                }
-            }
-
-            const td = qs('#myboard').childNodes[3].getElementsByTagName('td');
-            for (const c of game.building.cells) {
-                td[parseInt(c.split(',')[1], 10) * 4 + parseInt(c.split(',')[0], 10)].classList.add('possible');
-            }
-        });
-
-        qs('#myboard').addEventListener('click', (e) => {
-            if (!game.turn.currentResource && !game.building) {
-                return;
-            }
-
-            if (e.target.nodeName === 'TD') {
-                const x = e.target.cellIndex;
-                const y = e.target.parentElement.rowIndex;
-
-                // To put a building:
-                if (game.building && game.building.cells.includes(`${x},${y}`)) {
-                    const placeBuilding = (pattern, cellX, cellY, type, name) => {
-                        // TODO: rewrite -> updateBoard
-                        const td = qs('#myboard').childNodes[3].getElementsByTagName('td');
-                        for (const c of pattern) {
-                            if (c !== `${cellX},${cellY}`) {
-                                td[parseInt(c.split(',')[0], 10) + 4 * parseInt(c.split(',')[1], 10)].className = '';
-                            }
-                        }
-                        td[cellX + cellY * 4].className = type;
-
-                        api('place_building', imp({x: cellX, y: cellY, name, cells: pattern}));
-                        game.building = false;
-                    };
-
-                    const possiblePatterns = [];
-                    const buildingName = game.building.name;
-                    const buildingType = game.building.type;
-
-                    for (const p of game.building.patterns) {
-                        if (JSON.parse(p).includes(`${x},${y}`)) {
-                            possiblePatterns.push(JSON.parse(p));
-                        }
-                    }
-
-                    if (possiblePatterns.length === 1) {
-                        placeBuilding(possiblePatterns[0], x, y, buildingType, buildingName);
-                        return;
-                    } else {
-                        let boards = '';
-                        for (const p of possiblePatterns) {
-                            boards += `
-                                <div 
-                                    data-pattern="${JSON.stringify(p).replaceAll('"', '\'')}"
-                                    style="width: 100px;display:inline-block;"
-                                >
-                                    ${getMiniBoard(game.myNum, p)}
-                                </div>
-                            `;
-                        }
-                        //qs('#dialog').innerHTML = ;
-                        //qs('#dialog').style.display = 'flex';
-                        showDialog(
-                            `
-                            <h1>Choose the cells:</h1>
-                            <div>${boards}</div>
-                            <button onClick="document.getElementById('dialog').style.display = 'none'">Cancel</button>
-                        `, (e) => {
-                                const findParent = (el) => {
-                                    while (el.parentNode) {
-                                        el = el.parentNode;
-                                        if (el.tagName === 'DIV') {
-                                            return el;
-                                        }
-                                    }
-                                    return null;
-                                };
-                                // TODO: REWRITE
-                                if (!findParent(e.target).dataset.pattern) {
-                                    return false;
-                                }
-
-                                const pattern = JSON.parse(findParent(e.target).dataset.pattern.replaceAll('\'', '"'));
-                                placeBuilding(pattern, x, y, buildingType, buildingName);
-                                qs('#dialog').style.display = 'none';//remove();
-                            });
-
-                        return;
-                    }
-                }
-
-                // To put a resource:
-                if (game.turn.currentResource) {
-                    qs('#isReadyBtn').disabled = false;
-
-                    for (const selected of document.querySelectorAll('.selected')) {
-                        selected.className = '';
-                    }
-                    e.target.classList.add('selected', 'brick', game.turn.currentResource);
-                    game.movement = {};
-                    game.movement[`${x},${y}`] = game.turn.currentResource;
-                }
-
-                qs('#isReadyBtn').className = 'blink';
-            }
-        });
+        // IT WAS addEventListener
     }
     game.currentPage = pageName;
 };
@@ -477,9 +339,158 @@ if (game.playerId) {
 }
 qs('#nickname').textContent = game.nickname;
 
+// EVENT LISTENERS
 qs('#logOutBtn').addEventListener('click', logOut);
 qs('#isReadyBtn').addEventListener('click', () => isReadyBtn(!game.isReady));
 qs('#restartBtn').addEventListener('click', () => {
     api('restart_game');
     document.location.reload();
+});
+
+qs('#buildingRow').addEventListener('click', (e) => {
+    const buildingName = e.target.id;
+
+    if (!buildingName) {
+        return;
+    }
+
+    const myboard = game.playersBoards[game.players.indexOf(game.nickname)];
+
+    game.building = {
+        name: buildingName,
+        type: e.target.dataset.type,
+        cells: [],
+        patterns: []
+    };
+    for (const pattern of getPatterns(buildingName)) {
+        const patternWidth = pattern[0].length;
+        const patternHeight = pattern.length;
+
+        for (let i = 0;i <= 4 - patternWidth;i++) {
+            for (let j = 0;j <= 4 - patternHeight;j++) {
+                let patternCellsCount = 0;
+                const matchedCoords = [];
+                for (let x = 0;x < patternWidth;x++) {
+                    for (let y = 0;y < patternHeight;y++) {
+                        if (!pattern[y][x]) {
+                            continue;
+                        }
+                        if (myboard[y + j][x + i] === pattern[y][x]) {
+                            matchedCoords.push(`${i + x},${j + y}`);
+                        }
+                        patternCellsCount++;
+                    }
+                }
+                if (
+                    matchedCoords.length === patternCellsCount &&
+                    !game.building.patterns.includes(JSON.stringify(matchedCoords))
+                ) {  // REWRITE
+                    game.building.cells.push(...matchedCoords);
+                    game.building.patterns.push(JSON.stringify(matchedCoords)); // REWRITE
+                }
+            }
+        }
+    }
+
+    const td = qs('#myboard').childNodes[3].getElementsByTagName('td');
+    for (const c of game.building.cells) {
+        td[parseInt(c.split(',')[1], 10) * 4 + parseInt(c.split(',')[0], 10)].classList.add('possible');
+    }
+});
+
+qs('#myboard').addEventListener('click', (e) => {
+    if (!game.turn.currentResource && !game.building) {
+        return;
+    }
+
+    if (e.target.nodeName === 'TD') {
+        const x = e.target.cellIndex;
+        const y = e.target.parentElement.rowIndex;
+
+        // To put a building:
+        if (game.building && game.building.cells.includes(`${x},${y}`)) {
+            const placeBuilding = (pattern, cellX, cellY, type, name) => {
+                // TODO: rewrite -> updateBoard
+                const td = qs('#myboard').childNodes[3].getElementsByTagName('td');
+                for (const c of pattern) {
+                    if (c !== `${cellX},${cellY}`) {
+                        td[parseInt(c.split(',')[0], 10) + 4 * parseInt(c.split(',')[1], 10)].className = '';
+                    }
+                }
+                td[cellX + cellY * 4].className = type;
+
+                api('place_building', imp({x: cellX, y: cellY, name, cells: pattern}));
+                game.building = false;
+            };
+
+            const possiblePatterns = [];
+            const buildingName = game.building.name;
+            const buildingType = game.building.type;
+
+            for (const p of game.building.patterns) {
+                if (JSON.parse(p).includes(`${x},${y}`)) {
+                    possiblePatterns.push(JSON.parse(p));
+                }
+            }
+
+            if (possiblePatterns.length === 1) {
+                placeBuilding(possiblePatterns[0], x, y, buildingType, buildingName);
+                return;
+            } else {
+                let boards = '';
+                for (const p of possiblePatterns) {
+                    boards += `
+                        <div 
+                            data-pattern="${JSON.stringify(p).replaceAll('"', '\'')}"
+                            style="width: 100px;display:inline-block;"
+                        >
+                            ${getMiniBoard(game.myNum, p)}
+                        </div>
+                    `;
+                }
+                //qs('#dialog').innerHTML = ;
+                //qs('#dialog').style.display = 'flex';
+                showDialog(
+                    `
+                    <h1>Choose the cells:</h1>
+                    <div>${boards}</div>
+                    <button onClick="document.getElementById('dialog').style.display = 'none'">Cancel</button>
+                `, (e) => {
+                        const findParent = (el) => {
+                            while (el.parentNode) {
+                                el = el.parentNode;
+                                if (el.tagName === 'DIV') {
+                                    return el;
+                                }
+                            }
+                            return null;
+                        };
+                        // TODO: REWRITE
+                        if (!findParent(e.target).dataset.pattern) {
+                            return false;
+                        }
+
+                        const pattern = JSON.parse(findParent(e.target).dataset.pattern.replaceAll('\'', '"'));
+                        placeBuilding(pattern, x, y, buildingType, buildingName);
+                        qs('#dialog').style.display = 'none';//remove();
+                    });
+
+                return;
+            }
+        }
+
+        // To put a resource:
+        if (game.turn.currentResource) {
+            qs('#isReadyBtn').disabled = false;
+
+            for (const selected of document.querySelectorAll('.selected')) {
+                selected.className = '';
+            }
+            e.target.classList.add('selected', 'brick', game.turn.currentResource);
+            game.movement = {};
+            game.movement[`${x},${y}`] = game.turn.currentResource;
+        }
+
+        qs('#isReadyBtn').className = 'blink';
+    }
 });

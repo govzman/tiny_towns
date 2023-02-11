@@ -6,3 +6,4 @@
 
 ## FIX:
  Theatre -> Theater 
+ bulidingRow -> buildingRow

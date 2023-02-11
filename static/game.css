@@ -109,7 +109,7 @@ span.scores {
   border-radius: 3px;
 }
 
-#bulidingRow {
+.buildingRow {
     padding: 0px;
     opacity: 0.8;
     background: white;
@@ -118,7 +118,7 @@ span.scores {
     transform: rotate(0deg);
 }
 
-#bulidingRow div {
+.buildingRow div {
     display: inline-block;
     width: 95px;
     height: 160px;
