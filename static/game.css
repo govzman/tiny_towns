@@ -45,6 +45,11 @@ body {
 }
 
 .ready {background-color: lightgreen;}
+.clickable {
+  /*border: 2px solid pink;*/
+  box-shadow: 0px 0px 20px 0px rgb(248, 244, 20);
+}
+
 span.scores {
   background-color: white;
   color:black;
@@ -55,7 +60,7 @@ span.scores {
   position: relative;
 }
 #dialog {
-  display:none;align-items:center;flex-direction: column;justify-content:center;position: fixed;top:0;left:0;width:100%;height:100%;text-align:center;z-index:1000;background-color: black;opacity: 0.9;
+  display:none;align-items:center;flex-direction: column;justify-content:center;position: absolute;top:0;left:0;width:100%;height:100%;text-align:center;z-index:1000;background-color: black;opacity: 0.9;
 }
 
 #dialog div table.miniboard:hover {
@@ -146,7 +151,7 @@ span.scores {
   box-shadow: 0 0 0 0 black; 
 }
 
-#yourMonument .cards {
+#yourMonument {
 
   width: 110px;
   /*box-shadow: none;*/
@@ -287,8 +292,8 @@ span.scores {
 }
 
 #choose_monument .selected {
-  border: 2px solid lightgreen;
-  box-shadow: 4px 5px 15px 10px rgba(255, 0, 0, 0.6);
+  /*border: 2px solid lightgreen;*/
+  box-shadow: 0px 0px 15px 10px rgba(255, 0, 0, 0.6);
 }
 
 #choose_monument div {
@@ -350,6 +355,7 @@ div#myboard {
 
 #isReadyBtn {
   position: absolute;
+  z-index: 1001;
   bottom: 50px;
   right: 50px;  
 }

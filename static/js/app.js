@@ -1,6 +1,6 @@
 import {api, qs, setState, getState, isEqual} from './utils.js';
 import {getPatterns} from './game.js';
-import {showMessage} from './ui.js';
+import {showDialog, showMessage} from './ui.js';
 
 const setAnnounce = (announceText) => {
     document.getElementById('announce').textContent = announceText;
@@ -190,6 +190,8 @@ const getMiniBoard = (playerNum, pattern = false) => {
 };
 
 const getBuildigsList = (bulidingRow, selectable = true) => {
+    //return 'TODO getBuildingList'; // TODO !
+
     if (!bulidingRow) {
         return 'NO BUILDINGS';
     } // TODO
@@ -220,27 +222,28 @@ const showPage = (pageName = 'lobby', params = {}) => {
     }
 
     if (pageName === 'choose_monument') {
-        ///qs('#buildingRow').innerHTML = getBuildigsList(params.bulidingRow, false);
+        qs('#buildingRow').innerHTML = getBuildigsList(params.bulidingRow, false);
         // TODO:
-        qs('#dialog').innerHTML = `
+        showDialog(`
             <div id="bulidingRow">
                 ${getBuildigsList(params.bulidingRow, false)}
             </div>
             <h2>Choose your monument:</h2>
             <div id="choose_monument">            
                 <div 
-                    class=cards id=monument1 
+                    class="cards clickable" id=monument1 
                     data-name="${params.player.monuments[0]}" 
                     style="background-image:url('assets/cards/${params.player.monuments[0]}.webp');"
                 ></div>                
                 <div
-                    class=cards id=monument2
+                    class="cards clickable" id=monument2
                     data-name="${params.player.monuments[1]}"
                     style="background-image:url('assets/cards/${params.player.monuments[1]}.webp');"
                 ></div>
-            </div>`;
+            </div>`,
 
-        qs('#choose_monument').addEventListener('click', (e) => {
+        //qs('#choose_monument').addEventListener('click', 
+        (e) => {
             if (e.target.id === 'choose_monument') {
                 return;
             }
@@ -261,6 +264,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
                 .then((res) => {
                     if (res.status === 'ok') {
                         game.player.monument = e.target.dataset.name;
+                        qs('#dialog').style.display = 'none'; // TODO:                         
                     }
                 });
         });
@@ -268,7 +272,8 @@ const showPage = (pageName = 'lobby', params = {}) => {
 
     if (pageName === 'main_game') {
         qs('#buildingRow').innerHTML = getBuildigsList(params.bulidingRow);
-        qs('#yourMonument').innerHTML = `<div class="cards" style="background-image: url('/assets/cards/${params.player.monument}.webp');"></div>`;
+        //qs('#yourMonument').innerHTML = `<div class="cards" style="background-image: "></div>`;
+        qs('#yourMonument').style.backgroundImage = `url('/assets/cards/${params.player.monument}.webp')`;
 
         qs('#resources').addEventListener('click', (e) => {
             if (isMaster() && e.target.className.includes('brick')) {
@@ -384,31 +389,32 @@ const showPage = (pageName = 'lobby', params = {}) => {
                                 </div>
                             `;
                         }
-                        qs('#dialog').innerHTML = `
+                        //qs('#dialog').innerHTML = ;
+                        //qs('#dialog').style.display = 'flex';
+                        showDialog(
+                            `
                             <h1>Choose the cells:</h1>
                             <div>${boards}</div>
                             <button onClick="document.getElementById('dialog').style.display = 'none'">Cancel</button>
-                        `;
-                        qs('#dialog').style.display = 'flex';
-                        qs('#dialog').addEventListener('click', (e) => {
-                            const findParent = (el) => {
-                                while (el.parentNode) {
-                                    el = el.parentNode;
-                                    if (el.tagName === 'DIV') {
-                                        return el;
+                        `, (e) => {
+                                const findParent = (el) => {
+                                    while (el.parentNode) {
+                                        el = el.parentNode;
+                                        if (el.tagName === 'DIV') {
+                                            return el;
+                                        }
                                     }
+                                    return null;
+                                };
+                                // TODO: REWRITE
+                                if (!findParent(e.target).dataset.pattern) {
+                                    return false;
                                 }
-                                return null;
-                            };
-                            // TODO: REWRITE
-                            if (!findParent(e.target).dataset.pattern) {
-                                return false;
-                            }
 
-                            const pattern = JSON.parse(findParent(e.target).dataset.pattern.replaceAll('\'', '"'));
-                            placeBuilding(pattern, x, y, buildingType, buildingName);
-                            qs('#dialog').style.display = 'none';//remove();
-                        }, true);
+                                const pattern = JSON.parse(findParent(e.target).dataset.pattern.replaceAll('\'', '"'));
+                                placeBuilding(pattern, x, y, buildingType, buildingName);
+                                qs('#dialog').style.display = 'none';//remove();
+                            });
 
                         return;
                     }
