@@ -73,7 +73,7 @@ span.scores {
   max-width: 800px;
 }
 
-/*
+
 #score {
   font-size: 150%;
   position: fixed;
@@ -86,7 +86,7 @@ span.scores {
     background-color: white;
 
 }
-*/
+
 #log {
   clear:none;
   background:black;

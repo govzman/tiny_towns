@@ -70,7 +70,7 @@ const toggleReadyBtn = (isReady) => {
 };
 
 const onStageChanged = (stageName) => {
-    console.log("STAGE CHANGED", stageName);
+    console.log('STAGE CHANGED', stageName);
 };
 
 const setGameStage = (stageName = game.stage, turnNum = 0) => {
@@ -99,59 +99,61 @@ const updateBoard = () => {
     }
 };
 
+const onGetStatus = (res) => {
+    if (res.error) {
+        if (res.error.code === 1) {
+            //showMessage('BAD AUTH'); // TODO
+            logOut();
+            clearInterval(game.timer);
+        }
+        return;
+    }
+
+    if (game.stage === 'main_game' && game.turn.num !== res.turn) {
+        //console.log('OOO', game.turn, res )
+        setGameStage(game.stage, res.turn);
+    }
+
+    if (game.stage !== res.params.stage) { // || !game.currentPage
+        showPage(res.params.stage, res.params);
+        setGameStage(res.params.stage);
+
+        if (game.stage === 'choose_monument') {
+            setAnnounce('Monuments stage...');
+        }
+    }
+
+    updatePlayersList(res.params);
+
+    if (game.stage === 'main_game') {
+        game.player.monument = res.params.player.monument;
+        game.turn.master = res.params.MasterBuilder;
+        game.turn.currentResource = res.params.currentResource || false;
+
+        document.getElementById('log').innerText = res.params.events.join('\n'); // TODO:
+
+        qs('#resources').className = (isMaster() && !game.turn.currentResource) ? 'selectable' : '';
+
+        setAnnounce(`Turn #${game.turn.num}: ` + (game.turn.currentResource ? `Master ${game.players[res.params.MasterBuilder]} has choosen ${game.turn.currentResource}. Place it!` : (game.players[res.params.MasterBuilder] !== game.nickname ? `Waiting for ${game.players[res.params.MasterBuilder]}` : 'Your turn, Master! Choose resourse...')));
+
+        if (
+            game.isReady === undefined ||  // TODO: REWRITE
+            JSON.stringify(game.playersBoards[game.myNum]) !== JSON.stringify(res.params.playersBoards[game.myNum])
+        ) {
+            updateBoard();
+        }
+    }
+};
+
 const getStatus = () => {
     if (!game.playerId) {
         return;
     }
 
-    api('get_status', imp({
-        ready: game.isReady,
-        stage: game.stage
-    })).then((res) => {
-        if (res.error) {
-            if (res.error.code === 1) {
-                //showMessage('BAD AUTH'); // TODO
-                logOut();
-                clearInterval(game.timer);
-            }
-            return;
-        }
-
-        if (game.stage === 'main_game' && game.turn.num !== res.turn) {
-            //console.log('OOO', game.turn, res )
-            setGameStage(game.stage, res.turn);
-        }
-
-        if (game.stage !== res.params.stage) { // || !game.currentPage
-            showPage(res.params.stage, res.params);
-            setGameStage(res.params.stage);
-
-            if (game.stage === 'choose_monument') {
-                setAnnounce('Monuments stage...');
-            }
-        }
-
-        updatePlayersList(res.params);
-
-        if (game.stage === 'main_game') {
-            game.player.monument = res.params.player.monument;
-            game.turn.master = res.params.MasterBuilder;
-            game.turn.currentResource = res.params.currentResource || false;
-
-            document.getElementById('log').innerText = res.params.events.join('\n'); // TODO:
-
-            qs('#resources').className = (isMaster() && !game.turn.currentResource) ? 'selectable' : '';
-
-            setAnnounce(`Turn #${game.turn.num}: ` + (game.turn.currentResource ? `Master ${game.players[res.params.MasterBuilder]} has choosen ${game.turn.currentResource}. Place it!` : (game.players[res.params.MasterBuilder] !== game.nickname ? `Waiting for ${game.players[res.params.MasterBuilder]}` : 'Your turn, Master! Choose resourse...')));
-
-            if (
-                game.isReady === undefined ||  // TODO: REWRITE
-                JSON.stringify(game.playersBoards[game.myNum]) !== JSON.stringify(res.params.playersBoards[game.myNum])
-            ) {
-                updateBoard();
-            }
-        }
-    });
+    api(
+        'get_status',
+        imp({ready: game.isReady, stage: game.stage})
+    ).then(onGetStatus);
 };
 
 const updatePlayersList = (params) => {
@@ -199,12 +201,6 @@ const getMiniBoard = (playerNum, pattern = false) => {
 };
 
 const getBuildigsList = (buildingRow, selectable = true) => {
-    //return 'TODO getBuildingList'; // TODO !
-
-    if (!buildingRow) {
-        return 'NO BUILDINGS';
-    } // TODO
-
     let buildingsList = '';
     for (const building of buildingRow) {
         const buildingName = building.split(':')[1];
@@ -217,7 +213,6 @@ const getBuildigsList = (buildingRow, selectable = true) => {
                 style="background-image: url('/assets/buildings/${buildingName}.png');">
             </div>`;
     }
-
     return buildingsList;
 };
 
@@ -280,23 +275,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
 
     if (pageName === 'main_game') {
         qs('#buildingRow').innerHTML = getBuildigsList(params.bulidingRow);
-        //qs('#yourMonument').innerHTML = `<div class="cards" style="background-image: "></div>`;
         qs('#yourMonument').style.backgroundImage = `url('/assets/cards/${params.player.monument}.webp')`;
-
-        qs('#resources').addEventListener('click', (e) => {
-            if (isMaster() && e.target.className.includes('brick')) {
-                const resource = e.target.className.split(' ')[1]; // TODO: rewrite
-                game.turn.currentResource = resource;
-
-                qs('#resources').className = '';
-                //qs('#isReadyBtn').className = 'blink';
-                qs('#myboard').className = 'active';
-
-                api('choose_resource', imp({resource: resource}));
-            }
-        });
-
-        // IT WAS addEventListener
     }
     game.currentPage = pageName;
 };
@@ -445,11 +424,9 @@ qs('#myboard').addEventListener('click', (e) => {
                             style="width: 100px;display:inline-block;"
                         >
                             ${getMiniBoard(game.myNum, p)}
-                        </div>
-                    `;
+                        </div>`;
                 }
-                //qs('#dialog').innerHTML = ;
-                //qs('#dialog').style.display = 'flex';
+
                 showDialog(
                     `
                     <h1>Choose the cells:</h1>
@@ -490,7 +467,19 @@ qs('#myboard').addEventListener('click', (e) => {
             game.movement = {};
             game.movement[`${x},${y}`] = game.turn.currentResource;
         }
-
         qs('#isReadyBtn').className = 'blink';
+    }
+});
+
+qs('#resources').addEventListener('click', (e) => {
+    if (isMaster() && e.target.className.includes('brick')) {
+        const resource = e.target.className.split(' ')[1]; // TODO: rewrite
+        game.turn.currentResource = resource;
+
+        qs('#resources').className = '';
+        //qs('#isReadyBtn').className = 'blink';
+        qs('#myboard').className = 'active';
+
+        api('choose_resource', imp({resource: resource}));
     }
 });
