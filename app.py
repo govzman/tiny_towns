@@ -20,7 +20,7 @@ def home():
    return render_template('index.html')
 
 @app.route('/api', methods=['POST'])
-def api():
+def api() -> (str or None):
     global myGame
     logging.info(f'Request: {request.json!r}')
     
@@ -35,20 +35,6 @@ def api():
         response = method(request.json['params'])
         return json.dumps(response)
 
-    # if request.json['method'] == 'get_status':
-    #     response = myGame.get_status(request.json['params'])
-    # elif request.json['method'] == 'restart_game':
-    #     response = myGame.restart_game()
-    # elif request.json['method'] == 'log_out':
-    #     response = myGame.log_out(request.json['params'])
-    # elif request.json['method'] == 'set_monument':
-    #     response = myGame.set_monument(request.json['params'])
-    # elif request.json['method'] == 'check_patterns':
-    #     response = myGame.check_patterns(request.json['params'])
-    # elif response.json['method'] == 'place_resource':
-    #     response = myGame.place_resource(request.json['params'])
-    # if response != {}:
-    #     return json.dumps(response)
 
 # DEV ONLY:
 @app.after_request
