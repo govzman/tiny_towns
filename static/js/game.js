@@ -204,7 +204,6 @@ const isEqual = (a, b) => {
 const updateBoard = () => {
     console.log("UPDATE") 
     //const myNum = game.players.indexOf(game.nickname); // TODO: REWRITE
-
     //console.log('MYBOARD',game.playersBoards[myNum], res.params.playersBoards[myNum])
     game.isReady = false;
     const td = qs('#myboard').childNodes[3].getElementsByTagName('td');
@@ -423,16 +422,17 @@ const showPage = (pageName = 'lobby', params = {}) => {
                 
                 // To put a building:
                 if (game.building && game.building.cells.includes(`${x},${y}`)) {                    
-                    //if () {
-                    const placeBuilding = (pattern, cellX, cellY, name) => {
+                    
+                    const placeBuilding = (pattern, cellX, cellY, type, name) => {
                         const td = qs('#myboard').childNodes[3].getElementsByTagName('td'); // TODO: rewrite -> updateBoard
                         for (let c of pattern) { 
                             if (c != `${cellX},${cellY}`){
-                                console.log('TEST', c, pattern, cellX, cellY)
+                                //console.log('TEST', c, pattern, cellX, cellY)
                                 td[parseInt(c.split(',')[0]) + 4 * parseInt(c.split(',')[1])].className = '';
                             }
                         }
-                        td[cellX + cellY * 4].className = game.building.type;                            
+                        td[cellX + cellY * 4].className = type;
+                        console.log("TEST", td, cellX, cellY, type, name)                            
                         
                         api('place_building', {'player_id': game.player_id, x: cellX, y: cellY, name, cells: pattern}).then((res) => {   // possiblePatterns[patternNum]
                             console.log('PLACE_BUILDING', pattern, cellX, cellY, res);    // TODO: //updateBoard();
@@ -443,6 +443,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
 
                     let possiblePatterns = [];
                     const buildingName = game.building.name;
+                    const buildingType = game.building.type;
 
                     for (let p of game.building.patterns) {
                         if (JSON.parse(p).includes(`${x},${y}`)) {
@@ -451,7 +452,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
                     }
                     
                     if (possiblePatterns.length == 1) {
-                        placeBuilding(possiblePatterns[0], x, y, buildingName);
+                        placeBuilding(possiblePatterns[0], x, y, buildingType, buildingName);
                         return;
                     } else {
                         let boards = '';                            
@@ -461,8 +462,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
                         qs('#dialog').innerHTML = `<h1>Choose the cells:</h1><div>${boards}</div><button onClick="document.getElementById('dialog').style.display = 'none'">Cancel</button>`;
                         qs('#dialog').style.display = 'flex';
                         qs('#dialog').addEventListener('click', (e) => {
-                            console.debug('DIALOG', e)
-                            
+                            //console.debug('DIALOG', e)                            
                             const findParent = (el) => {
                                 while (el.parentNode) {
                                     el = el.parentNode;
@@ -475,14 +475,13 @@ const showPage = (pageName = 'lobby', params = {}) => {
                             if (!findParent(e.target).dataset.pattern) return false;
 
                             const pattern = JSON.parse(findParent(e.target).dataset.pattern.replaceAll("'",'"'));
-                            console.log("FIND_PARENT", pattern, x, y);
-                            placeBuilding(pattern, x, y, buildingName);
+                            //console.log("FIND_PARENT", pattern, x, y);
+                            placeBuilding(pattern, x, y, buildingType, buildingName);
                             qs('#dialog').style.display = 'none';//remove();
                         }, true);
                         
                         return;
-                    }
-                    //}
+                    }                    
                 }
 
                 // To put a resource:
