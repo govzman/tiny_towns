@@ -6,8 +6,7 @@ import util
 
 class Game():
     def __init__(self): # , players_count=2, players_names=['player1', 'player2']
-        self.stage = 'lobby'
-        # self.game_step = 0
+        self.stage = 'lobby' # 'lobby', 'choose_monument', 'main_game', 'end_game'
         self.turn = 1
         self.current_resource = False
         self.game_id = str(uuid.uuid4())
@@ -27,7 +26,7 @@ class Game():
             player_id = str(uuid.uuid4())
             if self.stage == 'lobby':
                 if 'nickname' in params: 
-                    self.players[player_id] = {'nickname': params['nickname'], 'board': Board(), 'ready': False}
+                    self.players[player_id] = {'nickname': params['nickname'], 'board': Board(), 'ready': False, 'isFinish': False}
                     return {
                         'stage': self.stage,
                         'player_id': player_id
@@ -223,8 +222,14 @@ class Game():
         self.current_resource = params['resource']
         return {'success': True, 'currentResource': params['resource']}
 
-    # def place_building(self, params):
+    def is_game_finished(self):
+        if self.stage == 'end_game': return True
+        if all([lambda player: player['isFinish'] for player in self.players]): 
+            self.stage = 'end_game'
+            return True 
+        return False
 
+    # def place_building(self, params):
 
 
     def checkTTL(self):
@@ -263,7 +268,6 @@ class ResourceOnBoard(Resource):
         super().__init__(name)
 
 class Building():
-
     with open('buildings_patterns.txt') as file:
         lines = file.readlines()
         buildings_patterns = {}
