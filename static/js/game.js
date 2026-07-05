@@ -23,7 +23,7 @@ const buildings = {
     'Factory':[['red', 'brown'],['grey', ''],['grey', ''],['red', '']],
     'Trading Post':[['grey', 'grey'],['brown', 'brown'],['red', '']],
     'Bank':[['brown', 'yellow'],['blue', 'yellow'],['red', '']],
-    'Theatre':[['brown', ''],['blue', 'grey'],['brown', '']],
+    'Theater':[['brown', ''],['blue', 'grey'],['brown', '']],
     'Bakery':[['red', ''],['blue', 'yellow'],['red', '']],
     'Tailor':[['grey', ''],['blue', 'yellow'],['grey', '']],
     'Market':[['grey', ''],['blue', 'brown'],['grey', ''] ] 
@@ -99,7 +99,12 @@ const auth = async () => {
         }        
         
         const result = await api('get_status', { 'nickname': game.nickname });
-        if (result.error){            
+        if (result.error){
+            if (result.error.code == 5) {
+                alert(`Nickname "${game.nickname}" is already taken.`);
+                game.nickname = '';
+                return auth();
+            }
             document.getElementById('main').innerText = result.error.msg;
             /////stopTimer();
             return;
@@ -132,7 +137,9 @@ const setGameStage = (newStage = game.stage, turnNum = 0) => {
         game.stage = newStage;
         game.turn.num = turnNum;
         game.turn.currentResource = false;
-        console.debug('SET STAGE', newStage, turnNum);     
+        game.turn.placed = false;
+        game.movement = {};
+        console.debug('SET STAGE', newStage, turnNum);
   //  }
 };
 
@@ -157,6 +164,16 @@ const getStatus = () => {
             }
             return;
         }
+
+        if (res.game_id && game.game_id != res.game_id) {
+            if (game.game_id) {
+                console.debug('Server started a new game — logging out');
+                logOut();
+                return;
+            }
+            game.game_id = res.game_id;
+            setState();
+        }
         
         // TODO: check stage in [lobby choose_monument main_game] -> Unknown stage!
         if (game.stage == 'main_game' && game.turn.num != res.turn) {
@@ -175,24 +192,37 @@ const getStatus = () => {
             }
         }
         
-        updatePlayersList(res.params);
-
         if (game.stage == 'main_game') {
             game.player.monument = res.params.player.monument;
             game.turn.master = res.params.MasterBuilder;
-            game.turn.currentResource = res.params.currentResource || false;            
+            game.turn.currentResource = res.params.currentResource || false;
+            game.myFinished = (res.params.isFinish || [])[res.params.players.indexOf(game.nickname)] || false;
+        }
 
+        if (game.stage != 'end_game') {
+            updatePlayersList(res.params);
+        }
+
+        if (game.stage == 'main_game') {
             document.getElementById('log').innerText = res.params.events.join('\n'); // TODO:
 
-            qs('#resources').className = ( isMaster() && !game.turn.currentResource ) ? 'selectable' : '';                
-            
-            setAnnounce(`Turn #${game.turn.num}: ` + (game.turn.currentResource ?`Master ${game.players[res.params.MasterBuilder]} has choosen ${game.turn.currentResource}. Place it!` : (game.players[res.params.MasterBuilder] != game.nickname ? `Waiting for ${game.players[res.params.MasterBuilder]}` : 'Your turn, Master! Choose resourse...')) );  // REWRITE
+            if (game.myFinished) {
+                qs('#resources').className = '';
+                qs('#isReadyBtn').disabled = true;
+                setAnnounce(`Turn #${game.turn.num}: Your town is complete — waiting for the other players.`);
+            } else if (game.turn.placed) {
+                // board is full, build window open: keep the "Finish turn" state
+            } else {
+                qs('#resources').className = ( isMaster() && !game.turn.currentResource ) ? 'selectable' : '';
+
+                setAnnounce(`Turn #${game.turn.num}: ` + (game.turn.currentResource ?`Master ${game.players[res.params.MasterBuilder]} has choosen ${game.turn.currentResource}. Place it!` : (game.players[res.params.MasterBuilder] != game.nickname ? `Waiting for ${game.players[res.params.MasterBuilder]}` : 'Your turn, Master! Choose resourse...')) );  // REWRITE
+            }
 
             if (game.isReady == undefined || JSON.stringify(game.playersBoards[game.myNum]) != JSON.stringify(res.params.playersBoards[game.myNum])) { // TODO: REWRITE
                 updateBoard();
             }
         }
-    });        
+    });
 }
 
 const isEqual = (a, b) => {
@@ -215,38 +245,45 @@ const updateBoard = () => {
     }
 }
 
-const updatePlayersList = (params) => {    
-    if (JSON.stringify(params.playersBoards) != JSON.stringify(game.playersBoards) || !isEqual(game.players,params.players) || !isEqual(game.playersReadiness, params.isReady)) { // WTF! TODO!
+const updatePlayersList = (params) => {
+    if (JSON.stringify(params.playersBoards) != JSON.stringify(game.playersBoards) || !isEqual(game.players,params.players) || !isEqual(game.playersReadiness, params.isReady) || !isEqual(game.playersFinished, params.isFinish)) { // WTF! TODO!
         game.players = params.players;
         game.playersReadiness = params.isReady;
+        game.playersFinished = params.isFinish;
         game.playersBoards = params.playersBoards;
         game.myNum = params.players.indexOf(game.nickname)
-        
+
         const playersList = qs("#playersList");
         playersList.innerHTML = '';
 
         for (let playerName of game.players) {
             //if (playerName == game.nickname) continue;
             const playerNum = game.players.indexOf(playerName);
-            
+            const badge = (game.playersFinished || [])[playerNum] ? '🏁' : '';
+
             // <span class="scores"> 0 <img src="assets/coin.png" style="width: 20px;margin-bottom:-5px;"></span>
-            playersList.innerHTML += `<div class="${isMaster(playerNum)?'master':''}"><strong class="playername ${game.playersReadiness[playerNum]? 'ready':""}">${status} ${playerName}</strong>${getMiniBoard(playerNum)}</div>`;            
-        }                      
+            playersList.innerHTML += `<div class="${isMaster(playerNum)?'master':''}"><strong class="playername ${game.playersReadiness[playerNum]? 'ready':""}">${badge} ${playerName}</strong>${getMiniBoard(playerNum)}</div>`;
+        }
     }
 };
 
-const getMiniBoard = (playerNum, pattern = false) => {
-    if (!game.playersBoards) return ''; //<table class=miniboard><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr><tr><td/><td/><td/><td/></tr></table>'; // REWRITE    
+const renderMiniBoard = (board, pattern = false) => {
+    if (!board) return '';
     let miniboard = [];
-    for (let j=0;j<4;j++) {        
+    for (let j=0;j<4;j++) {
         let cols = [];
         for (let i=0;i<4;i++) {
-            const highlighted = pattern && pattern.includes(`${i},${j}`);            
-            cols.push(`<td class="${game.playersBoards[playerNum][j][i]}${highlighted ? ' highlighted':''}"></td>`);
+            const highlighted = pattern && pattern.includes(`${i},${j}`);
+            cols.push(`<td class="${board[j][i]}${highlighted ? ' highlighted':''}"></td>`);
         }
         miniboard.push(`<tr>${cols.join('')}</tr>`)
     }
     return `<table class=miniboard>${miniboard.join('')}</table>`;
+};
+
+const getMiniBoard = (playerNum, pattern = false) => {
+    if (!game.playersBoards) return ''; // REWRITE
+    return renderMiniBoard(game.playersBoards[playerNum], pattern);
 };
 
 const setAnnounce = (announceText) => {
@@ -337,7 +374,50 @@ const showPage = (pageName = 'lobby', params = {}) => {
             });
     }
 
-    if (pageName == 'main_game') {        
+    if (pageName == 'end_game') {
+        const reasons = {
+            'points': 'by scoring the most points',
+            'master_turns': 'by fewer turns as Master Builder (tiebreaker)',
+            'empty_cells': 'by fewer empty squares (tiebreaker)',
+            'cottages': 'by more cottages (tiebreaker)',
+            'shared': ''
+        };
+        const winners = params.winner.map(i => params.players[i]).join(' & ');
+        const title = params.win_reason == 'shared'
+            ? `${winners} share the victory!`
+            : `${winners} wins ${reasons[params.win_reason]}!`;
+
+        let columns = '';
+        for (let i = 0; i < params.scores.length; i++) {
+            const score = params.scores[i];
+            let rows = '';
+            for (let item of score.breakdown) {
+                rows += `<tr><td>${item.building}</td><td>${item.count}</td><td>${item.points}</td></tr>`;
+            }
+            rows += `<tr><td>Empty squares</td><td>${score.empty_cells}</td><td>${score.empty_penalty}</td></tr>`;
+            rows += `<tr class="totalRow"><td>Total</td><td></td><td>${score.total}</td></tr>`;
+            columns += `<div class="scoreColumn ${params.winner.includes(i) ? 'winner' : ''}">
+                <h3>${params.winner.includes(i) ? '&#128081; ' : ''}${score.nickname}</h3>
+                ${renderMiniBoard(score.board, score.fed_cottages)}
+                <table class="scoreTable">
+                    <tr><th>Building</th><th>#</th><th>Points</th></tr>
+                    ${rows}
+                </table>
+            </div>`;
+        }
+
+        qs('#main').innerHTML = `
+            <div id="endGame">
+                <h1>Game over!</h1>
+                <div id="scoreColumns">${columns}</div>
+            </div>`;
+        setAnnounce(title);
+        qs('#playersList').innerHTML = '';
+        qs('#log').style.display = 'none';
+        qs('#isReadyBtn').style.display = 'none';
+    }
+
+    if (pageName == 'main_game') {
         qs('#main').innerHTML = `
       <div id="bulidingRow">
         ${getBuildigsList(params.bulidingRow)}
@@ -409,8 +489,16 @@ const showPage = (pageName = 'lobby', params = {}) => {
             const td = qs('#myboard').childNodes[3].getElementsByTagName('td');
             for (let c of game.building.cells) {
                 td[parseInt(c.split(',')[1]) * 4 + parseInt(c.split(',')[0])].classList.add('possible');
-            }            
-            console.log('BUILDING', game.building)       
+            }
+            if (buildingName == 'Shed' && game.building.patterns.length) {
+                // Shed may be constructed on any empty square
+                for (let yy=0; yy<4; yy++) {
+                    for (let xx=0; xx<4; xx++) {
+                        if (myboard[yy][xx] == 'empty') td[yy*4+xx].classList.add('possible');
+                    }
+                }
+            }
+            console.log('BUILDING', game.building)
         });
 
         qs('#myboard').addEventListener('click', (e) => {            
@@ -421,7 +509,10 @@ const showPage = (pageName = 'lobby', params = {}) => {
                 const y = e.target.parentElement.rowIndex;
                 
                 // To put a building:
-                if (game.building && game.building.cells.includes(`${x},${y}`)) {                    
+                const clickedInPattern = game.building && game.building.cells.includes(`${x},${y}`);
+                const shedTarget = game.building && game.building.name == 'Shed' && game.building.patterns.length
+                    && game.playersBoards && game.playersBoards[game.myNum][y][x] == 'empty';
+                if (clickedInPattern || shedTarget) {
                     
                     const placeBuilding = (pattern, cellX, cellY, type, name) => {
                         const td = qs('#myboard').childNodes[3].getElementsByTagName('td'); // TODO: rewrite -> updateBoard
@@ -446,7 +537,7 @@ const showPage = (pageName = 'lobby', params = {}) => {
                     const buildingType = game.building.type;
 
                     for (let p of game.building.patterns) {
-                        if (JSON.parse(p).includes(`${x},${y}`)) {
+                        if (shedTarget || JSON.parse(p).includes(`${x},${y}`)) {
                             possiblePatterns.push(JSON.parse(p));
                         }
                     }
@@ -518,12 +609,34 @@ const isReadyBtn = (isReady = false) => {
     qs('#isReadyBtn').className = '';
     if (qs('#myboard')) qs('#myboard').className = ''; // no active
 
-    if (game.stage == 'main_game' && game.turn.currentResource) {
+    if (game.stage == 'main_game') {
+        if (game.myFinished) return;
+
+        if (game.turn.placed) {
+            // town is full and the resource is already placed: the build
+            // window stays open until the player confirms the turn
+            api('change_readiness', {
+                'turn_num': game.turn.num,
+                'player_id': game.player_id
+                })
+            .then((res) => {
+                if (res.success) {
+                    game.turn.placed = false;
+                    toggleReadyBtn(true);
+                } else if (res.error) {
+                    alert(res.error.msg);
+                }
+            });
+            return;
+        }
+
+        if (!game.turn.currentResource) return;
+
         if (!Object.keys(game.movement).length) {
             alert('Make a move!');
             return;
         }
-        api('place_resource', {        
+        api('place_resource', {
             "movement": game.movement,
             'turn_num': game.turn.num,
             "player_id": game.player_id
@@ -531,22 +644,28 @@ const isReadyBtn = (isReady = false) => {
         .then((res) => {
             //console.debug('PLACE_RESOURCE', res);
             if (res.success) {
-                // TODO: game.turn.step = 1;
-                //writeLog('Вы разметили ресурс.');
                 for (let i=0;i<1;i++) {
                     const x = Object.keys(res.cords)[i].split(',')[0];
                     const y = Object.keys(res.cords)[i].split(',')[1];
                     //const color = res.cords[`${x},${y}`]
                     qs('#myboard').children[1].rows[y].cells[x].classList.remove('selected') // classList.add('brick',color) // TODO: putResource()
                 }
-                //isReadyBtn();
-                ///game.turn.step = 3;
+                game.movement = {};
+                if (res.boardFull) {
+                    game.turn.placed = true;
+                    setAnnounce('Your town is full! Build if you can, then finish your turn.');
+                    qs('#isReadyBtn').textContent = 'Finish turn';
+                    qs('#isReadyBtn').disabled = false;
+                    return;
+                }
+                toggleReadyBtn(true);
             } else {
-                alert("Не могу разместить ресурс")
+                alert(res.error ? res.error.msg : 'Cannot place the resource');
             }
-        });        
+        });
+        return;
     }
-    toggleReadyBtn(isReady);      
+    toggleReadyBtn(isReady);
 };
 
 const toggleReadyBtn = (isReady) => {

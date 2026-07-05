@@ -6,3 +6,5 @@ __pycache__
 __pycache__/
 *.pyc
 __pycache__/game.cpython-*.pyc
+.venv/
+.pytest_cache/

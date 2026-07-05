@@ -377,3 +377,48 @@ button:disabled {
   opacity: 0.3;
   cursor: default;
 }
+
+#endGame {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+#scoreColumns {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.scoreColumn {
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 15px;
+  padding: 15px;
+  min-width: 180px;
+}
+
+.scoreColumn.winner {
+  box-shadow: 0 0 0 3px orange;
+}
+
+.scoreColumn .miniboard {
+  margin: 10px auto;
+  width: 100px;
+  height: 100px;
+}
+
+.scoreTable {
+  margin: 0 auto;
+  border-collapse: collapse;
+}
+
+.scoreTable td, .scoreTable th {
+  padding: 2px 10px;
+}
+
+.scoreTable tr.totalRow td {
+  border-top: 1px solid white;
+  font-weight: bold;
+  font-size: 120%;
+}

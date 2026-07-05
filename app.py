@@ -8,6 +8,7 @@ mimetypes.add_type('application/javascript', '.js')
 from flask import Flask, request, render_template
 import logging
 from game import Game
+import util
 
 
 app = Flask('Tiny Towns', static_url_path='',static_folder='static', template_folder='static')
@@ -15,25 +16,23 @@ logging.basicConfig(level=logging.DEBUG)
 
 myGame = Game()
 
+API_METHODS = ['get_status', 'restart_game', 'log_out', 'set_monument', 'place_resource',
+    'change_readiness', 'choose_resource', 'place_building', 'find_patterns']
+
 @app.route('/', methods=['GET'])
 def home():
    return render_template('index.html')
 
 @app.route('/api', methods=['POST'])
-def api() -> (str or None):
-    global myGame
+def api() -> str:
     logging.info(f'Request: {request.json!r}')
-    
-    if 'method' not in request.json:
-        return '{"error":{"code":100, "msg":"bad method"}}'
 
-    # response = {}
+    if not request.json or request.json.get('method') not in API_METHODS:
+        return json.dumps(util.error(100, 'bad method'))
 
-    if request.json['method'] in ['get_status', 'restart_game', 'log_out', 'set_monument', 'check_patterns', 'place_resource', 'change_readiness', 'choose_resource', 
-    'place_building', 'find_patterns']:
-        method = getattr(myGame, request.json['method'])
-        response = method(request.json['params'])
-        return json.dumps(response)
+    method = getattr(myGame, request.json['method'])
+    response = method(request.json.get('params', {}))
+    return json.dumps(response)
 
 
 # DEV ONLY:

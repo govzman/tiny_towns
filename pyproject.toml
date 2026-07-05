@@ -1,0 +1,17 @@
+[project]
+name = "tiny-towns"
+version = "0.1.0"
+description = "Web version of the Tiny Towns board game"
+requires-python = ">=3.9"
+dependencies = [
+    "flask>=2.2.5",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
